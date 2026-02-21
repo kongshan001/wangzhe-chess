@@ -72,8 +72,8 @@ class BattleUnit:
     """
     hero: Hero
     team: int
-    current_hp: int  # 定点数表示
-    current_mana: int
+    current_hp: int = 0  # 定点数表示，由 __post_init__ 初始化
+    current_mana: int = 0  # 由 __post_init__ 初始化
     attack_cooldown: int = 0
     skill_cooldown: int = 0
     target_id: Optional[str] = None
@@ -86,11 +86,14 @@ class BattleUnit:
     invulnerable_until: int = 0
     
     def __post_init__(self) -> None:
-        """初始化位置和生命值"""
-        self.current_hp = self.hero.max_hp * FIXED_POINT_PRECISION
-        self.current_mana = self.hero.mana
-        
-        if self.hero.position:
+        """初始化位置和生命值（仅在未设置时）"""
+        # 仅在默认值时初始化，避免覆盖 __copy__ 传入的值
+        if self.current_hp == 0:
+            self.current_hp = self.hero.max_hp * FIXED_POINT_PRECISION
+        if self.current_mana == 0:
+            self.current_mana = self.hero.mana
+
+        if self.hero.position and self.position_x == 0 and self.position_y == 0:
             self.position_x = self.hero.position.x * FIXED_POINT_PRECISION
             self.position_y = self.hero.position.y * FIXED_POINT_PRECISION
     

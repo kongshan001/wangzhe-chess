@@ -538,7 +538,7 @@ class EconomyManager:
         花费金币购买经验值。
         
         Returns:
-            升级结果
+            升级结果（success=True 表示购买成功，不一定是升级成功）
         """
         old_level = self.state.level
         
@@ -556,6 +556,7 @@ class EconomyManager:
         # 增加经验
         result = self.add_exp(BUY_EXP_AMOUNT)
         result.cost = BUY_EXP_COST
+        result.success = True  # 购买成功（不一定是升级成功）
         
         return result
     

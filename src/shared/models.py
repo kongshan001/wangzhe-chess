@@ -335,14 +335,18 @@ class Hero:
     def take_damage(self, damage: int, damage_type: DamageType = DamageType.PHYSICAL) -> int:
         """
         受到伤害
-        
+
         Args:
             damage: 原始伤害值
             damage_type: 伤害类型
-            
+
         Returns:
             实际受到的伤害值
         """
+        # 已死亡的英雄不再受伤
+        if self.hp <= 0 or self.state == HeroState.DEAD:
+            return 0
+
         if damage_type == DamageType.TRUE:
             # 真实伤害无视防御
             actual_damage = damage
@@ -350,11 +354,11 @@ class Hero:
             # 物理和魔法伤害受防御减免
             # 简化公式：实际伤害 = 伤害 * 100 / (100 + 防御)
             actual_damage = int(damage * 100 / (100 + self.defense))
-        
+
         self.hp = max(0, self.hp - actual_damage)
         if self.hp <= 0:
             self.state = HeroState.DEAD
-        
+
         return actual_damage
     
     def heal(self, amount: int) -> int:

@@ -779,17 +779,226 @@
           {"type": "thorns", "value": 30, "duration": 5}
         ]
       }
+    },
+    {
+      "id": "mozi",
+      "name": "墨子",
+      "title": "和平守望",
+      "cost": 2,
+      "origins": ["Machine", "Jixia"],
+      "classes": ["Tank", "Mage"],
+      "stats": {
+        "hp": 750,
+        "attack": 55,
+        "armor": 60,
+        "magic_resist": 50,
+        "attack_speed": 0.6,
+        "range": 1
+      },
+      "skill": {
+        "name": "机关重炮",
+        "mana_cost": 80,
+        "initial_mana": 20,
+        "description": "墨子向正前方发射激光，对直线上敌人造成魔法伤害并眩晕",
+        "effects": [
+          {"type": "line_damage", "damage_type": "magic", "value": 280, "scaling": "ap"},
+          {"type": "stun", "duration": 1.5, "target": "all_hit"}
+        ]
+      }
+    },
+    {
+      "id": "dunshan",
+      "name": "盾山",
+      "title": "无尽之盾",
+      "cost": 3,
+      "origins": ["Machine", "Guardians"],
+      "classes": ["Tank", "Support"],
+      "stats": {
+        "hp": 1000,
+        "attack": 50,
+        "armor": 75,
+        "magic_resist": 55,
+        "attack_speed": 0.55,
+        "range": 1
+      },
+      "skill": {
+        "name": "一夫当关",
+        "mana_cost": 90,
+        "initial_mana": 30,
+        "description": "盾山举起石盾，格挡所有飞行道具并为身后友军提供护盾",
+        "effects": [
+          {"type": "block_projectiles", "duration": 4},
+          {"type": "shield", "value": 30, "scaling": "max_hp", "target": "allies_behind", "duration": 4}
+        ]
+      }
+    },
+    {
+      "id": "bailishouyue",
+      "name": "百里守约",
+      "title": "静谧之眼",
+      "cost": 4,
+      "origins": ["Guardians", "Human"],
+      "classes": ["Marksman", "Assassin"],
+      "stats": {
+        "hp": 550,
+        "attack": 95,
+        "armor": 30,
+        "magic_resist": 35,
+        "attack_speed": 0.7,
+        "range": 5
+      },
+      "skill": {
+        "name": "狂风之息",
+        "mana_cost": 100,
+        "initial_mana": 40,
+        "description": "百里守约瞄准血量最低的敌人，造成巨额穿透伤害",
+        "effects": [
+          {"type": "targeted_damage", "damage_type": "physical", "value": 500, "scaling": "attack", "target": "lowest_hp"},
+          {"type": "pierce", "value": 40, "duration": 1}
+        ]
+      }
+    },
+    {
+      "id": "sulie",
+      "name": "苏烈",
+      "title": "不屈铁壁",
+      "cost": 4,
+      "origins": ["Guardians", "Human"],
+      "classes": ["Tank", "Warrior"],
+      "stats": {
+        "hp": 1100,
+        "attack": 75,
+        "armor": 70,
+        "magic_resist": 50,
+        "attack_speed": 0.6,
+        "range": 1
+      },
+      "skill": {
+        "name": "不屈铁壁",
+        "mana_cost": 120,
+        "initial_mana": 50,
+        "description": "苏烈死亡时进入虚弱状态，3秒后复活并回复50%生命值，周围敌人被击飞",
+        "effects": [
+          {"type": "death_revive", "delay": 3, "heal_percent": 50},
+          {"type": "knockup", "duration": 1.5, "radius": 2, "on_revive": true}
+        ]
+      }
+    },
+    {
+      "id": "yao",
+      "name": "瑶",
+      "title": "鹿灵守心",
+      "cost": 3,
+      "origins": ["Divine", "Beauty"],
+      "classes": ["Support"],
+      "stats": {
+        "hp": 580,
+        "attack": 45,
+        "armor": 35,
+        "magic_resist": 55,
+        "attack_speed": 0.65,
+        "range": 3
+      },
+      "skill": {
+        "name": "瑶光",
+        "mana_cost": 85,
+        "initial_mana": 35,
+        "description": "瑶附身友方英雄，提供护盾和真实伤害加成",
+        "effects": [
+          {"type": "attach", "target": "ally"},
+          {"type": "shield", "value": 35, "scaling": "max_hp", "duration": 6},
+          {"type": "buff", "attribute": "true_damage", "value": 15, "duration": 6, "target": "attached_ally"}
+        ]
+      }
+    },
+    {
+      "id": "daqiao",
+      "name": "大乔",
+      "title": "伊之守望",
+      "cost": 4,
+      "origins": ["Beauty", "Human"],
+      "classes": ["Support"],
+      "stats": {
+        "hp": 620,
+        "attack": 48,
+        "armor": 38,
+        "magic_resist": 60,
+        "attack_speed": 0.6,
+        "range": 3
+      },
+      "skill": {
+        "name": "漩涡之门",
+        "mana_cost": 100,
+        "initial_mana": 40,
+        "description": "大乔召唤传送门，将血量低于30%的友军传送回安全位置并回复生命值",
+        "effects": [
+          {"type": "teleport", "target": "low_hp_allies", "threshold": 30},
+          {"type": "heal", "value": 25, "scaling": "max_hp", "target": "teleported_allies"}
+        ]
+      }
+    },
+    {
+      "id": "direnjie",
+      "name": "狄仁杰",
+      "title": "断案大师",
+      "cost": 3,
+      "origins": ["ChangAn", "Human"],
+      "classes": ["Marksman"],
+      "stats": {
+        "hp": 560,
+        "attack": 80,
+        "armor": 32,
+        "magic_resist": 38,
+        "attack_speed": 0.85,
+        "range": 4
+      },
+      "skill": {
+        "name": "终极审判",
+        "mana_cost": 85,
+        "initial_mana": 30,
+        "description": "狄仁杰射出令牌，对敌人造成伤害并降低其护甲",
+        "effects": [
+          {"type": "multi_shot", "damage_type": "physical", "value": 180, "scaling": "attack", "count": 6},
+          {"type": "debuff", "attribute": "armor", "value": 30, "duration": 4, "target": "all_hit"}
+        ]
+      }
+    },
+    {
+      "id": "liyuanfang",
+      "name": "李元芳",
+      "title": "王城密探",
+      "cost": 2,
+      "origins": ["ChangAn", "Human"],
+      "classes": ["Marksman", "Assassin"],
+      "stats": {
+        "hp": 520,
+        "attack": 70,
+        "armor": 28,
+        "magic_resist": 32,
+        "attack_speed": 0.9,
+        "range": 4
+      },
+      "skill": {
+        "name": "谍影重重",
+        "mana_cost": 75,
+        "initial_mana": 25,
+        "description": "李元芳投掷飞轮，对目标及周围敌人造成AOE伤害",
+        "effects": [
+          {"type": "aoe_damage", "damage_type": "physical", "value": 220, "scaling": "attack", "radius": 1.5},
+          {"type": "mark", "duration": 5, "effect": "reveal_stealth"}
+        ]
+      }
     }
   ],
   "meta": {
-    "version": "1.0.0",
-    "last_updated": "2026-02-21",
-    "total_heroes": 30,
+    "version": "1.1.0",
+    "last_updated": "2026-02-22",
+    "total_heroes": 38,
     "cost_distribution": {
       "1": 6,
-      "2": 6,
-      "3": 6,
-      "4": 6,
+      "2": 8,
+      "3": 8,
+      "4": 10,
       "5": 6
     },
     "balance_notes": [
