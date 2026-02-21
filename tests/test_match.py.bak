@@ -4,8 +4,8 @@
 
 import pytest
 from server.match.queue import MatchQueue, MatchRequest, PlayerInfo
-from server.match.elo import ELOCalculator, PlayerRating
-from server.match.rating import RatingSystem, RatingTier
+from server.match.elo import EloCalculator
+from server.match.rating import RatingSystem, RatingTier, PlayerRating
 
 
 # ============================================================================
@@ -95,15 +95,15 @@ class TestMatchQueue:
 
 
 # ============================================================================
-# ELOCalculator 测试
+# EloCalculator 测试
 # ============================================================================
 
-class TestELOCalculator:
+class TestEloCalculator:
     """ELO系统测试"""
     
     def test_calculate_elo_win(self):
         """测试胜利的ELO计算"""
-        calculator = ELOCalculator()
+        calculator = EloCalculator()
         
         player_a = PlayerRating(player_id="p1", rating=1200)
         player_b = PlayerRating(player_id="p2", rating=1200)
@@ -116,7 +116,7 @@ class TestELOCalculator:
     
     def test_calculate_elo_loss(self):
         """测试失败的ELO计算"""
-        calculator = ELOCalculator()
+        calculator = EloCalculator()
         
         player_a = PlayerRating(player_id="p1", rating=1200)
         player_b = PlayerRating(player_id="p2", rating=1200)
@@ -129,7 +129,7 @@ class TestELOCalculator:
     
     def test_k_factor_adjustment(self):
         """测试K值调整"""
-        calculator = ELOCalculator()
+        calculator = EloCalculator()
         
         # 高玩家使用较小K值（分数变化更慢）
         high_player = PlayerRating(player_id="high", rating=2000, total_matches=100)
@@ -139,7 +139,7 @@ class TestELOCalculator:
     
     def test_expected_score(self):
         """测试期望分数"""
-        calculator = ELOCalculator()
+        calculator = EloCalculator()
         
         player_a = PlayerRating(player_id="p1", rating=1200)
         player_b = PlayerRating(player_id="p2", rating=1200)

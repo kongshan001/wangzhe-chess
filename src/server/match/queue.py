@@ -23,6 +23,49 @@ from typing import Any, Optional, Callable, Awaitable
 from .rating import Tier, PlayerRating, TIER_CONFIGS
 
 
+# ============================================================================
+# 兼容性别名（用于测试）
+# ============================================================================
+
+@dataclass
+class PlayerInfo:
+    """
+    玩家信息（测试兼容类）
+    
+    简化的玩家信息类，用于测试和简化场景。
+    """
+    player_id: str
+    rating: int = 1200
+    player_level: int = 1
+    
+    def to_queue_entry(self) -> "QueueEntry":
+        """转换为 QueueEntry"""
+        return QueueEntry(
+            player_id=self.player_id,
+            rating=PlayerRating(
+                player_id=self.player_id,
+                tier=Tier.BRONZE,
+                stars=0,
+                lp=0,
+                wins=0,
+                losses=0
+            ),
+            elo_score=self.rating
+        )
+
+
+@dataclass  
+class MatchRequest:
+    """
+    匹配请求（测试兼容类）
+    
+    代表一次匹配请求的参数。
+    """
+    player_id: str
+    rating_range: int = 100
+    timeout_ms: int = 30000
+
+
 class QueueState(Enum):
     """队列条目状态"""
     WAITING = "waiting"        # 等待中
@@ -448,7 +491,7 @@ class MatchQueue:
                         
                         # 达到人数要求
                         if len(match_group) >= self.config.match_size:
-                        break
+                            break
             
             # 至少需要 2 人才能匹配
             if len(match_group) >= 2:
@@ -500,10 +543,10 @@ class MatchQueue:
                         if entry.is_within_range(other.elo_score):
                             match_group.append(other)
                             if len(match_group) >= self.config.match_size:
-                            break
+                                break
                     
                     if len(match_group) >= self.config.match_size:
-                    break
+                        break
                 
                 if len(match_group) >= 2:
                     for e in match_group:

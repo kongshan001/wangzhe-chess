@@ -23,8 +23,8 @@ class Talent:
     tier: int
     max_points: int
     required_points: int
+    effect_description: str  # 必填参数，需放在有默认值的参数之前
     required_talents: List[str] = field(default_factory=list)
-    effect_description: str
     effect_data: Dict[str, Any] = field(default_factory=dict)
     
     def is_unlocked(self, unlocked_talents: List[str], points: int) -> bool:
