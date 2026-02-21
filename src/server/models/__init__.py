@@ -1,32 +1,69 @@
 """
 王者之奕 - 数据模型模块
 
-本模块导出所有 SQLAlchemy ORM 模型：
-- Base: 声明式基类
-- PlayerDB: 玩家账户模型
-- PlayerStatsDB: 玩家统计模型
-- MatchRecordDB: 对局记录模型
-- MatchPlayerResultDB: 玩家对局结果模型
+导出所有数据库模型和数据类型。
 
 使用方式:
-    from src.server.models import Base, PlayerDB, PlayerStatsDB
-    from src.server.models import MatchRecordDB, MatchPlayerResultDB
+    from src.server.models import Player, MatchRecord, HeroConfig
 """
 
-from .base import Base, IdMixin, TimestampMixin
-from .player import PlayerDB, PlayerStatsDB
-from .match_record import MatchRecordDB, MatchPlayerResultDB, MatchStatus
+from .base import Base, BaseModel, IDMixin, TimestampMixin, JSONEncodedType
+from .player import (
+    Player,
+    PlayerRank,
+    PlayerStats,
+    PlayerLoginLog,
+    PlayerInventory,
+    RankTier,
+)
+from .match import (
+    MatchRecord,
+    MatchPlayer,
+    MatchSnapshot,
+    MatchReplay,
+    BattleLog,
+    MatchStatus,
+    MatchType,
+)
+from .hero_config import (
+    HeroConfig,
+    HeroVersion,
+    SynergyConfig,
+    GameConfig,
+    SeasonConfig,
+    HeroStatus,
+    SynergyType,
+)
 
+# 导出所有模型类
 __all__ = [
     # 基础类
     "Base",
-    "IdMixin",
+    "BaseModel",
+    "IDMixin",
     "TimestampMixin",
-    # 玩家模型
-    "PlayerDB",
-    "PlayerStatsDB",
-    # 对局模型
-    "MatchRecordDB",
-    "MatchPlayerResultDB",
+    "JSONEncodedType",
+    # 玩家相关
+    "Player",
+    "PlayerRank",
+    "PlayerStats",
+    "PlayerLoginLog",
+    "PlayerInventory",
+    "RankTier",
+    # 对局相关
+    "MatchRecord",
+    "MatchPlayer",
+    "MatchSnapshot",
+    "MatchReplay",
+    "BattleLog",
     "MatchStatus",
+    "MatchType",
+    # 配置相关
+    "HeroConfig",
+    "HeroVersion",
+    "SynergyConfig",
+    "GameConfig",
+    "SeasonConfig",
+    "HeroStatus",
+    "SynergyType",
 ]

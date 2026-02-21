@@ -1,651 +1,856 @@
 """
 王者之奕 - 玩家 CRUD 操作
 
-本模块提供玩家数据的增删改查操作：
-- 创建玩家
-- 查询玩家
-- 更新玩家信息
-- 删除玩家
+本模块提供玩家相关的数据库 CRUD 操作：
+- 玩家基本信息的增删改查
+- 段位信息管理
 - 统计数据管理
+- 登录记录管理
 
-所有操作都是异步的，需要配合 async session 使用。
+使用方式:
+    from src.server.crud.player import PlayerCRUD
+    
+    async with get_session() as session:
+        crud = PlayerCRUD(session)
+        player = await crud.get_by_username("test")
 """
 
 from __future__ import annotations
 
+import hashlib
 import logging
+import secrets
 from datetime import datetime
-from typing import Any, Optional, List
+from typing import Any
 
-from sqlalchemy import func, select, update, delete
+from sqlalchemy import and_, desc, func, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from ..models.player import PlayerDB, PlayerStatsDB
+from ..models.player import (
+    Player,
+    PlayerInventory,
+    PlayerLoginLog,
+    PlayerRank,
+    PlayerStats,
+    RankTier,
+)
 
 logger = logging.getLogger(__name__)
 
 
-class PlayerCRUD:
+class CacheMixin:
+    """
+    缓存混入类
+    
+    提供简单的内存缓存支持，可用于热数据缓存。
+    """
+    
+    _cache: dict[str, tuple[Any, float]] = {}
+    _cache_ttl: int = 300  # 默认缓存5分钟
+    
+    @classmethod
+    def _get_cache_key(cls, *args: Any) -> str:
+        """生成缓存键"""
+        return ":".join(str(arg) for arg in args)
+    
+    @classmethod
+    def _get_from_cache(cls, key: str) -> Any | None:
+        """从缓存获取数据"""
+        if key in cls._cache:
+            value, expire_at = cls._cache[key]
+            if datetime.now().timestamp() < expire_at:
+                return value
+            del cls._cache[key]
+        return None
+    
+    @classmethod
+    def _set_to_cache(cls, key: str, value: Any, ttl: int | None = None) -> None:
+        """设置缓存"""
+        ttl = ttl or cls._cache_ttl
+        expire_at = datetime.now().timestamp() + ttl
+        cls._cache[key] = (value, expire_at)
+    
+    @classmethod
+    def _invalidate_cache(cls, key: str) -> None:
+        """使缓存失效"""
+        cls._cache.pop(key, None)
+
+
+class PlayerCRUD(CacheMixin):
     """
     玩家 CRUD 操作类
     
-    提供玩家数据的所有数据库操作方法。
-    所有方法都是类方法，无需实例化。
+    提供玩家相关的所有数据库操作。
     
-    Example:
-        async with get_session() as session:
-            player = await PlayerCRUD.get_by_user_id(session, "user123")
+    Attributes:
+        session: 异步数据库会话
     """
     
+    def __init__(self, session: AsyncSession) -> None:
+        """
+        初始化 CRUD 实例
+        
+        Args:
+            session: 异步数据库会话
+        """
+        self.session = session
+    
     # ========================================================================
-    # 创建操作 (Create)
+    # 创建操作
     # ========================================================================
     
-    @classmethod
     async def create(
-        cls,
-        session: AsyncSession,
-        user_id: str,
+        self,
+        username: str,
         nickname: str,
-        avatar: Optional[str] = None,
+        password: str | None = None,
         **kwargs: Any,
-    ) -> PlayerDB:
+    ) -> Player:
         """
         创建新玩家
         
-        同时创建玩家记录和关联的统计记录。
-        
         Args:
-            session: 数据库会话
-            user_id: 用户唯一标识
-            nickname: 玩家昵称
-            avatar: 头像URL
-            **kwargs: 其他可选字段
+            username: 用户名
+            nickname: 昵称
+            password: 密码（可选，用于账号密码登录）
+            **kwargs: 其他字段
             
         Returns:
-            创建的玩家对象
-            
-        Raises:
-            IntegrityError: 如果 user_id 已存在
-            
-        Example:
-            player = await PlayerCRUD.create(
-                session,
-                user_id="abc123",
-                nickname="玩家1",
-                avatar="https://example.com/avatar.png",
-            )
+            创建的玩家实例
         """
-        # 创建玩家
-        player = PlayerDB(
-            user_id=user_id,
+        # 密码哈希
+        password_hash = None
+        if password:
+            password_hash = self._hash_password(password)
+        
+        player = Player(
+            username=username,
             nickname=nickname,
-            avatar=avatar,
+            password_hash=password_hash,
             **kwargs,
         )
-        session.add(player)
         
-        # 刷新以获取生成的ID
-        await session.flush()
+        self.session.add(player)
+        await self.session.flush()
         
-        # 创建关联的统计数据
-        stats = PlayerStatsDB(player_id=player.id)
-        session.add(stats)
+        # 创建关联的段位和统计记录
+        rank = PlayerRank(player_id=player.id)
+        stats = PlayerStats(player_id=player.id)
         
-        await session.flush()
-        await session.refresh(player, ["stats"])
+        self.session.add(rank)
+        self.session.add(stats)
         
-        logger.info(f"创建玩家: user_id={user_id}, nickname={nickname}")
+        await self.session.flush()
+        await self.session.refresh(player)
+        
+        logger.info(f"创建新玩家: {username}")
         return player
     
-    @classmethod
-    async def create_with_stats(
-        cls,
-        session: AsyncSession,
-        player_data: dict[str, Any],
-    ) -> PlayerDB:
+    async def create_with_device(
+        self,
+        device_id: str,
+        nickname: str,
+    ) -> Player:
         """
-        使用数据字典创建玩家
+        通过设备ID创建玩家（游客登录）
         
         Args:
-            session: 数据库会话
-            player_data: 玩家数据字典
+            device_id: 设备ID
+            nickname: 昵称
             
         Returns:
-            创建的玩家对象
+            创建的玩家实例
         """
-        return await cls.create(session, **player_data)
+        # 生成随机用户名
+        username = f"guest_{secrets.token_hex(8)}"
+        
+        return await self.create(
+            username=username,
+            nickname=nickname,
+            device_id=device_id,
+        )
     
     # ========================================================================
-    # 查询操作 (Read)
+    # 读取操作
     # ========================================================================
     
-    @classmethod
-    async def get_by_id(
-        cls,
-        session: AsyncSession,
-        player_id: int,
-    ) -> Optional[PlayerDB]:
+    async def get_by_id(self, player_id: int) -> Player | None:
         """
-        根据ID获取玩家
+        通过ID获取玩家
         
         Args:
-            session: 数据库会话
             player_id: 玩家ID
             
         Returns:
-            玩家对象，如果不存在返回 None
-            
-        Example:
-            player = await PlayerCRUD.get_by_id(session, 1)
+            玩家实例，如果不存在返回None
         """
-        result = await session.execute(
-            select(PlayerDB)
-            .options(selectinload(PlayerDB.stats))
-            .where(PlayerDB.id == player_id)
+        cache_key = self._get_cache_key("player", player_id)
+        cached = self._get_from_cache(cache_key)
+        if cached:
+            return cached
+        
+        stmt = (
+            select(Player)
+            .options(selectinload(Player.rank), selectinload(Player.stats))
+            .where(Player.id == player_id)
         )
-        return result.scalar_one_or_none()
+        result = await self.session.scalar(stmt)
+        
+        if result:
+            self._set_to_cache(cache_key, result)
+        
+        return result
     
-    @classmethod
-    async def get_by_user_id(
-        cls,
-        session: AsyncSession,
-        user_id: str,
-    ) -> Optional[PlayerDB]:
+    async def get_by_username(self, username: str) -> Player | None:
         """
-        根据用户ID获取玩家
+        通过用户名获取玩家
         
         Args:
-            session: 数据库会话
-            user_id: 用户唯一标识
+            username: 用户名
             
         Returns:
-            玩家对象，如果不存在返回 None
-            
-        Example:
-            player = await PlayerCRUD.get_by_user_id(session, "abc123")
+            玩家实例
         """
-        result = await session.execute(
-            select(PlayerDB)
-            .options(selectinload(PlayerDB.stats))
-            .where(PlayerDB.user_id == user_id)
+        stmt = (
+            select(Player)
+            .options(selectinload(Player.rank), selectinload(Player.stats))
+            .where(Player.username == username)
         )
-        return result.scalar_one_or_none()
+        return await self.session.scalar(stmt)
     
-    @classmethod
-    async def get_by_nickname(
-        cls,
-        session: AsyncSession,
-        nickname: str,
-    ) -> Optional[PlayerDB]:
+    async def get_by_device_id(self, device_id: str) -> Player | None:
         """
-        根据昵称获取玩家
+        通过设备ID获取玩家
         
         Args:
-            session: 数据库会话
-            nickname: 玩家昵称
+            device_id: 设备ID
             
         Returns:
-            玩家对象，如果不存在返回 None
+            玩家实例
         """
-        result = await session.execute(
-            select(PlayerDB)
-            .options(selectinload(PlayerDB.stats))
-            .where(PlayerDB.nickname == nickname)
+        stmt = (
+            select(Player)
+            .options(selectinload(Player.rank), selectinload(Player.stats))
+            .where(Player.device_id == device_id)
         )
-        return result.scalar_one_or_none()
+        return await self.session.scalar(stmt)
     
-    @classmethod
     async def get_multi(
-        cls,
-        session: AsyncSession,
-        skip: int = 0,
+        self,
+        offset: int = 0,
         limit: int = 100,
-        online_only: bool = False,
-    ) -> List[PlayerDB]:
+        is_active: bool | None = None,
+    ) -> list[Player]:
         """
-        获取玩家列表
-        
-        支持分页和在线过滤。
+        获取多个玩家
         
         Args:
-            session: 数据库会话
-            skip: 跳过的记录数
-            limit: 返回的最大记录数
-            online_only: 是否只返回在线玩家
+            offset: 偏移量
+            limit: 数量限制
+            is_active: 是否只获取活跃玩家
             
         Returns:
-            玩家对象列表
-            
-        Example:
-            players = await PlayerCRUD.get_multi(session, skip=0, limit=10)
+            玩家列表
         """
-        query = select(PlayerDB).options(selectinload(PlayerDB.stats))
+        stmt = select(Player).offset(offset).limit(limit)
         
-        if online_only:
-            query = query.where(PlayerDB.is_online == True)
+        if is_active is not None:
+            stmt = stmt.where(Player.is_active == is_active)
         
-        query = query.offset(skip).limit(limit).order_by(PlayerDB.id.desc())
+        stmt = stmt.order_by(desc(Player.id))
         
-        result = await session.execute(query)
-        return list(result.scalars().all())
+        result = await self.session.scalars(stmt)
+        return list(result.all())
     
-    @classmethod
-    async def get_by_level(
-        cls,
-        session: AsyncSession,
-        level: int,
-        limit: int = 100,
-    ) -> List[PlayerDB]:
+    async def search(
+        self,
+        query: str,
+        limit: int = 10,
+    ) -> list[Player]:
         """
-        获取指定等级的玩家列表
+        搜索玩家
         
         Args:
-            session: 数据库会话
-            level: 玩家等级
-            limit: 返回的最大记录数
+            query: 搜索关键词（匹配用户名或昵称）
+            limit: 数量限制
             
         Returns:
-            玩家对象列表
+            匹配的玩家列表
         """
-        result = await session.execute(
-            select(PlayerDB)
-            .options(selectinload(PlayerDB.stats))
-            .where(PlayerDB.level == level)
+        stmt = (
+            select(Player)
+            .where(
+                or_(
+                    Player.username.contains(query),
+                    Player.nickname.contains(query),
+                )
+            )
             .limit(limit)
-            .order_by(PlayerDB.exp.desc())
+            .order_by(desc(Player.id))
         )
-        return list(result.scalars().all())
-    
-    @classmethod
-    async def count(
-        cls,
-        session: AsyncSession,
-        online_only: bool = False,
-    ) -> int:
-        """
-        统计玩家数量
         
-        Args:
-            session: 数据库会话
-            online_only: 是否只统计在线玩家
-            
-        Returns:
-            玩家数量
-        """
-        query = select(func.count(PlayerDB.id))
-        if online_only:
-            query = query.where(PlayerDB.is_online == True)
-        
-        result = await session.execute(query)
-        return result.scalar_one()
+        result = await self.session.scalars(stmt)
+        return list(result.all())
     
-    @classmethod
-    async def exists(
-        cls,
-        session: AsyncSession,
-        user_id: str,
-    ) -> bool:
+    async def exists(self, player_id: int) -> bool:
         """
         检查玩家是否存在
         
         Args:
-            session: 数据库会话
-            user_id: 用户唯一标识
+            player_id: 玩家ID
             
         Returns:
             是否存在
         """
-        result = await session.execute(
-            select(func.count(PlayerDB.id)).where(PlayerDB.user_id == user_id)
-        )
-        return result.scalar_one() > 0
+        stmt = select(func.count()).select_from(Player).where(Player.id == player_id)
+        count = await self.session.scalar(stmt)
+        return count > 0
+    
+    async def username_exists(self, username: str) -> bool:
+        """
+        检查用户名是否已存在
+        
+        Args:
+            username: 用户名
+            
+        Returns:
+            是否存在
+        """
+        stmt = select(func.count()).select_from(Player).where(Player.username == username)
+        count = await self.session.scalar(stmt)
+        return count > 0
     
     # ========================================================================
-    # 更新操作 (Update)
+    # 更新操作
     # ========================================================================
     
-    @classmethod
     async def update(
-        cls,
-        session: AsyncSession,
+        self,
         player_id: int,
         **kwargs: Any,
-    ) -> Optional[PlayerDB]:
+    ) -> Player | None:
         """
         更新玩家信息
         
         Args:
-            session: 数据库会话
             player_id: 玩家ID
             **kwargs: 要更新的字段
             
         Returns:
-            更新后的玩家对象，如果不存在返回 None
-            
-        Example:
-            player = await PlayerCRUD.update(
-                session, 
-                player_id=1, 
-                nickname="新昵称",
-                gold=1000,
+            更新后的玩家实例
+        """
+        player = await self.get_by_id(player_id)
+        if not player:
+            return None
+        
+        # 过滤不允许更新的字段
+        protected_fields = {"id", "created_at", "username"}
+        for key in protected_fields:
+            kwargs.pop(key, None)
+        
+        player.update_from_dict(kwargs)
+        await self.session.flush()
+        await self.session.refresh(player)
+        
+        # 使缓存失效
+        self._invalidate_cache(self._get_cache_key("player", player_id))
+        
+        return player
+    
+    async def update_last_login(
+        self,
+        player_id: int,
+        ip_address: str | None = None,
+    ) -> None:
+        """
+        更新最后登录信息
+        
+        Args:
+            player_id: 玩家ID
+            ip_address: 登录IP
+        """
+        stmt = (
+            update(Player)
+            .where(Player.id == player_id)
+            .values(
+                last_login_at=datetime.now(),
+                last_login_ip=ip_address,
             )
-        """
-        player = await cls.get_by_id(session, player_id)
-        if player is None:
-            return None
+        )
+        await self.session.execute(stmt)
         
-        for key, value in kwargs.items():
-            if hasattr(player, key):
-                setattr(player, key, value)
-        
-        await session.flush()
-        await session.refresh(player)
-        
-        logger.debug(f"更新玩家: id={player_id}, fields={list(kwargs.keys())}")
-        return player
+        # 使缓存失效
+        self._invalidate_cache(self._get_cache_key("player", player_id))
     
-    @classmethod
-    async def update_by_user_id(
-        cls,
-        session: AsyncSession,
-        user_id: str,
-        **kwargs: Any,
-    ) -> Optional[PlayerDB]:
+    async def update_nickname(self, player_id: int, nickname: str) -> Player | None:
         """
-        根据用户ID更新玩家信息
+        更新昵称
         
         Args:
-            session: 数据库会话
-            user_id: 用户唯一标识
-            **kwargs: 要更新的字段
-            
-        Returns:
-            更新后的玩家对象，如果不存在返回 None
-        """
-        player = await cls.get_by_user_id(session, user_id)
-        if player is None:
-            return None
-        
-        return await cls.update(session, player.id, **kwargs)
-    
-    @classmethod
-    async def add_gold(
-        cls,
-        session: AsyncSession,
-        player_id: int,
-        amount: int,
-    ) -> Optional[PlayerDB]:
-        """
-        增加玩家金币
-        
-        Args:
-            session: 数据库会话
             player_id: 玩家ID
-            amount: 增加的金币数量（可以为负数表示扣除）
+            nickname: 新昵称
             
         Returns:
-            更新后的玩家对象
+            更新后的玩家实例
         """
-        player = await cls.get_by_id(session, player_id)
-        if player is None:
-            return None
-        
-        player.gold = max(0, player.gold + amount)
-        await session.flush()
-        await session.refresh(player)
-        
-        return player
+        return await self.update(player_id, nickname=nickname)
     
-    @classmethod
-    async def add_exp(
-        cls,
-        session: AsyncSession,
+    async def update_password(
+        self,
         player_id: int,
-        amount: int,
-    ) -> Optional[PlayerDB]:
-        """
-        增加玩家经验值
-        
-        自动处理升级逻辑。
-        
-        Args:
-            session: 数据库会话
-            player_id: 玩家ID
-            amount: 增加的经验值
-            
-        Returns:
-            更新后的玩家对象
-        """
-        from ...shared.constants import LEVEL_UP_EXP, MAX_PLAYER_LEVEL
-        
-        player = await cls.get_by_id(session, player_id)
-        if player is None:
-            return None
-        
-        player.exp += amount
-        
-        # 检查升级
-        while player.level < MAX_PLAYER_LEVEL:
-            exp_needed = LEVEL_UP_EXP.get(player.level + 1, 999)
-            if player.exp >= exp_needed:
-                player.exp -= exp_needed
-                player.level += 1
-                logger.info(f"玩家升级: id={player_id}, level={player.level}")
-            else:
-                break
-        
-        await session.flush()
-        await session.refresh(player)
-        
-        return player
-    
-    @classmethod
-    async def set_online(
-        cls,
-        session: AsyncSession,
-        player_id: int,
-        is_online: bool = True,
-    ) -> Optional[PlayerDB]:
-        """
-        设置玩家在线状态
-        
-        同时更新登录/登出时间。
-        
-        Args:
-            session: 数据库会话
-            player_id: 玩家ID
-            is_online: 是否在线
-            
-        Returns:
-            更新后的玩家对象
-        """
-        now = datetime.utcnow()
-        update_data = {"is_online": is_online}
-        
-        if is_online:
-            update_data["last_login_at"] = now
-        else:
-            update_data["last_logout_at"] = now
-        
-        return await cls.update(session, player_id, **update_data)
-    
-    # ========================================================================
-    # 删除操作 (Delete)
-    # ========================================================================
-    
-    @classmethod
-    async def delete(
-        cls,
-        session: AsyncSession,
-        player_id: int,
+        new_password: str,
     ) -> bool:
         """
-        删除玩家
-        
-        同时删除关联的统计数据（级联删除）。
+        更新密码
         
         Args:
-            session: 数据库会话
+            player_id: 玩家ID
+            new_password: 新密码
+            
+        Returns:
+            是否成功
+        """
+        password_hash = self._hash_password(new_password)
+        result = await self.update(player_id, password_hash=password_hash)
+        return result is not None
+    
+    async def ban_player(
+        self,
+        player_id: int,
+        until: datetime | None = None,
+    ) -> bool:
+        """
+        封禁玩家
+        
+        Args:
+            player_id: 玩家ID
+            until: 封禁截止时间（None表示永久）
+            
+        Returns:
+            是否成功
+        """
+        result = await self.update(
+            player_id,
+            is_banned=True,
+            ban_until=until,
+        )
+        return result is not None
+    
+    async def unban_player(self, player_id: int) -> bool:
+        """
+        解封玩家
+        
+        Args:
             player_id: 玩家ID
             
         Returns:
-            是否成功删除
+            是否成功
         """
-        player = await cls.get_by_id(session, player_id)
-        if player is None:
+        result = await self.update(
+            player_id,
+            is_banned=False,
+            ban_until=None,
+        )
+        return result is not None
+    
+    # ========================================================================
+    # 删除操作
+    # ========================================================================
+    
+    async def delete(self, player_id: int) -> bool:
+        """
+        删除玩家（软删除）
+        
+        Args:
+            player_id: 玩家ID
+            
+        Returns:
+            是否成功
+        """
+        result = await self.update(player_id, is_active=False)
+        return result is not None
+    
+    async def hard_delete(self, player_id: int) -> bool:
+        """
+        硬删除玩家（真正删除）
+        
+        警告：此操作不可逆！
+        
+        Args:
+            player_id: 玩家ID
+            
+        Returns:
+            是否成功
+        """
+        player = await self.get_by_id(player_id)
+        if not player:
             return False
         
-        await session.delete(player)
-        await session.flush()
+        await self.session.delete(player)
+        await self.session.flush()
         
-        logger.info(f"删除玩家: id={player_id}")
+        # 使缓存失效
+        self._invalidate_cache(self._get_cache_key("player", player_id))
+        
         return True
     
-    @classmethod
-    async def delete_by_user_id(
-        cls,
-        session: AsyncSession,
-        user_id: str,
-    ) -> bool:
+    # ========================================================================
+    # 认证操作
+    # ========================================================================
+    
+    async def authenticate(
+        self,
+        username: str,
+        password: str,
+    ) -> Player | None:
         """
-        根据用户ID删除玩家
+        验证玩家登录
         
         Args:
-            session: 数据库会话
-            user_id: 用户唯一标识
+            username: 用户名
+            password: 密码
             
         Returns:
-            是否成功删除
+            验证成功返回玩家实例，否则返回None
         """
-        result = await session.execute(
-            delete(PlayerDB).where(PlayerDB.user_id == user_id)
-        )
-        deleted = result.rowcount > 0
+        player = await self.get_by_username(username)
         
-        if deleted:
-            logger.info(f"删除玩家: user_id={user_id}")
+        if not player:
+            return None
         
-        return deleted
-
-
-class PlayerStatsCRUD:
-    """
-    玩家统计数据 CRUD 操作类
+        if not player.is_active:
+            return None
+        
+        if player.is_banned:
+            if player.ban_until and player.ban_until < datetime.now():
+                # 封禁已过期，自动解封
+                await self.unban_player(player.id)
+            else:
+                return None
+        
+        if not self._verify_password(password, player.password_hash or ""):
+            return None
+        
+        return player
     
-    提供玩家统计数据的数据库操作方法。
-    """
+    # ========================================================================
+    # 段位操作
+    # ========================================================================
     
-    @classmethod
-    async def get_by_player_id(
-        cls,
-        session: AsyncSession,
-        player_id: int,
-    ) -> Optional[PlayerStatsDB]:
+    async def get_rank(self, player_id: int) -> PlayerRank | None:
         """
-        根据玩家ID获取统计数据
+        获取玩家段位信息
         
         Args:
-            session: 数据库会话
             player_id: 玩家ID
             
         Returns:
-            统计数据对象
+            段位信息
         """
-        result = await session.execute(
-            select(PlayerStatsDB).where(PlayerStatsDB.player_id == player_id)
-        )
-        return result.scalar_one_or_none()
+        stmt = select(PlayerRank).where(PlayerRank.player_id == player_id)
+        return await self.session.scalar(stmt)
     
-    @classmethod
-    async def update_after_match(
-        cls,
-        session: AsyncSession,
+    async def update_rank(
+        self,
+        player_id: int,
+        point_change: int,
+        rank_up: bool = False,
+        new_tier: str | None = None,
+    ) -> PlayerRank | None:
+        """
+        更新玩家段位
+        
+        Args:
+            player_id: 玩家ID
+            point_change: 积分变化（正数为增加）
+            rank_up: 是否升段
+            new_tier: 新段位（升段时使用）
+            
+        Returns:
+            更新后的段位信息
+        """
+        rank = await self.get_rank(player_id)
+        if not rank:
+            return None
+        
+        rank.points += point_change
+        
+        if rank_up and new_tier:
+            rank.tier = new_tier
+            rank.sub_tier = 5  # 新段位从5开始
+        
+        # 更新历史最高
+        if rank.points > rank.max_points:
+            rank.max_points = rank.points
+            # 比较段位顺序
+            tier_order = [t.value for t in RankTier]
+            if tier_order.index(rank.tier) > tier_order.index(rank.max_tier):
+                rank.max_tier = rank.tier
+        
+        await self.session.flush()
+        await self.session.refresh(rank)
+        
+        return rank
+    
+    # ========================================================================
+    # 统计操作
+    # ========================================================================
+    
+    async def get_stats(self, player_id: int) -> PlayerStats | None:
+        """
+        获取玩家统计数据
+        
+        Args:
+            player_id: 玩家ID
+            
+        Returns:
+            统计数据
+        """
+        stmt = select(PlayerStats).where(PlayerStats.player_id == player_id)
+        return await self.session.scalar(stmt)
+    
+    async def update_stats_after_match(
+        self,
         player_id: int,
         rank: int,
-        is_win: bool,
-        **game_stats: Any,
-    ) -> Optional[PlayerStatsDB]:
+        damage: int,
+        survivors: int,
+        kills: int,
+        gold: int,
+        win_streak: int,
+        round_num: int,
+    ) -> PlayerStats | None:
         """
         对局结束后更新统计数据
         
         Args:
-            session: 数据库会话
             player_id: 玩家ID
             rank: 本局排名
-            is_win: 是否获胜
-            **game_stats: 游戏统计数据
+            damage: 造成伤害
+            survivors: 存活英雄数
+            kills: 击杀数
+            gold: 获得金币
+            win_streak: 连胜场次
+            round_num: 回合数
             
         Returns:
-            更新后的统计数据对象
+            更新后的统计数据
         """
-        stats = await cls.get_by_player_id(session, player_id)
-        if stats is None:
+        stats = await self.get_stats(player_id)
+        if not stats:
             return None
         
-        stats.update_after_match(
-            rank=rank,
-            is_win=is_win,
-            **game_stats,
-        )
+        # 更新对局统计
+        old_total = stats.total_matches
+        stats.total_matches += 1
         
-        await session.flush()
-        await session.refresh(stats)
+        if rank == 1:
+            stats.total_wins += 1
+            if stats.fastest_win_round == 0 or round_num < stats.fastest_win_round:
+                stats.fastest_win_round = round_num
+        
+        if rank <= 4:
+            stats.total_top4 += 1
+        
+        # 重新计算平均排名
+        stats.avg_rank = (stats.avg_rank * old_total + rank) / stats.total_matches
+        
+        # 更新战斗统计
+        stats.avg_damage = (stats.avg_damage * old_total + damage) / stats.total_matches
+        stats.avg_survivors = (stats.avg_survivors * old_total + survivors) / stats.total_matches
+        stats.total_kills += kills
+        
+        # 更新经济统计
+        stats.total_gold_earned += gold
+        
+        # 更新连胜记录
+        if win_streak > stats.longest_win_streak:
+            stats.longest_win_streak = win_streak
+        
+        await self.session.flush()
+        await self.session.refresh(stats)
         
         return stats
     
-    @classmethod
-    async def get_top_players(
-        cls,
-        session: AsyncSession,
-        limit: int = 10,
-        order_by: str = "wins",
-    ) -> List[PlayerStatsDB]:
-        """
-        获取排行榜玩家
-        
-        Args:
-            session: 数据库会话
-            limit: 返回数量
-            order_by: 排序字段（wins, total_matches, first_place_count）
-            
-        Returns:
-            统计数据列表
-        """
-        order_column = getattr(PlayerStatsDB, order_by, PlayerStatsDB.wins)
-        
-        result = await session.execute(
-            select(PlayerStatsDB)
-            .order_by(order_column.desc())
-            .limit(limit)
-        )
-        return list(result.scalars().all())
+    # ========================================================================
+    # 登录记录操作
+    # ========================================================================
     
-    @classmethod
-    async def increment_play_time(
-        cls,
-        session: AsyncSession,
+    async def create_login_log(
+        self,
         player_id: int,
-        seconds: int,
-    ) -> Optional[PlayerStatsDB]:
+        ip_address: str | None = None,
+        device_id: str | None = None,
+        device_type: str | None = None,
+        client_version: str | None = None,
+        location: str | None = None,
+    ) -> PlayerLoginLog:
         """
-        增加游戏时长
+        创建登录记录
         
         Args:
-            session: 数据库会话
             player_id: 玩家ID
-            seconds: 增加的秒数
+            ip_address: 登录IP
+            device_id: 设备ID
+            device_type: 设备类型
+            client_version: 客户端版本
+            location: 登录地点
             
         Returns:
-            更新后的统计数据对象
+            登录记录
         """
-        stats = await cls.get_by_player_id(session, player_id)
-        if stats is None:
-            return None
+        login_log = PlayerLoginLog(
+            player_id=player_id,
+            login_ip=ip_address,
+            device_id=device_id,
+            device_type=device_type,
+            client_version=client_version,
+            location=location,
+        )
         
-        stats.total_play_time_seconds += seconds
-        await session.flush()
-        await session.refresh(stats)
+        self.session.add(login_log)
+        await self.session.flush()
         
-        return stats
+        return login_log
+    
+    async def logout(self, log_id: int) -> bool:
+        """
+        记录登出时间
+        
+        Args:
+            log_id: 登录记录ID
+            
+        Returns:
+            是否成功
+        """
+        stmt = (
+            update(PlayerLoginLog)
+            .where(PlayerLoginLog.id == log_id)
+            .values(logout_time=datetime.now())
+        )
+        result = await self.session.execute(stmt)
+        return result.rowcount > 0
+    
+    # ========================================================================
+    # 背包操作
+    # ========================================================================
+    
+    async def get_inventory(
+        self,
+        player_id: int,
+        item_type: str | None = None,
+    ) -> list[PlayerInventory]:
+        """
+        获取玩家背包
+        
+        Args:
+            player_id: 玩家ID
+            item_type: 物品类型过滤
+            
+        Returns:
+            物品列表
+        """
+        stmt = select(PlayerInventory).where(PlayerInventory.player_id == player_id)
+        
+        if item_type:
+            stmt = stmt.where(PlayerInventory.item_type == item_type)
+        
+        result = await self.session.scalars(stmt)
+        return list(result.all())
+    
+    async def add_item(
+        self,
+        player_id: int,
+        item_type: str,
+        item_id: str,
+        quantity: int = 1,
+        expires_at: datetime | None = None,
+        extra_data: dict[str, Any] | None = None,
+    ) -> PlayerInventory:
+        """
+        添加物品到背包
+        
+        Args:
+            player_id: 玩家ID
+            item_type: 物品类型
+            item_id: 物品ID
+            quantity: 数量
+            expires_at: 过期时间
+            extra_data: 额外数据
+            
+        Returns:
+            背包物品记录
+        """
+        # 检查是否已存在
+        stmt = select(PlayerInventory).where(
+            and_(
+                PlayerInventory.player_id == player_id,
+                PlayerInventory.item_type == item_type,
+                PlayerInventory.item_id == item_id,
+            )
+        )
+        existing = await self.session.scalar(stmt)
+        
+        if existing:
+            existing.quantity += quantity
+            if expires_at:
+                existing.expires_at = expires_at
+            if extra_data:
+                existing.extra_data = extra_data
+            await self.session.flush()
+            await self.session.refresh(existing)
+            return existing
+        
+        inventory_item = PlayerInventory(
+            player_id=player_id,
+            item_type=item_type,
+            item_id=item_id,
+            quantity=quantity,
+            expires_at=expires_at,
+            extra_data=extra_data,
+        )
+        
+        self.session.add(inventory_item)
+        await self.session.flush()
+        await self.session.refresh(inventory_item)
+        
+        return inventory_item
+    
+    # ========================================================================
+    # 辅助方法
+    # ========================================================================
+    
+    @staticmethod
+    def _hash_password(password: str) -> str:
+        """
+        密码哈希
+        
+        Args:
+            password: 原始密码
+            
+        Returns:
+            哈希后的密码
+        """
+        salt = secrets.token_hex(16)
+        hash_value = hashlib.sha256(f"{salt}{password}".encode()).hexdigest()
+        return f"{salt}${hash_value}"
+    
+    @staticmethod
+    def _verify_password(password: str, hashed: str) -> bool:
+        """
+        验证密码
+        
+        Args:
+            password: 原始密码
+            hashed: 哈希后的密码
+            
+        Returns:
+            是否匹配
+        """
+        try:
+            salt, hash_value = hashed.split("$")
+            new_hash = hashlib.sha256(f"{salt}{password}".encode()).hexdigest()
+            return secrets.compare_digest(hash_value, new_hash)
+        except ValueError:
+            return False
