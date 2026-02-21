@@ -3,7 +3,10 @@
 
 本模块定义玩家的数据库持久化模型：
 - PlayerDB: 玩家账户数据
+- PlayerRankDB: 玩家段位数据
 - PlayerStatsDB: 玩家统计数据
+- PlayerLoginLogDB: 玩家登录记录
+- PlayerInventoryDB: 玩家背包
 
 用于存储玩家的账户信息和游戏统计数据。
 """
@@ -11,12 +14,36 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Optional
+from enum import Enum as PyEnum
+from typing import Any, Optional, List
 
-from sqlalchemy import DateTime, Integer, String, Text, Boolean, func
+from sqlalchemy import (
+    Boolean,
+    DateTime,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+    func,
+)
+from sqlalchemy.dialects.mysql import JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base, IdMixin, TimestampMixin
+
+
+class RankTier(str, PyEnum):
+    """段位枚举"""
+    BRONZE = "bronze"       # 青铜
+    SILVER = "silver"       # 白银
+    GOLD = "gold"           # 黄金
+    PLATINUM = "platinum"   # 铂金
+    DIAMOND = "diamond"     # 钻石
+    MASTER = "master"       # 大师
+    GRANDMASTER = "grandmaster"  # 宗师
+    KING = "king"           # 王者
 
 
 class PlayerDB(Base, IdMixin, TimestampMixin):
@@ -26,154 +53,294 @@ class PlayerDB(Base, IdMixin, TimestampMixin):
     存储玩家的基本账户信息，包括：
     - 登录凭证
     - 基本信息
-    - 游戏货币
+    - 账号状态
     
     Attributes:
         id: 玩家唯一ID（主键）
         user_id: 用户唯一标识（用于登录）
+        username: 用户名（可选，用于账号密码登录）
+        password_hash: 密码哈希
         nickname: 玩家昵称
         avatar: 头像URL
-        gold: 金币余额
-        diamond: 钻石余额
-        level: 玩家等级
-        exp: 当前经验值
-        is_online: 是否在线
+        device_id: 设备ID（用于设备绑定）
+        is_active: 是否激活
+        is_banned: 是否封禁
+        ban_until: 封禁截止时间
         last_login_at: 最后登录时间
+        last_login_ip: 最后登录IP
+        rank: 关联的段位信息
         stats: 关联的统计数据
+        login_logs: 关联的登录记录
     """
     
     __tablename__ = "players"
+    __table_args__ = (
+        Index("ix_players_user_id", "user_id", unique=True),
+        Index("ix_players_username", "username", unique=True),
+        Index("ix_players_device_id", "device_id"),
+        Index("ix_players_last_login", "last_login_at"),
+        {"comment": "玩家账户表"},
+    )
     
-    # 基本信息
+    # 登录信息
     user_id: Mapped[str] = mapped_column(
         String(64),
         unique=True,
         nullable=False,
-        index=True,
         comment="用户唯一标识",
     )
+    username: Mapped[Optional[str]] = mapped_column(
+        String(50),
+        unique=True,
+        nullable=True,
+        comment="用户名",
+    )
+    password_hash: Mapped[Optional[str]] = mapped_column(
+        String(255),
+        nullable=True,
+        comment="密码哈希",
+    )
+    
+    # 基本信息
     nickname: Mapped[str] = mapped_column(
         String(50),
         nullable=False,
-        comment="玩家昵称",
+        comment="昵称",
     )
     avatar: Mapped[Optional[str]] = mapped_column(
-        String(255),
+        String(500),
         nullable=True,
         comment="头像URL",
     )
-    
-    # 游戏货币
-    gold: Mapped[int] = mapped_column(
-        Integer,
-        default=0,
-        nullable=False,
-        comment="金币余额",
-    )
-    diamond: Mapped[int] = mapped_column(
-        Integer,
-        default=0,
-        nullable=False,
-        comment="钻石余额",
+    device_id: Mapped[Optional[str]] = mapped_column(
+        String(100),
+        nullable=True,
+        comment="设备ID",
     )
     
-    # 等级系统
-    level: Mapped[int] = mapped_column(
-        Integer,
-        default=1,
+    # 状态字段
+    is_active: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
         nullable=False,
-        comment="玩家等级",
+        comment="是否激活",
     )
-    exp: Mapped[int] = mapped_column(
-        Integer,
-        default=0,
-        nullable=False,
-        comment="当前经验值",
-    )
-    
-    # 状态信息
-    is_online: Mapped[bool] = mapped_column(
+    is_banned: Mapped[bool] = mapped_column(
         Boolean,
         default=False,
         nullable=False,
-        comment="是否在线",
+        comment="是否封禁",
     )
+    ban_until: Mapped[Optional[datetime]] = mapped_column(
+        DateTime,
+        nullable=True,
+        comment="封禁截止时间",
+    )
+    
+    # 登录信息
     last_login_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime,
         nullable=True,
         comment="最后登录时间",
     )
-    last_logout_at: Mapped[Optional[datetime]] = mapped_column(
-        DateTime,
+    last_login_ip: Mapped[Optional[str]] = mapped_column(
+        String(45),
         nullable=True,
-        comment="最后登出时间",
+        comment="最后登录IP",
     )
     
-    # 关联统计数据（一对一）
-    stats: Mapped[Optional["PlayerStatsDB"]] = relationship(
+    # 关联关系
+    rank: Mapped["PlayerRankDB"] = relationship(
+        "PlayerRankDB",
+        back_populates="player",
+        uselist=False,
+        lazy="selectin",
+    )
+    stats: Mapped["PlayerStatsDB"] = relationship(
         "PlayerStatsDB",
         back_populates="player",
         uselist=False,
         lazy="selectin",
     )
+    login_logs: Mapped[List["PlayerLoginLogDB"]] = relationship(
+        "PlayerLoginLogDB",
+        back_populates="player",
+        lazy="dynamic",
+    )
+    inventory: Mapped[List["PlayerInventoryDB"]] = relationship(
+        "PlayerInventoryDB",
+        back_populates="player",
+        lazy="dynamic",
+    )
     
     def __repr__(self) -> str:
-        return f"<PlayerDB(id={self.id}, nickname='{self.nickname}', level={self.level})>"
+        return f"<PlayerDB(id={self.id}, user_id='{self.user_id}', nickname='{self.nickname}')>"
+    
+    @property
+    def display_name(self) -> str:
+        """获取显示名称"""
+        return self.nickname or self.user_id
     
     def to_dict(self) -> dict[str, Any]:
-        """
-        转换为字典
-        
-        Returns:
-            包含玩家信息的字典
-        """
+        """转换为字典（隐藏敏感信息）"""
         data = super().to_dict()
-        # 添加统计数据
-        if self.stats:
-            data["stats"] = self.stats.to_dict()
+        data.pop("password_hash", None)
         return data
 
 
-class PlayerStatsDB(Base, TimestampMixin):
+class PlayerRankDB(Base, IdMixin, TimestampMixin):
+    """
+    玩家段位数据模型
+    
+    存储玩家的排位赛段位信息。
+    
+    Attributes:
+        id: 主键ID
+        player_id: 玩家ID（外键）
+        tier: 段位
+        sub_tier: 子段位（1-5）
+        stars: 当前星数
+        points: 当前积分
+        max_tier: 历史最高段位
+        max_points: 历史最高积分
+        season_id: 赛季ID
+        placement_matches: 定位赛场次
+        placement_wins: 定位赛胜场
+    """
+    
+    __tablename__ = "player_ranks"
+    __table_args__ = (
+        UniqueConstraint("player_id", "season_id", name="uq_player_rank_season"),
+        Index("ix_player_ranks_tier", "tier"),
+        Index("ix_player_ranks_points", "points"),
+        {"comment": "玩家段位表"},
+    )
+    
+    player_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("players.id", ondelete="CASCADE"),
+        nullable=False,
+        comment="玩家ID",
+    )
+    
+    # 段位信息
+    tier: Mapped[str] = mapped_column(
+        String(20),
+        default=RankTier.BRONZE.value,
+        nullable=False,
+        comment="段位",
+    )
+    sub_tier: Mapped[int] = mapped_column(
+        Integer,
+        default=1,
+        nullable=False,
+        comment="子段位(1-5)",
+    )
+    stars: Mapped[int] = mapped_column(
+        Integer,
+        default=0,
+        nullable=False,
+        comment="当前星数",
+    )
+    points: Mapped[int] = mapped_column(
+        Integer,
+        default=0,
+        nullable=False,
+        comment="当前积分",
+    )
+    
+    # 历史记录
+    max_tier: Mapped[str] = mapped_column(
+        String(20),
+        default=RankTier.BRONZE.value,
+        nullable=False,
+        comment="历史最高段位",
+    )
+    max_points: Mapped[int] = mapped_column(
+        Integer,
+        default=0,
+        nullable=False,
+        comment="历史最高积分",
+    )
+    
+    # 赛季相关
+    season_id: Mapped[str] = mapped_column(
+        String(20),
+        default="S1",
+        nullable=False,
+        comment="赛季ID",
+    )
+    placement_matches: Mapped[int] = mapped_column(
+        Integer,
+        default=0,
+        nullable=False,
+        comment="定位赛场次",
+    )
+    placement_wins: Mapped[int] = mapped_column(
+        Integer,
+        default=0,
+        nullable=False,
+        comment="定位赛胜场",
+    )
+    
+    # 关联关系
+    player: Mapped[PlayerDB] = relationship(
+        "PlayerDB",
+        back_populates="rank",
+    )
+    
+    def __repr__(self) -> str:
+        return f"<PlayerRankDB(player_id={self.player_id}, tier='{self.tier}', points={self.points})>"
+    
+    @property
+    def display_rank(self) -> str:
+        """获取段位显示文本"""
+        if self.tier in [RankTier.MASTER.value, RankTier.GRANDMASTER.value, RankTier.KING.value]:
+            return f"{self.tier} {self.stars}星"
+        return f"{self.tier}{self.sub_tier} {self.stars}星"
+    
+    @property
+    def is_placed(self) -> bool:
+        """是否完成定位赛"""
+        return self.placement_matches >= 10
+
+
+class PlayerStatsDB(Base, IdMixin, TimestampMixin):
     """
     玩家统计数据模型
     
-    存储玩家的游戏统计数据，包括：
-    - 对局统计
-    - 排名统计
-    - 成就数据
+    存储玩家的游戏统计数据。
     
     Attributes:
-        id: 统计记录ID（主键）
-        player_id: 关联的玩家ID（外键）
+        id: 主键ID
+        player_id: 玩家ID（外键）
         total_matches: 总对局数
-        wins: 胜利场次
-        losses: 失败场次
-        draws: 平局场次
-        first_place_count: 第一名次数
-        top4_count: 前四名次数
-        total_damage_dealt: 总伤害输出
-        total_damage_taken: 总承受伤害
+        total_wins: 总胜场
+        total_top4: 总前四场数
         total_gold_earned: 总获得金币
-        total_heroes_purchased: 总购买英雄数
-        best_win_streak: 最高连胜
-        current_win_streak: 当前连胜
+        total_damage_dealt: 总造成伤害
+        total_kills: 总击杀数
+        avg_rank: 平均排名
+        max_win_streak: 最大连胜
+        max_lose_streak: 最大连败
+        fastest_win_round: 最快获胜回合
         favorite_synergy: 最常用羁绊
+        season_id: 赛季ID
     """
     
     __tablename__ = "player_stats"
-    
-    id: Mapped[int] = mapped_column(
-        Integer,
-        primary_key=True,
-        autoincrement=True,
+    __table_args__ = (
+        UniqueConstraint("player_id", "season_id", name="uq_player_stats_season"),
+        Index("ix_player_stats_total_wins", "total_wins"),
+        Index("ix_player_stats_avg_rank", "avg_rank"),
+        {"comment": "玩家统计表"},
     )
+    
     player_id: Mapped[int] = mapped_column(
         Integer,
+        ForeignKey("players.id", ondelete="CASCADE"),
         nullable=False,
-        unique=True,
-        index=True,
-        comment="关联玩家ID",
+        comment="玩家ID",
     )
     
     # 对局统计
@@ -183,192 +350,277 @@ class PlayerStatsDB(Base, TimestampMixin):
         nullable=False,
         comment="总对局数",
     )
-    wins: Mapped[int] = mapped_column(
+    total_wins: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
-        comment="胜利场次",
+        comment="总胜场(第1名)",
     )
-    losses: Mapped[int] = mapped_column(
+    total_top4: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
-        comment="失败场次",
+        comment="总前四场数",
     )
-    draws: Mapped[int] = mapped_column(
-        Integer,
-        default=0,
-        nullable=False,
-        comment="平局场次",
-    )
-    
-    # 排名统计
-    first_place_count: Mapped[int] = mapped_column(
-        Integer,
-        default=0,
-        nullable=False,
-        comment="第一名次数",
-    )
-    top4_count: Mapped[int] = mapped_column(
-        Integer,
-        default=0,
-        nullable=False,
-        comment="前四名次数",
-    )
-    average_rank: Mapped[float] = mapped_column(
-        Integer,
+    avg_rank: Mapped[float] = mapped_column(
+        Float,
         default=0.0,
         nullable=False,
-        comment="平均排名（乘以100存储）",
+        comment="平均排名",
     )
     
-    # 游戏数据统计
+    # 战斗统计
     total_damage_dealt: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
-        comment="总伤害输出",
+        comment="总造成伤害",
     )
-    total_damage_taken: Mapped[int] = mapped_column(
+    total_kills: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
-        comment="总承受伤害",
+        comment="总击杀英雄数",
     )
+    
+    # 经济统计
     total_gold_earned: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
         comment="总获得金币",
     )
-    total_heroes_purchased: Mapped[int] = mapped_column(
+    
+    # 记录统计
+    max_win_streak: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
-        comment="总购买英雄数",
+        comment="最大连胜",
+    )
+    max_lose_streak: Mapped[int] = mapped_column(
+        Integer,
+        default=0,
+        nullable=False,
+        comment="最大连败",
+    )
+    fastest_win_round: Mapped[int] = mapped_column(
+        Integer,
+        default=0,
+        nullable=False,
+        comment="最快获胜回合",
     )
     
-    # 连胜记录
-    best_win_streak: Mapped[int] = mapped_column(
-        Integer,
-        default=0,
-        nullable=False,
-        comment="最高连胜",
-    )
-    current_win_streak: Mapped[int] = mapped_column(
-        Integer,
-        default=0,
-        nullable=False,
-        comment="当前连胜",
-    )
-    
-    # 其他统计
+    # 英雄统计
     favorite_synergy: Mapped[Optional[str]] = mapped_column(
         String(50),
         nullable=True,
         comment="最常用羁绊",
     )
-    total_play_time_seconds: Mapped[int] = mapped_column(
-        Integer,
-        default=0,
-        nullable=False,
-        comment="总游戏时长（秒）",
+    heroes_played: Mapped[Optional[dict]] = mapped_column(
+        JSON,
+        nullable=True,
+        comment="使用过的英雄统计",
     )
     
-    # 关联玩家
-    player: Mapped["PlayerDB"] = relationship(
+    # 赛季相关
+    season_id: Mapped[str] = mapped_column(
+        String(20),
+        default="S1",
+        nullable=False,
+        comment="赛季ID",
+    )
+    
+    # 关联关系
+    player: Mapped[PlayerDB] = relationship(
         "PlayerDB",
         back_populates="stats",
     )
     
     def __repr__(self) -> str:
-        return f"<PlayerStatsDB(player_id={self.player_id}, total_matches={self.total_matches})>"
+        return f"<PlayerStatsDB(player_id={self.player_id}, matches={self.total_matches})>"
     
     @property
     def win_rate(self) -> float:
-        """
-        计算胜率
-        
-        Returns:
-            胜率（0-1之间）
-        """
+        """计算胜率"""
         if self.total_matches == 0:
             return 0.0
-        return self.wins / self.total_matches
+        return round(self.total_wins / self.total_matches * 100, 2)
     
     @property
     def top4_rate(self) -> float:
-        """
-        计算前四率
-        
-        Returns:
-            前四率（0-1之间）
-        """
+        """计算前四率"""
         if self.total_matches == 0:
             return 0.0
-        return self.top4_count / self.total_matches
+        return round(self.total_top4 / self.total_matches * 100, 2)
+
+
+class PlayerLoginLogDB(Base, IdMixin, TimestampMixin):
+    """
+    玩家登录记录模型
     
-    def to_dict(self) -> dict[str, Any]:
-        """
-        转换为字典
-        
-        Returns:
-            包含统计数据的字典
-        """
-        data = super().to_dict()
-        # 添加计算字段
-        data["win_rate"] = round(self.win_rate, 4)
-        data["top4_rate"] = round(self.top4_rate, 4)
-        # 转换平均排名
-        data["average_rank"] = self.average_rank / 100
-        return data
+    记录玩家的登录历史，用于安全审计。
     
-    def update_after_match(
-        self,
-        rank: int,
-        is_win: bool,
-        damage_dealt: int = 0,
-        damage_taken: int = 0,
-        gold_earned: int = 0,
-        heroes_purchased: int = 0,
-    ) -> None:
-        """
-        对局结束后更新统计数据
-        
-        Args:
-            rank: 本局排名
-            is_win: 是否获胜
-            damage_dealt: 造成的伤害
-            damage_taken: 承受的伤害
-            gold_earned: 获得的金币
-            heroes_purchased: 购买的英雄数
-        """
-        self.total_matches += 1
-        
-        if is_win:
-            self.wins += 1
-            self.current_win_streak += 1
-            if self.current_win_streak > self.best_win_streak:
-                self.best_win_streak = self.current_win_streak
-        else:
-            self.losses += 1
-            self.current_win_streak = 0
-        
-        # 更新排名统计
-        if rank == 1:
-            self.first_place_count += 1
-        if rank <= 4:
-            self.top4_count += 1
-        
-        # 更新平均排名（使用加权平均）
-        if self.total_matches == 1:
-            self.average_rank = rank * 100
-        else:
-            old_total = (self.total_matches - 1) * self.average_rank
-            self.average_rank = (old_total + rank * 100) / self.total_matches
-        
-        # 更新其他统计
-        self.total_damage_dealt += damage_dealt
-        self.total_damage_taken += damage_taken
-        self.total_gold_earned += gold_earned
-        self.total_heroes_purchased += heroes_purchased
+    Attributes:
+        id: 主键ID
+        player_id: 玩家ID（外键）
+        login_time: 登录时间
+        logout_time: 登出时间
+        login_ip: 登录IP
+        device_id: 设备ID
+        device_type: 设备类型
+        client_version: 客户端版本
+        location: 登录地点（IP解析）
+        is_suspicious: 是否可疑登录
+    """
+    
+    __tablename__ = "player_login_logs"
+    __table_args__ = (
+        Index("ix_player_login_logs_player_id", "player_id"),
+        Index("ix_player_login_logs_login_time", "login_time"),
+        Index("ix_player_login_logs_ip", "login_ip"),
+        {"comment": "玩家登录记录表"},
+    )
+    
+    player_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("players.id", ondelete="CASCADE"),
+        nullable=False,
+        comment="玩家ID",
+    )
+    
+    login_time: Mapped[datetime] = mapped_column(
+        DateTime,
+        server_default=func.now(),
+        nullable=False,
+        comment="登录时间",
+    )
+    logout_time: Mapped[Optional[datetime]] = mapped_column(
+        DateTime,
+        nullable=True,
+        comment="登出时间",
+    )
+    
+    login_ip: Mapped[Optional[str]] = mapped_column(
+        String(45),
+        nullable=True,
+        comment="登录IP",
+    )
+    device_id: Mapped[Optional[str]] = mapped_column(
+        String(100),
+        nullable=True,
+        comment="设备ID",
+    )
+    device_type: Mapped[Optional[str]] = mapped_column(
+        String(50),
+        nullable=True,
+        comment="设备类型",
+    )
+    client_version: Mapped[Optional[str]] = mapped_column(
+        String(20),
+        nullable=True,
+        comment="客户端版本",
+    )
+    location: Mapped[Optional[str]] = mapped_column(
+        String(100),
+        nullable=True,
+        comment="登录地点",
+    )
+    
+    is_suspicious: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+        nullable=False,
+        comment="是否可疑登录",
+    )
+    
+    # 关联关系
+    player: Mapped[PlayerDB] = relationship(
+        "PlayerDB",
+        back_populates="login_logs",
+    )
+    
+    def __repr__(self) -> str:
+        return f"<PlayerLoginLogDB(player_id={self.player_id}, ip='{self.login_ip}')>"
+    
+    @property
+    def session_duration(self) -> Optional[int]:
+        """计算会话时长（秒）"""
+        if self.logout_time is None:
+            return None
+        return int((self.logout_time - self.login_time).total_seconds())
+
+
+class PlayerInventoryDB(Base, IdMixin, TimestampMixin):
+    """
+    玩家背包模型
+    
+    存储玩家的道具、皮肤等物品。
+    
+    Attributes:
+        id: 主键ID
+        player_id: 玩家ID（外键）
+        item_type: 物品类型
+        item_id: 物品ID
+        quantity: 数量
+        extra_data: 额外数据（JSON）
+        expires_at: 过期时间
+    """
+    
+    __tablename__ = "player_inventory"
+    __table_args__ = (
+        UniqueConstraint("player_id", "item_type", "item_id", name="uq_player_item"),
+        Index("ix_player_inventory_item_type", "item_type"),
+        Index("ix_player_inventory_expires", "expires_at"),
+        {"comment": "玩家背包表"},
+    )
+    
+    player_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("players.id", ondelete="CASCADE"),
+        nullable=False,
+        comment="玩家ID",
+    )
+    
+    item_type: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+        comment="物品类型",
+    )
+    item_id: Mapped[str] = mapped_column(
+        String(100),
+        nullable=False,
+        comment="物品ID",
+    )
+    quantity: Mapped[int] = mapped_column(
+        Integer,
+        default=1,
+        nullable=False,
+        comment="数量",
+    )
+    extra_data: Mapped[Optional[dict]] = mapped_column(
+        JSON,
+        nullable=True,
+        comment="额外数据",
+    )
+    expires_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime,
+        nullable=True,
+        comment="过期时间",
+    )
+    
+    # 关联关系
+    player: Mapped[PlayerDB] = relationship(
+        "PlayerDB",
+        back_populates="inventory",
+    )
+    
+    def __repr__(self) -> str:
+        return f"<PlayerInventoryDB(player_id={self.player_id}, item='{self.item_type}:{self.item_id}')>"
+    
+    @property
+    def is_expired(self) -> bool:
+        """检查是否已过期"""
+        if self.expires_at is None:
+            return False
+        return datetime.now() > self.expires_at

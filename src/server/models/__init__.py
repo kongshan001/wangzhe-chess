@@ -1,36 +1,38 @@
 """
 王者之奕 - 数据模型模块
 
-导出所有数据库模型和数据类型。
+导出所有数据库模型。
 
 使用方式:
-    from src.server.models import Player, MatchRecord, HeroConfig
+    from src.server.models import PlayerDB, MatchRecordDB, HeroConfigDB
 """
 
-from .base import Base, BaseModel, IDMixin, TimestampMixin, JSONEncodedType
+from .base import Base, IdMixin, TimestampMixin
+
+# 玩家相关模型
 from .player import (
-    Player,
-    PlayerRank,
-    PlayerStats,
-    PlayerLoginLog,
-    PlayerInventory,
+    PlayerDB,
+    PlayerRankDB,
+    PlayerStatsDB,
+    PlayerLoginLogDB,
+    PlayerInventoryDB,
     RankTier,
 )
-from .match import (
-    MatchRecord,
-    MatchPlayer,
-    MatchSnapshot,
-    MatchReplay,
-    BattleLog,
+
+# 对局相关模型
+from .match_record import (
+    MatchRecordDB,
+    MatchPlayerResultDB,
     MatchStatus,
-    MatchType,
 )
+
+# 配置相关模型
 from .hero_config import (
-    HeroConfig,
-    HeroVersion,
-    SynergyConfig,
-    GameConfig,
-    SeasonConfig,
+    HeroConfigDB,
+    HeroVersionDB,
+    SynergyConfigDB,
+    GameConfigDB,
+    SeasonConfigDB,
     HeroStatus,
     SynergyType,
 )
@@ -39,31 +41,25 @@ from .hero_config import (
 __all__ = [
     # 基础类
     "Base",
-    "BaseModel",
-    "IDMixin",
+    "IdMixin",
     "TimestampMixin",
-    "JSONEncodedType",
     # 玩家相关
-    "Player",
-    "PlayerRank",
-    "PlayerStats",
-    "PlayerLoginLog",
-    "PlayerInventory",
+    "PlayerDB",
+    "PlayerRankDB",
+    "PlayerStatsDB",
+    "PlayerLoginLogDB",
+    "PlayerInventoryDB",
     "RankTier",
     # 对局相关
-    "MatchRecord",
-    "MatchPlayer",
-    "MatchSnapshot",
-    "MatchReplay",
-    "BattleLog",
+    "MatchRecordDB",
+    "MatchPlayerResultDB",
     "MatchStatus",
-    "MatchType",
     # 配置相关
-    "HeroConfig",
-    "HeroVersion",
-    "SynergyConfig",
-    "GameConfig",
-    "SeasonConfig",
+    "HeroConfigDB",
+    "HeroVersionDB",
+    "SynergyConfigDB",
+    "GameConfigDB",
+    "SeasonConfigDB",
     "HeroStatus",
     "SynergyType",
 ]
