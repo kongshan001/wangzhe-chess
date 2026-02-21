@@ -1,0 +1,85 @@
+{
+  "version": "1.0",
+  "equipment": [
+    {
+      "id": "eq_001",
+      "name": "铁剑",
+      "tier": 1,
+      "stats": {"attack": 15},
+      "recipe": [],
+      "description": "基础攻击装备"
+    },
+    {
+      "id": "eq_002",
+      "name": "布甲",
+      "tier": 1,
+      "stats": {"armor": 15},
+      "recipe": [],
+      "description": "基础防御装备"
+    },
+    {
+      "id": "eq_003",
+      "name": "蓝宝石",
+      "tier": 1,
+      "stats": {"spell_power": 20},
+      "recipe": [],
+      "description": "基础法术装备"
+    },
+    {
+      "id": "eq_004",
+      "name": "红宝石",
+      "tier": 1,
+      "stats": {"hp": 150},
+      "recipe": [],
+      "description": "基础生命装备"
+    },
+    {
+      "id": "eq_005",
+      "name": "短弓",
+      "tier": 1,
+      "stats": {"attack_speed": 0.1},
+      "recipe": [],
+      "description": "基础攻速装备"
+    },
+    {
+      "id": "eq_006",
+      "name": "暴风大剑",
+      "tier": 2,
+      "stats": {"attack": 40},
+      "recipe": ["eq_001", "eq_001"],
+      "description": "进阶攻击装备"
+    },
+    {
+      "id": "eq_007",
+      "name": "锁子甲",
+      "tier": 2,
+      "stats": {"armor": 40},
+      "recipe": ["eq_002", "eq_002"],
+      "description": "进阶防御装备"
+    },
+    {
+      "id": "eq_008",
+      "name": "大棒",
+      "tier": 2,
+      "stats": {"spell_power": 50},
+      "recipe": ["eq_003", "eq_003"],
+      "description": "进阶法术装备"
+    },
+    {
+      "id": "eq_009",
+      "name": "巨人腰带",
+      "tier": 2,
+      "stats": {"hp": 400},
+      "recipe": ["eq_004", "eq_004"],
+      "description": "进阶生命装备"
+    },
+    {
+      "id": "eq_010",
+      "name": "反曲之弓",
+      "tier": 2,
+      "stats": {"attack_speed": 0.25},
+      "recipe": ["eq_005", "eq_005"],
+      "description": "进阶攻速装备"
+    }
+  ]
+}
