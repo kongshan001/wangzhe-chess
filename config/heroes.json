@@ -1,0 +1,942 @@
+{
+  "heroes": [
+    {
+      "id": "yase",
+      "name": "亚瑟",
+      "title": "圣光守护者",
+      "cost": 1,
+      "origins": ["Knights", "Human"],
+      "classes": ["Warrior", "Tank"],
+      "stats": {
+        "hp": 800,
+        "attack": 60,
+        "armor": 55,
+        "magic_resist": 35,
+        "attack_speed": 0.7,
+        "range": 1
+      },
+      "skill": {
+        "name": "圣剑裁决",
+        "mana_cost": 70,
+        "initial_mana": 0,
+        "description": "亚瑟跃向目标，造成物理伤害并沉默",
+        "effects": [
+          {"type": "damage", "damage_type": "physical", "value": 250, "scaling": "attack", "target": "single"},
+          {"type": "silence", "duration": 3, "target": "single"}
+        ]
+      }
+    },
+    {
+      "id": "daji",
+      "name": "妲己",
+      "title": "魅惑之狐",
+      "cost": 1,
+      "origins": ["Demon", "Beauty"],
+      "classes": ["Mage"],
+      "stats": {
+        "hp": 520,
+        "attack": 45,
+        "armor": 30,
+        "magic_resist": 55,
+        "attack_speed": 0.6,
+        "range": 3
+      },
+      "skill": {
+        "name": "女王崇拜",
+        "mana_cost": 60,
+        "initial_mana": 20,
+        "description": "妲己释放5团狐火，随机攻击敌人",
+        "effects": [
+          {"type": "damage", "damage_type": "magic", "value": 180, "scaling": "ap", "target": "random", "count": 5}
+        ]
+      }
+    },
+    {
+      "id": "houyi",
+      "name": "后羿",
+      "title": "半神之弓",
+      "cost": 1,
+      "origins": ["Divine", "Human"],
+      "classes": ["Marksman"],
+      "stats": {
+        "hp": 550,
+        "attack": 65,
+        "armor": 30,
+        "magic_resist": 30,
+        "attack_speed": 0.85,
+        "range": 4
+      },
+      "skill": {
+        "name": "惩戒射击",
+        "mana_cost": 80,
+        "initial_mana": 0,
+        "description": "后羿射出太阳之箭，对直线上敌人造成伤害并眩晕",
+        "effects": [
+          {"type": "line_damage", "damage_type": "physical", "value": 200, "scaling": "attack"},
+          {"type": "stun", "duration": 1.5, "target": "all_hit"}
+        ]
+      }
+    },
+    {
+      "id": "chengyaojin",
+      "name": "程咬金",
+      "title": "热血流氓",
+      "cost": 1,
+      "origins": ["ThreeKingdoms", "Human"],
+      "classes": ["Warrior", "Tank"],
+      "stats": {
+        "hp": 950,
+        "attack": 55,
+        "armor": 60,
+        "magic_resist": 40,
+        "attack_speed": 0.65,
+        "range": 1
+      },
+      "skill": {
+        "name": "正义潜能",
+        "mana_cost": 75,
+        "initial_mana": 0,
+        "description": "程咬金激发潜能，回复大量生命值并增加攻击力",
+        "effects": [
+          {"type": "heal", "value": 40, "scaling": "max_hp"},
+          {"type": "buff", "attribute": "attack", "value": 50, "duration": 6}
+        ]
+      }
+    },
+    {
+      "id": "angela",
+      "name": "安琪拉",
+      "title": "暗夜萝莉",
+      "cost": 1,
+      "origins": ["Demon", "Human"],
+      "classes": ["Mage"],
+      "stats": {
+        "hp": 500,
+        "attack": 45,
+        "armor": 30,
+        "magic_resist": 50,
+        "attack_speed": 0.6,
+        "range": 3
+      },
+      "skill": {
+        "name": "炽热光辉",
+        "mana_cost": 90,
+        "initial_mana": 0,
+        "description": "安琪拉引导魔法光束，持续造成伤害",
+        "effects": [
+          {"type": "channel_damage", "damage_type": "magic", "value": 100, "scaling": "ap", "duration": 3, "tick_rate": 0.25}
+        ]
+      }
+    },
+    {
+      "id": "lianpo",
+      "name": "廉颇",
+      "title": "正义暴轰",
+      "cost": 1,
+      "origins": ["ThreeKingdoms", "Human"],
+      "classes": ["Tank"],
+      "stats": {
+        "hp": 1000,
+        "attack": 50,
+        "armor": 70,
+        "magic_resist": 45,
+        "attack_speed": 0.55,
+        "range": 1
+      },
+      "skill": {
+        "name": "正义豪腕",
+        "mana_cost": 85,
+        "initial_mana": 0,
+        "description": "廉颇连续砸地3次，造成AOE伤害并击飞",
+        "effects": [
+          {"type": "aoe_damage", "damage_type": "physical", "value": 120, "scaling": "attack", "radius": 2, "count": 3},
+          {"type": "knockup", "duration": 1, "radius": 2, "on_final_hit": true}
+        ]
+      }
+    },
+    {
+      "id": "xiangyu",
+      "name": "项羽",
+      "title": "西楚霸王",
+      "cost": 2,
+      "origins": ["Human", "Knights"],
+      "classes": ["Tank", "Warrior"],
+      "stats": {
+        "hp": 900,
+        "attack": 65,
+        "armor": 65,
+        "magic_resist": 40,
+        "attack_speed": 0.6,
+        "range": 1
+      },
+      "skill": {
+        "name": "霸王斩",
+        "mana_cost": 80,
+        "initial_mana": 20,
+        "description": "项羽蓄力后挥出强力一击，对前方敌人造成伤害并减速",
+        "effects": [
+          {"type": "cone_damage", "damage_type": "physical", "value": 300, "scaling": "attack"},
+          {"type": "slow", "value": 50, "duration": 2}
+        ]
+      }
+    },
+    {
+      "id": "zhenji",
+      "name": "甄姬",
+      "title": "洛神降临",
+      "cost": 2,
+      "origins": ["Beauty", "Human"],
+      "classes": ["Mage"],
+      "stats": {
+        "hp": 550,
+        "attack": 48,
+        "armor": 32,
+        "magic_resist": 55,
+        "attack_speed": 0.6,
+        "range": 3
+      },
+      "skill": {
+        "name": "洛神之泪",
+        "mana_cost": 75,
+        "initial_mana": 25,
+        "description": "甄姬召唤水流，对范围内敌人造成伤害并冻结",
+        "effects": [
+          {"type": "aoe_damage", "damage_type": "magic", "value": 220, "scaling": "ap", "radius": 2.5},
+          {"type": "freeze", "duration": 1.5, "radius": 2.5}
+        ]
+      }
+    },
+    {
+      "id": "lubanqihao",
+      "name": "鲁班七号",
+      "title": "机关造物",
+      "cost": 2,
+      "origins": ["Machine", "Human"],
+      "classes": ["Marksman"],
+      "stats": {
+        "hp": 500,
+        "attack": 70,
+        "armor": 28,
+        "magic_resist": 30,
+        "attack_speed": 0.9,
+        "range": 4
+      },
+      "skill": {
+        "name": "空中支援",
+        "mana_cost": 85,
+        "initial_mana": 15,
+        "description": "鲁班七号召唤鲨嘴炮，对范围内敌人持续轰炸",
+        "effects": [
+          {"type": "aoe_damage", "damage_type": "physical", "value": 80, "scaling": "attack", "radius": 3, "duration": 5, "tick_rate": 1}
+        ]
+      }
+    },
+    {
+      "id": "xiahoudun",
+      "name": "夏侯惇",
+      "title": "不羁之风",
+      "cost": 2,
+      "origins": ["ThreeKingdoms", "Human"],
+      "classes": ["Warrior", "Tank"],
+      "stats": {
+        "hp": 850,
+        "attack": 60,
+        "armor": 55,
+        "magic_resist": 45,
+        "attack_speed": 0.7,
+        "range": 1
+      },
+      "skill": {
+        "name": "无限飓风号",
+        "mana_cost": 70,
+        "initial_mana": 30,
+        "description": "夏侯惇挥舞大刀旋转，造成AOE伤害并获得护盾",
+        "effects": [
+          {"type": "aoe_damage", "damage_type": "physical", "value": 180, "scaling": "attack", "radius": 2},
+          {"type": "shield", "value": 25, "scaling": "max_hp"}
+        ]
+      }
+    },
+    {
+      "id": "zhugeliang",
+      "name": "诸葛亮",
+      "title": "绝代智谋",
+      "cost": 2,
+      "origins": ["ThreeKingdoms", "Jixia"],
+      "classes": ["Mage"],
+      "stats": {
+        "hp": 560,
+        "attack": 50,
+        "armor": 32,
+        "magic_resist": 55,
+        "attack_speed": 0.6,
+        "range": 3
+      },
+      "skill": {
+        "name": "元气弹",
+        "mana_cost": 70,
+        "initial_mana": 30,
+        "description": "诸葛亮释放元气弹，对血量最低敌人造成斩杀伤害",
+        "effects": [
+          {"type": "execute_damage", "damage_type": "magic", "value": 400, "scaling": "ap", "execute_threshold": 30, "execute_bonus": 50}
+        ]
+      }
+    },
+    {
+      "id": "caiwenji",
+      "name": "蔡文姬",
+      "title": "琴瑟仙女",
+      "cost": 2,
+      "origins": ["ThreeKingdoms", "Beauty"],
+      "classes": ["Support"],
+      "stats": {
+        "hp": 600,
+        "attack": 40,
+        "armor": 35,
+        "magic_resist": 50,
+        "attack_speed": 0.65,
+        "range": 3
+      },
+      "skill": {
+        "name": "忘忧曲",
+        "mana_cost": 80,
+        "initial_mana": 25,
+        "description": "蔡文姬弹奏乐曲，持续治疗周围友军",
+        "effects": [
+          {"type": "aoe_heal", "value": 100, "scaling": "ap", "radius": 2, "duration": 3, "tick_rate": 0.5}
+        ]
+      }
+    },
+    {
+      "id": "huamulan",
+      "name": "花木兰",
+      "title": "传说之刃",
+      "cost": 3,
+      "origins": ["Guardians", "Human"],
+      "classes": ["Warrior", "Assassin"],
+      "stats": {
+        "hp": 720,
+        "attack": 80,
+        "armor": 45,
+        "magic_resist": 40,
+        "attack_speed": 0.8,
+        "range": 1
+      },
+      "skill": {
+        "name": "苍破斩",
+        "mana_cost": 90,
+        "initial_mana": 30,
+        "description": "花木兰切换重剑形态，对前方造成大量伤害并沉默",
+        "effects": [
+          {"type": "cone_damage", "damage_type": "physical", "value": 380, "scaling": "attack"},
+          {"type": "silence", "duration": 2.5, "target": "all_hit"},
+          {"type": "buff", "attribute": "armor", "value": 80, "duration": 5}
+        ]
+      }
+    },
+    {
+      "id": "diaochan",
+      "name": "貂蝉",
+      "title": "绝世舞姬",
+      "cost": 3,
+      "origins": ["Beauty", "ThreeKingdoms"],
+      "classes": ["Mage"],
+      "stats": {
+        "hp": 580,
+        "attack": 50,
+        "armor": 35,
+        "magic_resist": 55,
+        "attack_speed": 0.6,
+        "range": 3
+      },
+      "skill": {
+        "name": "绽·风华",
+        "mana_cost": 80,
+        "initial_mana": 30,
+        "description": "貂蝉绽放花阵，持续造成AOE伤害并治疗自己",
+        "effects": [
+          {"type": "aoe_damage", "damage_type": "magic", "value": 120, "scaling": "ap", "radius": 2, "duration": 4, "tick_rate": 0.5},
+          {"type": "self_heal", "value": 15, "scaling": "missing_hp", "trigger": "on_damage"}
+        ]
+      }
+    },
+    {
+      "id": "sunshangxiang",
+      "name": "孙尚香",
+      "title": "千金重弩",
+      "cost": 3,
+      "origins": ["ThreeKingdoms", "Beauty"],
+      "classes": ["Marksman"],
+      "stats": {
+        "hp": 580,
+        "attack": 85,
+        "armor": 32,
+        "magic_resist": 35,
+        "attack_speed": 0.75,
+        "range": 4
+      },
+      "skill": {
+        "name": "究极弩炮",
+        "mana_cost": 85,
+        "initial_mana": 25,
+        "description": "孙尚香发射强力炮弹，对第一个敌人及身后目标造成伤害",
+        "effects": [
+          {"type": "piercing_damage", "damage_type": "physical", "value": 350, "scaling": "attack", "targets": 3}
+        ]
+      }
+    },
+    {
+      "id": "dianwei",
+      "name": "典韦",
+      "title": "凶兽之印",
+      "cost": 3,
+      "origins": ["Demon", "Human"],
+      "classes": ["Warrior"],
+      "stats": {
+        "hp": 780,
+        "attack": 85,
+        "armor": 50,
+        "magic_resist": 40,
+        "attack_speed": 0.75,
+        "range": 1
+      },
+      "skill": {
+        "name": "嗜血",
+        "mana_cost": 75,
+        "initial_mana": 35,
+        "description": "典韦进入狂暴状态，增加攻速和吸血",
+        "effects": [
+          {"type": "buff", "attribute": "attack_speed", "value": 80, "duration": 6},
+          {"type": "buff", "attribute": "lifesteal", "value": 40, "duration": 6}
+        ]
+      }
+    },
+    {
+      "id": "guanyu",
+      "name": "关羽",
+      "title": "一骑当千",
+      "cost": 3,
+      "origins": ["ThreeKingdoms", "Human"],
+      "classes": ["Warrior"],
+      "stats": {
+        "hp": 800,
+        "attack": 78,
+        "armor": 52,
+        "magic_resist": 42,
+        "attack_speed": 0.7,
+        "range": 1
+      },
+      "skill": {
+        "name": "青龙偃月",
+        "mana_cost": 95,
+        "initial_mana": 25,
+        "description": "关羽骑马冲锋，对路径上敌人造成伤害并击退",
+        "effects": [
+          {"type": "line_damage", "damage_type": "physical", "value": 320, "scaling": "attack"},
+          {"type": "knockback", "distance": 2},
+          {"type": "stun", "duration": 1, "target": "all_hit"}
+        ]
+      }
+    },
+    {
+      "id": "daqiao",
+      "name": "大乔",
+      "title": "伊人如梦",
+      "cost": 3,
+      "origins": ["ThreeKingdoms", "Beauty"],
+      "classes": ["Support"],
+      "stats": {
+        "hp": 620,
+        "attack": 45,
+        "armor": 38,
+        "magic_resist": 55,
+        "attack_speed": 0.65,
+        "range": 3
+      },
+      "skill": {
+        "name": "漩涡之门",
+        "mana_cost": 90,
+        "initial_mana": 30,
+        "description": "大乔召唤传送门，将血量最低友军传送回安全位置并治疗",
+        "effects": [
+          {"type": "reposition", "target": "lowest_hp_ally", "position": "safest"},
+          {"type": "heal", "value": 35, "scaling": "max_hp", "target": "repositioned"}
+        ]
+      }
+    },
+    {
+      "id": "zhaoyun",
+      "name": "赵云",
+      "title": "苍天翔龙",
+      "cost": 4,
+      "origins": ["ThreeKingdoms", "Human"],
+      "classes": ["Warrior", "Assassin"],
+      "stats": {
+        "hp": 780,
+        "attack": 90,
+        "armor": 50,
+        "magic_resist": 45,
+        "attack_speed": 0.8,
+        "range": 1
+      },
+      "skill": {
+        "name": "天翔之龙",
+        "mana_cost": 100,
+        "initial_mana": 40,
+        "description": "赵云跃向空中刺向敌人，造成AOE伤害并击飞",
+        "effects": [
+          {"type": "aoe_damage", "damage_type": "physical", "value": 400, "scaling": "attack", "radius": 2},
+          {"type": "knockup", "duration": 1.5, "radius": 2},
+          {"type": "buff", "attribute": "dodge", "value": 30, "duration": 3}
+        ]
+      }
+    },
+    {
+      "id": "libai",
+      "name": "李白",
+      "title": "青莲剑仙",
+      "cost": 4,
+      "origins": ["Human", "Jixia"],
+      "classes": ["Assassin"],
+      "stats": {
+        "hp": 620,
+        "attack": 95,
+        "armor": 38,
+        "magic_resist": 38,
+        "attack_speed": 0.85,
+        "range": 1
+      },
+      "skill": {
+        "name": "青莲剑歌",
+        "mana_cost": 110,
+        "initial_mana": 35,
+        "description": "李白化身为剑气，对范围内敌人造成5次伤害，期间不可被选中",
+        "effects": [
+          {"type": "aoe_damage", "damage_type": "physical", "value": 150, "scaling": "attack", "radius": 2.5, "count": 5},
+          {"type": "untargetable", "duration": 2}
+        ]
+      }
+    },
+    {
+      "id": "luna",
+      "name": "露娜",
+      "title": "月光之女",
+      "cost": 4,
+      "origins": ["Demon", "Human"],
+      "classes": ["Assassin", "Warrior"],
+      "stats": {
+        "hp": 650,
+        "attack": 88,
+        "armor": 40,
+        "magic_resist": 42,
+        "attack_speed": 0.8,
+        "range": 1
+      },
+      "skill": {
+        "name": "新月突击",
+        "mana_cost": 90,
+        "initial_mana": 45,
+        "description": "露娜向标记敌人突进，造成伤害并刷新标记可再次突进",
+        "effects": [
+          {"type": "dash_damage", "damage_type": "magic", "value": 350, "scaling": "ap", "target": "marked"},
+          {"type": "reset_cooldown", "condition": "target_marked"}
+        ]
+      }
+    },
+    {
+      "id": "hanxin",
+      "name": "韩信",
+      "title": "国士无双",
+      "cost": 4,
+      "origins": ["Human", "Knights"],
+      "classes": ["Assassin"],
+      "stats": {
+        "hp": 600,
+        "attack": 92,
+        "armor": 36,
+        "magic_resist": 36,
+        "attack_speed": 0.9,
+        "range": 1
+      },
+      "skill": {
+        "name": "国士无双",
+        "mana_cost": 105,
+        "initial_mana": 35,
+        "description": "韩信挥动长枪，对范围内敌人造成多段伤害并击飞",
+        "effects": [
+          {"type": "aoe_damage", "damage_type": "physical", "value": 120, "scaling": "attack", "radius": 2, "count": 4},
+          {"type": "knockup", "duration": 1, "radius": 2, "on_final_hit": true}
+        ]
+      }
+    },
+    {
+      "id": "sunce",
+      "name": "孙策",
+      "title": "江东小霸王",
+      "cost": 4,
+      "origins": ["ThreeKingdoms", "Human"],
+      "classes": ["Warrior", "Tank"],
+      "stats": {
+        "hp": 880,
+        "attack": 82,
+        "armor": 58,
+        "magic_resist": 48,
+        "attack_speed": 0.7,
+        "range": 1
+      },
+      "skill": {
+        "name": "怒涛战船",
+        "mana_cost": 110,
+        "initial_mana": 40,
+        "description": "孙策驾驶战船冲锋，对路径上敌人造成伤害并眩晕",
+        "effects": [
+          {"type": "line_damage", "damage_type": "physical", "value": 450, "scaling": "attack"},
+          {"type": "stun", "duration": 2, "target": "all_hit"}
+        ]
+      }
+    },
+    {
+      "id": "zhangfei",
+      "name": "张飞",
+      "title": "燕人张翼德",
+      "cost": 4,
+      "origins": ["ThreeKingdoms", "Human"],
+      "classes": ["Tank"],
+      "stats": {
+        "hp": 1000,
+        "attack": 70,
+        "armor": 72,
+        "magic_resist": 50,
+        "attack_speed": 0.6,
+        "range": 1
+      },
+      "skill": {
+        "name": "狂兽血性",
+        "mana_cost": 120,
+        "initial_mana": 50,
+        "description": "张飞变身狂兽，获得巨额护盾并对周围敌人造成伤害和恐惧",
+        "effects": [
+          {"type": "shield", "value": 60, "scaling": "max_hp"},
+          {"type": "aoe_damage", "damage_type": "magic", "value": 300, "scaling": "ap", "radius": 3},
+          {"type": "fear", "duration": 1.5, "radius": 3}
+        ]
+      }
+    },
+    {
+      "id": "lvbu",
+      "name": "吕布",
+      "title": "无双战神",
+      "cost": 5,
+      "origins": ["ThreeKingdoms", "Demon"],
+      "classes": ["Warrior"],
+      "stats": {
+        "hp": 1200,
+        "attack": 95,
+        "armor": 65,
+        "magic_resist": 45,
+        "attack_speed": 0.75,
+        "range": 1
+      },
+      "skill": {
+        "name": "魔神降世",
+        "mana_cost": 140,
+        "initial_mana": 50,
+        "description": "吕布化身魔神跃向地面，造成AOE真实伤害并击飞",
+        "effects": [
+          {"type": "aoe_damage", "damage_type": "true", "value": 500, "scaling": "attack", "radius": 3},
+          {"type": "knockup", "duration": 2, "radius": 3},
+          {"type": "buff", "attribute": "attack", "value": 50, "duration": 8}
+        ]
+      }
+    },
+    {
+      "id": "wuzetian",
+      "name": "武则天",
+      "title": "女帝",
+      "cost": 5,
+      "origins": ["Divine", "Human"],
+      "classes": ["Mage"],
+      "stats": {
+        "hp": 680,
+        "attack": 55,
+        "armor": 38,
+        "magic_resist": 65,
+        "attack_speed": 0.6,
+        "range": 3
+      },
+      "skill": {
+        "name": "女帝辉光",
+        "mana_cost": 150,
+        "initial_mana": 60,
+        "description": "武则天召唤女帝光辉，对所有敌人造成伤害并眩晕",
+        "effects": [
+          {"type": "global_damage", "damage_type": "magic", "value": 550, "scaling": "ap"},
+          {"type": "stun", "duration": 1.5, "target": "all_enemies"}
+        ]
+      }
+    },
+    {
+      "id": "yingzheng",
+      "name": "嬴政",
+      "title": "千古一帝",
+      "cost": 5,
+      "origins": ["Divine", "Human"],
+      "classes": ["Mage"],
+      "stats": {
+        "hp": 650,
+        "attack": 52,
+        "armor": 35,
+        "magic_resist": 60,
+        "attack_speed": 0.6,
+        "range": 4
+      },
+      "skill": {
+        "name": "至尊王权",
+        "mana_cost": 130,
+        "initial_mana": 55,
+        "description": "嬴政召唤99把飞剑，对前方扇形区域持续造成伤害",
+        "effects": [
+          {"type": "cone_damage", "damage_type": "magic", "value": 180, "scaling": "ap", "duration": 3, "tick_rate": 0.3}
+        ]
+      }
+    },
+    {
+      "id": "sunwukong",
+      "name": "孙悟空",
+      "title": "齐天大圣",
+      "cost": 5,
+      "origins": ["Divine", "Western"],
+      "classes": ["Assassin", "Warrior"],
+      "stats": {
+        "hp": 750,
+        "attack": 98,
+        "armor": 48,
+        "magic_resist": 42,
+        "attack_speed": 0.8,
+        "range": 1
+      },
+      "skill": {
+        "name": "大圣神威",
+        "mana_cost": 125,
+        "initial_mana": 50,
+        "description": "孙悟空挥舞金箍棒，对周围敌人造成伤害并击飞，同时获得护盾",
+        "effects": [
+          {"type": "aoe_damage", "damage_type": "physical", "value": 480, "scaling": "attack", "radius": 2.5},
+          {"type": "knockup", "duration": 1.5, "radius": 2.5},
+          {"type": "shield", "value": 40, "scaling": "max_hp"}
+        ]
+      }
+    },
+    {
+      "id": "shangguanwaner",
+      "name": "上官婉儿",
+      "title": "惊鸿之笔",
+      "cost": 5,
+      "origins": ["Human", "Jixia"],
+      "classes": ["Assassin", "Mage"],
+      "stats": {
+        "hp": 600,
+        "attack": 70,
+        "armor": 32,
+        "magic_resist": 55,
+        "attack_speed": 0.7,
+        "range": 1
+      },
+      "skill": {
+        "name": "章草·横鳞",
+        "mana_cost": 120,
+        "initial_mana": 55,
+        "description": "上官婉儿挥笔冲刺5次，期间不可被选中，最后造成AOE伤害",
+        "effects": [
+          {"type": "multi_dash", "count": 5, "damage_per_dash": 120, "scaling": "ap"},
+          {"type": "untargetable", "duration": 2.5},
+          {"type": "aoe_damage", "damage_type": "magic", "value": 400, "scaling": "ap", "radius": 2, "on_final": true}
+        ]
+      }
+    },
+    {
+      "id": "mengtian",
+      "name": "蒙恬",
+      "title": "秩序之盾",
+      "cost": 5,
+      "origins": ["Human", "Knights"],
+      "classes": ["Tank", "Warrior"],
+      "stats": {
+        "hp": 1100,
+        "attack": 75,
+        "armor": 75,
+        "magic_resist": 55,
+        "attack_speed": 0.65,
+        "range": 1
+      },
+      "skill": {
+        "name": "独守边疆",
+        "mana_cost": 130,
+        "initial_mana": 55,
+        "description": "蒙恬举盾进入防御姿态，减少受到伤害并反弹伤害给攻击者",
+        "effects": [
+          {"type": "buff", "attribute": "damage_reduction", "value": 60, "duration": 5},
+          {"type": "thorns", "value": 30, "duration": 5}
+        ]
+      }
+    },
+    {
+      "id": "guiguzi",
+      "name": "鬼谷子",
+      "title": "万物有灵",
+      "cost": 3,
+      "origins": ["Demon", "Jixia"],
+      "classes": ["Support"],
+      "stats": {
+        "hp": 650,
+        "attack": 48,
+        "armor": 40,
+        "magic_resist": 58,
+        "attack_speed": 0.65,
+        "range": 3
+      },
+      "skill": {
+        "name": "万物有灵",
+        "mana_cost": 85,
+        "initial_mana": 35,
+        "description": "鬼谷子隐身并拉扯周围敌人到身边，同时降低其魔抗",
+        "effects": [
+          {"type": "stealth", "duration": 1},
+          {"type": "pull", "radius": 3},
+          {"type": "debuff", "attribute": "magic_resist", "value": 40, "duration": 4, "radius": 3}
+        ]
+      }
+    },
+    {
+      "id": "ailin",
+      "name": "艾琳",
+      "title": "精灵之舞",
+      "cost": 4,
+      "origins": ["Divine", "Human"],
+      "classes": ["Marksman"],
+      "stats": {
+        "hp": 580,
+        "attack": 88,
+        "armor": 32,
+        "magic_resist": 35,
+        "attack_speed": 0.85,
+        "range": 4
+      },
+      "skill": {
+        "name": "精灵之舞",
+        "mana_cost": 95,
+        "initial_mana": 40,
+        "description": "艾琳进入舞蹈状态，普攻变为穿透箭矢并增加攻速",
+        "effects": [
+          {"type": "buff", "attribute": "attack_speed", "value": 60, "duration": 5},
+          {"type": "modify_attack", "effect": "piercing", "targets": 2, "damage_percent": 70, "duration": 5}
+        ]
+      }
+    },
+    {
+      "id": "gongbenwucao",
+      "name": "宫本武藏",
+      "title": "剑圣",
+      "cost": 4,
+      "origins": ["Western", "Human"],
+      "classes": ["Assassin", "Warrior"],
+      "stats": {
+        "hp": 680,
+        "attack": 90,
+        "armor": 42,
+        "magic_resist": 40,
+        "attack_speed": 0.8,
+        "range": 1
+      },
+      "skill": {
+        "name": "二天一流",
+        "mana_cost": 100,
+        "initial_mana": 40,
+        "description": "宫本武藏锁定一名敌人发起斩击，造成伤害并使其减速，同时进入无敌状态",
+        "effects": [
+          {"type": "targeted_damage", "damage_type": "physical", "value": 450, "scaling": "attack", "target": "lowest_hp"},
+          {"type": "slow", "value": 60, "duration": 2},
+          {"type": "untargetable", "duration": 1}
+        ]
+      }
+    },
+    {
+      "id": "ganjiangmoye",
+      "name": "干将莫邪",
+      "title": "淬命双剑",
+      "cost": 4,
+      "origins": ["Human", "Jixia"],
+      "classes": ["Mage"],
+      "stats": {
+        "hp": 600,
+        "attack": 50,
+        "armor": 32,
+        "magic_resist": 55,
+        "attack_speed": 0.6,
+        "range": 4
+      },
+      "skill": {
+        "name": "剑来",
+        "mana_cost": 95,
+        "initial_mana": 40,
+        "description": "干将莫邪向前方投掷双剑，交叉点造成双倍伤害",
+        "effects": [
+          {"type": "dual_projectile", "damage_type": "magic", "value": 280, "scaling": "ap"},
+          {"type": "bonus_damage", "condition": "intersection", "multiplier": 2}
+        ]
+      }
+    },
+    {
+      "id": "suilie",
+      "name": "盾山",
+      "title": "无尽之盾",
+      "cost": 3,
+      "origins": ["Machine", "Guardians"],
+      "classes": ["Tank", "Support"],
+      "stats": {
+        "hp": 950,
+        "attack": 55,
+        "armor": 68,
+        "magic_resist": 52,
+        "attack_speed": 0.55,
+        "range": 1
+      },
+      "skill": {
+        "name": "不动如山",
+        "mana_cost": 80,
+        "initial_mana": 30,
+        "description": "盾山举起盾牌，格挡前方所有飞行物并为身后友军提供护盾",
+        "effects": [
+          {"type": "windwall", "duration": 4},
+          {"type": "ally_shield", "value": 20, "scaling": "max_hp", "target": "behind", "duration": 4}
+        ]
+      }
+    },
+    {
+      "id": "buzhihuowu",
+      "name": "不知火舞",
+      "title": "明媚烈焰",
+      "cost": 3,
+      "origins": ["Western", "Beauty"],
+      "classes": ["Assassin", "Mage"],
+      "stats": {
+        "hp": 600,
+        "attack": 75,
+        "armor": 35,
+        "magic_resist": 50,
+        "attack_speed": 0.75,
+        "range": 1
+      },
+      "skill": {
+        "name": "必杀·忍蜂",
+        "mana_cost": 85,
+        "initial_mana": 35,
+        "description": "不知火舞向前冲刺，对路径上敌人造成伤害并击退",
+        "effects": [
+          {"type": "line_damage", "damage_type": "magic", "value": 350, "scaling": "ap"},
+          {"type": "knockback", "distance": 2}
+        ]
+      }
+    }
+  ]
+}

@@ -2,17 +2,20 @@
 王者之奕 - 英雄配置模型
 
 本模块定义英雄配置相关的数据库模型：
-- HeroConfig: 英雄基础配置
-- HeroVersion: 英雄版本历史
-- SynergyConfig: 羁绊配置
-- HeroSynergy: 英雄羁绊关联
+- HeroConfigDB: 英雄基础配置
+- HeroVersionDB: 英雄版本历史
+- SynergyConfigDB: 羁绊配置
+- GameConfigDB: 游戏全局配置
+- SeasonConfigDB: 赛季配置
+
+支持热更新和版本管理。
 """
 
 from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum as PyEnum
-from typing import Any
+from typing import Any, Optional, List
 
 from sqlalchemy import (
     Boolean,
@@ -29,7 +32,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.mysql import JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .base import BaseModel
+from .base import Base, IdMixin, TimestampMixin
 
 
 class HeroStatus(str, PyEnum):
@@ -46,7 +49,7 @@ class SynergyType(str, PyEnum):
     CLASS = "class"     # 职业
 
 
-class HeroConfig(BaseModel):
+class HeroConfigDB(Base, IdMixin, TimestampMixin):
     """
     英雄配置模型
     
@@ -78,8 +81,6 @@ class HeroConfig(BaseModel):
         is_enabled: 是否启用
         version: 当前版本号
         changelog: 更新日志（JSON）
-        created_at: 创建时间
-        updated_at: 更新时间
     """
     
     __tablename__ = "hero_configs"
@@ -104,7 +105,7 @@ class HeroConfig(BaseModel):
         nullable=False,
         comment="英雄名称",
     )
-    description: Mapped[str | None] = mapped_column(
+    description: Mapped[Optional[str]] = mapped_column(
         Text,
         nullable=True,
         comment="英雄描述",
@@ -161,12 +162,12 @@ class HeroConfig(BaseModel):
     )
     
     # 技能信息
-    skill_name: Mapped[str | None] = mapped_column(
+    skill_name: Mapped[Optional[str]] = mapped_column(
         String(50),
         nullable=True,
         comment="技能名称",
     )
-    skill_description: Mapped[str | None] = mapped_column(
+    skill_description: Mapped[Optional[str]] = mapped_column(
         Text,
         nullable=True,
         comment="技能描述",
@@ -195,19 +196,19 @@ class HeroConfig(BaseModel):
         nullable=False,
         comment="技能目标类型",
     )
-    skill_effects: Mapped[dict[str, Any] | None] = mapped_column(
+    skill_effects: Mapped[Optional[dict]] = mapped_column(
         JSON,
         nullable=True,
         comment="技能效果",
     )
     
     # 其他配置
-    star_multipliers: Mapped[dict[str, Any] | None] = mapped_column(
+    star_multipliers: Mapped[Optional[dict]] = mapped_column(
         JSON,
         nullable=True,
         comment="星级倍率",
     )
-    tags: Mapped[list[str] | None] = mapped_column(
+    tags: Mapped[Optional[list]] = mapped_column(
         JSON,
         nullable=True,
         comment="标签",
@@ -234,21 +235,24 @@ class HeroConfig(BaseModel):
         nullable=False,
         comment="当前版本号",
     )
-    changelog: Mapped[list[dict[str, Any]] | None] = mapped_column(
+    changelog: Mapped[Optional[list]] = mapped_column(
         JSON,
         nullable=True,
         comment="更新日志",
     )
     
     # 关联关系
-    versions: Mapped[list[HeroVersion]] = relationship(
-        "HeroVersion",
+    versions: Mapped[List["HeroVersionDB"]] = relationship(
+        "HeroVersionDB",
         back_populates="hero",
         lazy="dynamic",
         cascade="all, delete-orphan",
     )
     
-    def create_version_snapshot(self, reason: str = "") -> HeroVersion:
+    def __repr__(self) -> str:
+        return f"<HeroConfigDB(id={self.id}, hero_id='{self.hero_id}', name='{self.name}')>"
+    
+    def create_version_snapshot(self, reason: str = "") -> "HeroVersionDB":
         """
         创建当前配置的版本快照
         
@@ -258,10 +262,10 @@ class HeroConfig(BaseModel):
         Returns:
             新创建的版本记录
         """
-        return HeroVersion(
+        return HeroVersionDB(
             hero_id=self.id,
             version_number=self.version,
-            config_snapshot=self.to_dict(exclude={"id", "created_at", "updated_at", "versions"}),
+            config_snapshot=self.to_dict(),
             change_reason=reason,
         )
     
@@ -269,7 +273,7 @@ class HeroConfig(BaseModel):
         self,
         updates: dict[str, Any],
         reason: str = "",
-    ) -> HeroVersion:
+    ) -> "HeroVersionDB":
         """
         应用配置更新并创建版本记录
         
@@ -310,20 +314,6 @@ class HeroConfig(BaseModel):
         Returns:
             游戏模板字典
         """
-        from ..shared.models import Skill
-        
-        skill = None
-        if self.skill_name:
-            skill = Skill(
-                name=self.skill_name,
-                description=self.skill_description or "",
-                mana_cost=self.skill_mana_cost,
-                damage=self.skill_damage,
-                damage_type=self.skill_damage_type,
-                target_type=self.skill_target_type,
-                effect_data=self.skill_effects or {},
-            )
-        
         return {
             "hero_id": self.hero_id,
             "name": self.name,
@@ -334,11 +324,19 @@ class HeroConfig(BaseModel):
             "base_attack": self.base_attack,
             "base_defense": self.base_defense,
             "attack_speed": self.attack_speed,
-            "skill": skill.to_dict() if skill else None,
+            "skill": {
+                "name": self.skill_name,
+                "description": self.skill_description or "",
+                "mana_cost": self.skill_mana_cost,
+                "damage": self.skill_damage,
+                "damage_type": self.skill_damage_type,
+                "target_type": self.skill_target_type,
+                "effect_data": self.skill_effects or {},
+            } if self.skill_name else None,
         }
 
 
-class HeroVersion(BaseModel):
+class HeroVersionDB(Base, IdMixin, TimestampMixin):
     """
     英雄版本历史模型
     
@@ -351,8 +349,6 @@ class HeroVersion(BaseModel):
         config_snapshot: 配置快照（JSON）
         change_reason: 变更原因
         changed_by: 变更人
-        created_at: 创建时间
-        updated_at: 更新时间
     """
     
     __tablename__ = "hero_versions"
@@ -376,32 +372,35 @@ class HeroVersion(BaseModel):
         comment="版本号",
     )
     
-    config_snapshot: Mapped[dict[str, Any]] = mapped_column(
+    config_snapshot: Mapped[dict] = mapped_column(
         JSON,
         nullable=False,
         comment="配置快照",
     )
     
-    change_reason: Mapped[str | None] = mapped_column(
+    change_reason: Mapped[Optional[str]] = mapped_column(
         String(500),
         nullable=True,
         comment="变更原因",
     )
     
-    changed_by: Mapped[str | None] = mapped_column(
+    changed_by: Mapped[Optional[str]] = mapped_column(
         String(100),
         nullable=True,
         comment="变更人",
     )
     
     # 关联关系
-    hero: Mapped[HeroConfig] = relationship(
-        "HeroConfig",
+    hero: Mapped[HeroConfigDB] = relationship(
+        "HeroConfigDB",
         back_populates="versions",
     )
+    
+    def __repr__(self) -> str:
+        return f"<HeroVersionDB(hero_id={self.hero_id}, version={self.version_number})>"
 
 
-class SynergyConfig(BaseModel):
+class SynergyConfigDB(Base, IdMixin, TimestampMixin):
     """
     羁绊配置模型
     
@@ -416,8 +415,6 @@ class SynergyConfig(BaseModel):
         levels: 羁绊等级配置（JSON）
         is_enabled: 是否启用
         version: 当前版本号
-        created_at: 创建时间
-        updated_at: 更新时间
     """
     
     __tablename__ = "synergy_configs"
@@ -447,13 +444,13 @@ class SynergyConfig(BaseModel):
         comment="羁绊类型",
     )
     
-    description: Mapped[str | None] = mapped_column(
+    description: Mapped[Optional[str]] = mapped_column(
         Text,
         nullable=True,
         comment="羁绊描述",
     )
     
-    levels: Mapped[list[dict[str, Any]]] = mapped_column(
+    levels: Mapped[list] = mapped_column(
         JSON,
         nullable=False,
         comment="羁绊等级配置",
@@ -473,7 +470,10 @@ class SynergyConfig(BaseModel):
         comment="当前版本号",
     )
     
-    def get_level_for_count(self, count: int) -> dict[str, Any] | None:
+    def __repr__(self) -> str:
+        return f"<SynergyConfigDB(id={self.id}, synergy_id='{self.synergy_id}', name='{self.name}')>"
+    
+    def get_level_for_count(self, count: int) -> Optional[dict[str, Any]]:
         """
         根据英雄数量获取对应的羁绊等级
         
@@ -492,7 +492,7 @@ class SynergyConfig(BaseModel):
         return active_level
 
 
-class GameConfig(BaseModel):
+class GameConfigDB(Base, IdMixin, TimestampMixin):
     """
     游戏全局配置模型
     
@@ -507,8 +507,6 @@ class GameConfig(BaseModel):
         is_active: 是否激活
         valid_from: 生效开始时间
         valid_until: 生效结束时间
-        created_at: 创建时间
-        updated_at: 更新时间
     """
     
     __tablename__ = "game_configs"
@@ -525,13 +523,13 @@ class GameConfig(BaseModel):
         comment="配置键",
     )
     
-    config_value: Mapped[dict[str, Any]] = mapped_column(
+    config_value: Mapped[dict] = mapped_column(
         JSON,
         nullable=False,
         comment="配置值",
     )
     
-    description: Mapped[str | None] = mapped_column(
+    description: Mapped[Optional[str]] = mapped_column(
         Text,
         nullable=True,
         comment="配置描述",
@@ -551,17 +549,20 @@ class GameConfig(BaseModel):
         comment="是否激活",
     )
     
-    valid_from: Mapped[datetime | None] = mapped_column(
+    valid_from: Mapped[Optional[datetime]] = mapped_column(
         DateTime,
         nullable=True,
         comment="生效开始时间",
     )
     
-    valid_until: Mapped[datetime | None] = mapped_column(
+    valid_until: Mapped[Optional[datetime]] = mapped_column(
         DateTime,
         nullable=True,
         comment="生效结束时间",
     )
+    
+    def __repr__(self) -> str:
+        return f"<GameConfigDB(key='{self.config_key}', category='{self.category}')>"
     
     @property
     def is_valid(self) -> bool:
@@ -574,7 +575,7 @@ class GameConfig(BaseModel):
         return self.is_active
 
 
-class SeasonConfig(BaseModel):
+class SeasonConfigDB(Base, IdMixin, TimestampMixin):
     """
     赛季配置模型
     
@@ -590,8 +591,6 @@ class SeasonConfig(BaseModel):
         rank_reset_rule: 段位重置规则（JSON）
         rewards: 赛季奖励配置（JSON）
         hero_pool: 英雄池配置（JSON）
-        created_at: 创建时间
-        updated_at: 更新时间
     """
     
     __tablename__ = "season_configs"
@@ -634,23 +633,26 @@ class SeasonConfig(BaseModel):
         comment="是否当前赛季",
     )
     
-    rank_reset_rule: Mapped[dict[str, Any] | None] = mapped_column(
+    rank_reset_rule: Mapped[Optional[dict]] = mapped_column(
         JSON,
         nullable=True,
         comment="段位重置规则",
     )
     
-    rewards: Mapped[dict[str, Any] | None] = mapped_column(
+    rewards: Mapped[Optional[dict]] = mapped_column(
         JSON,
         nullable=True,
         comment="赛季奖励配置",
     )
     
-    hero_pool: Mapped[dict[str, Any] | None] = mapped_column(
+    hero_pool: Mapped[Optional[dict]] = mapped_column(
         JSON,
         nullable=True,
         comment="英雄池配置",
     )
+    
+    def __repr__(self) -> str:
+        return f"<SeasonConfigDB(season_id='{self.season_id}', name='{self.season_name}')>"
     
     @property
     def is_active(self) -> bool:
