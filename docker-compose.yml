@@ -1,0 +1,296 @@
+# =============================================================================
+# 王者之奕 - Docker Compose 生产环境配置
+# =============================================================================
+# 使用方式：
+#   启动: docker compose up -d
+#   停止: docker compose down
+#   日志: docker compose logs -f game-server
+#   备份: docker compose exec mysql mysqldump -u root -p wangzhe > backup.sql
+# =============================================================================
+
+version: "3.8"
+
+# =============================================================================
+# 服务定义
+# =============================================================================
+services:
+  # ---------------------------------------------------------------------------
+  # 游戏服务器 - FastAPI + Uvicorn
+  # ---------------------------------------------------------------------------
+  game-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+      args:
+        - PYTHON_VERSION=3.11
+    image: wangzhe-chess:${VERSION:-latest}
+    container_name: wangzhe-server
+    hostname: game-server
+    
+    # 重启策略：失败后自动重启，最多重试 5 次
+    restart: unless-stopped
+    
+    # 端口映射
+    # 格式: 宿主机端口:容器端口
+    ports:
+      - "${SERVER_PORT:-8000}:8000"
+    
+    # 环境变量配置
+    environment:
+      # 运行环境
+      - APP_ENV=${APP_ENV:-production}
+      - DEBUG=${DEBUG:-false}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      
+      # 服务器配置
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=8000
+      - SECRET_KEY=${SECRET_KEY:?SECRET_KEY is required}
+      
+      # 数据库配置（MySQL）
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=${DB_NAME:-wangzhe}
+      - DB_USER=${DB_USER:-wangzhe}
+      - DB_PASSWORD=${DB_PASSWORD:?DB_PASSWORD is required}
+      
+      # Redis 配置
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - REDIS_DB=${REDIS_DB:-0}
+      
+      # 游戏配置
+      - MAX_PLAYERS_PER_ROOM=${MAX_PLAYERS_PER_ROOM:-8}
+      - GAME_TICK_RATE=${GAME_TICK_RATE:-30}
+      
+      # 安全配置
+      - CORS_ORIGINS=${CORS_ORIGINS:-*}
+      - RATE_LIMIT_PER_MINUTE=${RATE_LIMIT_PER_MINUTE:-60}
+    
+    # 从 .env 文件加载环境变量
+    env_file:
+      - .env
+    
+    # 依赖服务
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    
+    # 资源限制（生产环境建议配置）
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    
+    # 日志配置
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+        labels: "service,environment"
+        tag: "{{.Name}}/{{.ID}}"
+    
+    # 网络配置
+    networks:
+      - wangzhe-network
+    
+    # 安全配置
+    security_opt:
+      - no-new-privileges:true
+    read_only: false
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+
+  # ---------------------------------------------------------------------------
+  # MySQL 数据库 - 游戏数据持久化
+  # ---------------------------------------------------------------------------
+  mysql:
+    image: mysql:8.0
+    container_name: wangzhe-mysql
+    hostname: mysql
+    restart: unless-stopped
+    
+    # 环境变量
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is required}
+      - MYSQL_DATABASE=${DB_NAME:-wangzhe}
+      - MYSQL_USER=${DB_USER:-wangzhe}
+      - MYSQL_PASSWORD=${DB_PASSWORD:?DB_PASSWORD is required}
+      
+      # MySQL 配置
+      - MYSQL_CHARSET=utf8mb4
+      - MYSQL_COLLATION=utf8mb4_unicode_ci
+    
+    # 端口映射（仅在需要外部访问时启用）
+    # ports:
+    #   - "${MYSQL_PORT:-3306}:3306"
+    
+    # 数据持久化
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
+      - ./docker/mysql/conf.d:/etc/mysql/conf.d:ro
+    
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    
+    # 命令参数（优化配置）
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+      - --max_connections=500
+      - --innodb_buffer_pool_size=256M
+      - --innodb_log_file_size=64M
+      - --innodb_flush_log_at_trx_commit=2
+      - --innodb_flush_method=O_DIRECT
+      - --slow_query_log=1
+      - --slow_query_log_file=/var/lib/mysql/slow.log
+      - --long_query_time=2
+    
+    # 资源限制
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    
+    # 日志配置
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    # 网络配置
+    networks:
+      - wangzhe-network
+    
+    # 安全配置
+    security_opt:
+      - no-new-privileges:true
+
+  # ---------------------------------------------------------------------------
+  # Redis - 缓存和会话存储
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7.2-alpine
+    container_name: wangzhe-redis
+    hostname: redis
+    restart: unless-stopped
+    
+    # 端口映射（仅在需要外部访问时启用）
+    # ports:
+    #   - "${REDIS_PORT:-6379}:6379"
+    
+    # 数据持久化
+    volumes:
+      - redis_data:/data
+    
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    
+    # 命令参数
+    # - appendonly: AOF 持久化
+    # - maxmemory: 最大内存限制
+    # - maxmemory-policy: 内存淘汰策略（LRU）
+    command: >
+      redis-server
+      --appendonly yes
+      --appendfsync everysec
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      ${REDIS_PASSWORD:+--requirepass ${REDIS_PASSWORD}}
+    
+    # 资源限制
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    
+    # 日志配置
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "3"
+    
+    # 网络配置
+    networks:
+      - wangzhe-network
+    
+    # 安全配置
+    security_opt:
+      - no-new-privileges:true
+
+# =============================================================================
+# 网络定义
+# =============================================================================
+networks:
+  wangzhe-network:
+    driver: bridge
+    name: wangzhe-network
+    # 网络配置
+    driver_opts:
+      com.docker.network.bridge.enable_icc: "true"
+      com.docker.network.bridge.enable_ip_masquerade: "true"
+    # IP 地址管理（可选）
+    # ipam:
+    #   config:
+    #     - subnet: 172.28.0.0/16
+
+# =============================================================================
+# 卷定义（持久化存储）
+# =============================================================================
+volumes:
+  mysql_data:
+    name: wangzhe-mysql-data
+    driver: local
+    # driver_opts:
+    #   type: none
+    #   o: bind
+    #   device: /data/wangzhe/mysql
+  
+  redis_data:
+    name: wangzhe-redis-data
+    driver: local
+    # driver_opts:
+    #   type: none
+    #   o: bind
+    #   device: /data/wangzhe/redis

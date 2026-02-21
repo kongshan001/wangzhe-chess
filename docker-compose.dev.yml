@@ -1,0 +1,169 @@
+# =============================================================================
+# 王者之奕 - Docker Compose 开发环境配置
+# =============================================================================
+# 使用方式：
+#   启动: docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+#   或者: docker compose --profile dev up -d
+#   停止: docker compose --profile dev down
+# =============================================================================
+
+version: "3.8"
+
+# =============================================================================
+# 服务覆盖（开发环境）
+# =============================================================================
+services:
+  game-server:
+    # 使用开发构建目标
+    build:
+      target: development
+    image: wangzhe-chess:dev
+    
+    # 开发环境变量
+    environment:
+      - APP_ENV=development
+      - DEBUG=true
+      - LOG_LEVEL=debug
+      - PYTHONUNBUFFERED=1
+      # 开发模式：禁用速率限制
+      - RATE_LIMIT_PER_MINUTE=0
+      # 允许所有来源的 CORS
+      - CORS_ORIGINS=*
+    
+    # 代码热重载：挂载本地代码目录
+    volumes:
+      - ./src:/app/src:ro
+      - ./tests:/app/tests:ro
+      - ./pyproject.toml:/app/pyproject.toml:ro
+      # 配置文件挂载
+      - ./config:/app/config:ro
+      # 开发数据目录
+      - ./data:/app/data
+    
+    # 开发端口（包括调试端口）
+    ports:
+      - "${SERVER_PORT:-8000}:8000"
+      - "${DEBUG_PORT:-5678}:5678"  # debugpy 调试端口
+    
+    # 开发模式：覆盖启动命令
+    command: >
+      python -m debugpy
+      --listen 0.0.0.0:5678
+      --wait-for-client
+      -m uvicorn src.server.main:app
+      --host 0.0.0.0
+      --port 8000
+      --reload
+      --log-level debug
+    
+    # 开发模式：移除资源限制
+    deploy: null
+    
+    # 开发模式：宽松的安全配置
+    security_opt: []
+    cap_drop: []
+    read_only: false
+    
+    # 开发模式：不使用非 root 用户（便于调试）
+    user: root
+
+  # ---------------------------------------------------------------------------
+  # MySQL 开发配置
+  # ---------------------------------------------------------------------------
+  mysql:
+    # 暴露端口（便于本地工具连接）
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    
+    # 开发环境：宽松的资源限制
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    
+    # 开发配置
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+      - --max_connections=200
+      - --innodb_buffer_pool_size=128M
+      # 开发模式：启用 general log（调试用）
+      # - --general_log=1
+      # - --general_log_file=/var/lib/mysql/general.log
+
+  # ---------------------------------------------------------------------------
+  # Redis 开发配置
+  # ---------------------------------------------------------------------------
+  redis:
+    # 暴露端口
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    
+    # 开发环境：不设置密码
+    command: redis-server --appendonly yes
+    
+    # 开发配置：宽松资源限制
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  # ---------------------------------------------------------------------------
+  # Adminer - 数据库管理工具（仅开发环境）
+  # ---------------------------------------------------------------------------
+  adminer:
+    image: adminer:latest
+    container_name: wangzhe-adminer
+    hostname: adminer
+    restart: unless-stopped
+    
+    ports:
+      - "${ADMINER_PORT:-8080}:8080"
+    
+    environment:
+      - ADMINER_DEFAULT_SERVER=mysql
+      - ADMINER_DESIGN=pepa-linha-dark
+    
+    depends_on:
+      - mysql
+    
+    networks:
+      - wangzhe-network
+    
+    # 仅在开发配置中启用
+    profiles:
+      - dev
+      - tools
+
+  # ---------------------------------------------------------------------------
+  # Redis Commander - Redis 管理工具（仅开发环境）
+  # ---------------------------------------------------------------------------
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: wangzhe-redis-commander
+    hostname: redis-commander
+    restart: unless-stopped
+    
+    ports:
+      - "${REDIS_COMMANDER_PORT:-8081}:8081"
+    
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    
+    depends_on:
+      - redis
+    
+    networks:
+      - wangzhe-network
+    
+    profiles:
+      - dev
+      - tools
+
+# =============================================================================
+# 开发网络（可选：使用 host 模式）
+# =============================================================================
+# networks:
+#   wangzhe-network:
+#     driver: host

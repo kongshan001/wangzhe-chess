@@ -1,0 +1,251 @@
+"""
+王者之奕 - 协议模块
+
+本模块提供 WebSocket 通信的协议定义和编解码功能。
+
+主要导出：
+- 消息类型（MessageType 枚举和具体消息类）
+- 消息编解码器（MessageCodec, MessageEncoder, MessageDecoder）
+- 便捷函数（encode_message, decode_message, create_error_message）
+- 消息数据模型（PositionData, HeroData, PlayerInfoData 等）
+
+使用示例:
+    from src.shared.protocol import (
+        MessageType,
+        ConnectMessage,
+        encode_message,
+        decode_message,
+    )
+    
+    # 创建消息
+    msg = ConnectMessage(player_id="123", token="abc")
+    
+    # 编码
+    json_str = encode_message(msg)
+    
+    # 解码
+    decoded = decode_message(json_str)
+"""
+
+from .codec import (
+    MessageCodec,
+    MessageCodecError,
+    MessageDecoder,
+    MessageEncoder,
+    create_error_message,
+    decode_message,
+    default_codec,
+    encode_message,
+    get_message_class,
+    is_message_type_registered,
+    is_valid_message,
+    register_message_type,
+    unregister_message_type,
+    validate_message_type,
+)
+from .messages import (
+    ActiveSynergyData,
+    BaseMessage,
+    BattleEventMessage,
+    BattleResultMessage,
+    BattleStartMessage,
+    BattleSyncMessage,
+    BoardData,
+    BuyExpMessage,
+    CancelReadyMessage,
+    ConnectMessage,
+    ConnectedMessage,
+    CreateRoomMessage,
+    DisconnectMessage,
+    ErrorMessage,
+    ExpGainedMessage,
+    GameOverMessage,
+    GamePauseMessage,
+    GameResumeMessage,
+    GameStartMessage,
+    GetRoomInfoMessage,
+    GetRoomListMessage,
+    HeartbeatAckMessage,
+    HeartbeatMessage,
+    HeroData,
+    HeroMovedMessage,
+    HeroMoveMessage,
+    HeroPlacedMessage,
+    HeroPlaceMessage,
+    HeroRemoveMessage,
+    HeroRemovedMessage,
+    HeroSellMessage,
+    HeroSoldMessage,
+    HeroUpgradedMessage,
+    HeroUpgradeMessage,
+    IncomeData,
+    JoinRoomMessage,
+    LeaveRoomMessage,
+    LevelUpMessage,
+    MatchupData,
+    MESSAGE_CLASS_MAP,
+    MessageType,
+    PlayerEliminatedMessage,
+    PlayerGoldUpdateMessage,
+    PlayerHpUpdateMessage,
+    PlayerInfoData,
+    PlayerJoinedMessage,
+    PlayerLeftMessage,
+    PlayerLevelUpdateMessage,
+    PlayerReadyChangedMessage,
+    PlayerRoundResultData,
+    PlayerStateData,
+    PlayerStateUpdateMessage,
+    PositionData,
+    PreparationStartMessage,
+    RankingData,
+    ReadyMessage,
+    ReconnectMessage,
+    ReconnectedMessage,
+    RoomCreatedMessage,
+    RoomInfoData,
+    RoomInfoMessage,
+    RoomJoinedMessage,
+    RoomLeftMessage,
+    RoomListMessage,
+    RoundEndMessage,
+    RoundStartMessage,
+    ShopBuyMessage,
+    ShopBuySuccessMessage,
+    ShopLockMessage,
+    ShopLockedMessage,
+    ShopRefreshMessage,
+    ShopRefreshedMessage,
+    ShopSlotData,
+    ShopUnlockMessage,
+    ShopUnlockedMessage,
+    SynergyUpdateMessage,
+)
+
+__all__ = [
+    # 消息类型枚举
+    "MessageType",
+    
+    # 基础消息类
+    "BaseMessage",
+    
+    # 连接相关消息
+    "ConnectMessage",
+    "ConnectedMessage",
+    "DisconnectMessage",
+    "HeartbeatMessage",
+    "HeartbeatAckMessage",
+    "ReconnectMessage",
+    "ReconnectedMessage",
+    
+    # 房间相关消息
+    "CreateRoomMessage",
+    "RoomCreatedMessage",
+    "JoinRoomMessage",
+    "RoomJoinedMessage",
+    "LeaveRoomMessage",
+    "RoomLeftMessage",
+    "ReadyMessage",
+    "CancelReadyMessage",
+    "GetRoomInfoMessage",
+    "RoomInfoMessage",
+    "GetRoomListMessage",
+    "RoomListMessage",
+    "PlayerJoinedMessage",
+    "PlayerLeftMessage",
+    "PlayerReadyChangedMessage",
+    
+    # 商店操作消息
+    "ShopRefreshMessage",
+    "ShopRefreshedMessage",
+    "ShopBuyMessage",
+    "ShopBuySuccessMessage",
+    "HeroSellMessage",
+    "HeroSoldMessage",
+    "ShopLockMessage",
+    "ShopLockedMessage",
+    "ShopUnlockMessage",
+    "ShopUnlockedMessage",
+    
+    # 英雄操作消息
+    "HeroPlaceMessage",
+    "HeroPlacedMessage",
+    "HeroMoveMessage",
+    "HeroMovedMessage",
+    "HeroRemoveMessage",
+    "HeroRemovedMessage",
+    "HeroUpgradeMessage",
+    "HeroUpgradedMessage",
+    
+    # 回合状态消息
+    "RoundStartMessage",
+    "PreparationStartMessage",
+    "BattleStartMessage",
+    "RoundEndMessage",
+    
+    # 战斗同步消息
+    "BattleSyncMessage",
+    "BattleEventMessage",
+    "BattleResultMessage",
+    
+    # 玩家状态消息
+    "PlayerStateUpdateMessage",
+    "PlayerHpUpdateMessage",
+    "PlayerGoldUpdateMessage",
+    "PlayerLevelUpdateMessage",
+    "PlayerEliminatedMessage",
+    
+    # 游戏流程消息
+    "GameStartMessage",
+    "GameOverMessage",
+    "GamePauseMessage",
+    "GameResumeMessage",
+    
+    # 羁绊消息
+    "SynergyUpdateMessage",
+    
+    # 经验/升级消息
+    "BuyExpMessage",
+    "ExpGainedMessage",
+    "LevelUpMessage",
+    
+    # 错误消息
+    "ErrorMessage",
+    
+    # 数据模型
+    "PositionData",
+    "HeroData",
+    "ShopSlotData",
+    "PlayerInfoData",
+    "PlayerStateData",
+    "RoomInfoData",
+    "BoardData",
+    "IncomeData",
+    "MatchupData",
+    "PlayerRoundResultData",
+    "ActiveSynergyData",
+    "RankingData",
+    
+    # 编解码器
+    "MessageEncoder",
+    "MessageDecoder",
+    "MessageCodec",
+    "MessageCodecError",
+    
+    # 便捷函数
+    "encode_message",
+    "decode_message",
+    "create_error_message",
+    
+    # 注册相关
+    "register_message_type",
+    "unregister_message_type",
+    "get_message_class",
+    "is_message_type_registered",
+    "validate_message_type",
+    "is_valid_message",
+    
+    # 常量
+    "MESSAGE_CLASS_MAP",
+    "default_codec",
+]
