@@ -1,0 +1,82 @@
+[project]
+name = "wangzhe-chess"
+version = "0.1.0"
+description = "王者之奕 - 自走棋游戏 Python 实现（生产级）"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+authors = [
+    { name = "OpenClaw", email = "dev@openclaw.ai" }
+]
+keywords = ["auto-chess", "game", "multiplayer", "websocket"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Games/Entertainment",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+dependencies = [
+    "fastapi>=0.109.0",
+    "uvicorn[standard]>=0.27.0",
+    "python-socketio>=5.11.0",
+    "pydantic>=2.5.0",
+    "sqlalchemy[asyncio]>=2.0.25",
+    "aiomysql>=0.2.0",
+    "redis>=5.0.0",
+    "protobuf>=4.25.0",
+    "python-multipart>=0.0.6",
+    "httpx>=0.26.0",
+    "structlog>=24.1.0",
+    "tenacity>=8.2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.1.0",
+    "mypy>=1.8.0",
+    "ruff>=0.2.0",
+    "black>=24.1.0",
+    "isort>=5.13.0",
+    "pre-commit>=3.6.0",
+]
+
+[project.scripts]
+wangzhe-server = "src.server.main:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "-v --tb=short"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4"]
+ignore = ["E501"]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.isort]
+profile = "black"
+line_length = 100
