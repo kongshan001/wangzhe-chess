@@ -46,21 +46,21 @@ sys.path.insert(0, str(project_root))
 # 导入 Base 和所有模型
 from src.server.models import Base
 from src.server.models import (
-    HeroConfig,
-    HeroVersion,
-    SynergyConfig,
-    GameConfig,
-    SeasonConfig,
-    MatchRecord,
-    MatchPlayer,
-    MatchSnapshot,
-    MatchReplay,
-    BattleLog,
-    Player,
-    PlayerRank,
-    PlayerStats,
-    PlayerLoginLog,
-    PlayerInventory,
+    # 玩家相关
+    PlayerDB,
+    PlayerRankDB,
+    PlayerStatsDB,
+    PlayerLoginLogDB,
+    PlayerInventoryDB,
+    # 对局相关
+    MatchRecordDB,
+    MatchPlayerResultDB,
+    # 配置相关
+    HeroConfigDB,
+    HeroVersionDB,
+    SynergyConfigDB,
+    GameConfigDB,
+    SeasonConfigDB,
 )
 
 # 设置 MetaData
@@ -172,9 +172,6 @@ def render_item(
     Returns:
         渲染结果（返回 False 使用默认渲染）
     """
-    # 示例：处理自定义 JSON 类型
-    # if type_ == "json" and isinstance(obj, JSONEncodedType):
-    #     return "JSONEncodedType()"
     return False
 
 

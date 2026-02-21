@@ -9,6 +9,10 @@
 - BattleResult: 战斗结果
 
 所有模型都支持序列化和反序列化，便于网络传输。
+
+优化记录:
+- 2026-02-21: find_nearest_enemy 性能优化 O(n log n) -> O(n) (M-003)
+- 2026-02-21: from_dict 添加输入验证 (M-007)
 """
 
 from __future__ import annotations
@@ -114,14 +118,33 @@ class Skill:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Skill:
         """从字典反序列化"""
+        # 输入验证
+        if not isinstance(data, dict):
+            raise TypeError("data must be a dictionary")
+        if "name" not in data:
+            raise KeyError("missing required field: name")
+        
+        # 验证数值范围
+        mana_cost = data.get("mana_cost", 50)
+        if not isinstance(mana_cost, int) or mana_cost < 0:
+            raise ValueError("mana_cost must be a non-negative integer")
+        
+        damage = data.get("damage", 0)
+        if not isinstance(damage, int) or damage < 0:
+            raise ValueError("damage must be a non-negative integer")
+        
+        cooldown = data.get("cooldown", 0)
+        if not isinstance(cooldown, int) or cooldown < 0:
+            raise ValueError("cooldown must be a non-negative integer")
+        
         return cls(
             name=data["name"],
             description=data.get("description", ""),
-            mana_cost=data.get("mana_cost", 50),
-            damage=data.get("damage", 0),
+            mana_cost=mana_cost,
+            damage=damage,
             damage_type=DamageType(data.get("damage_type", "magical")),
             target_type=data.get("target_type", "single"),
-            cooldown=data.get("cooldown", 0),
+            cooldown=cooldown,
             effect_data=data.get("effect_data", {}),
         )
 
@@ -175,18 +198,42 @@ class HeroTemplate:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> HeroTemplate:
         """从字典反序列化"""
+        # 输入验证
+        if not isinstance(data, dict):
+            raise TypeError("data must be a dictionary")
+        
+        required_fields = ["hero_id", "name", "cost", "race", "profession", 
+                          "base_hp", "base_attack", "base_defense", "attack_speed"]
+        for field_name in required_fields:
+            if field_name not in data:
+                raise KeyError(f"missing required field: {field_name}")
+        
+        # 验证数值范围
+        cost = data["cost"]
+        if not isinstance(cost, int) or not (1 <= cost <= 5):
+            raise ValueError("cost must be an integer between 1 and 5")
+        
+        for stat_field in ["base_hp", "base_attack", "base_defense"]:
+            value = data[stat_field]
+            if not isinstance(value, int) or value < 0:
+                raise ValueError(f"{stat_field} must be a non-negative integer")
+        
+        attack_speed = data["attack_speed"]
+        if not isinstance(attack_speed, (int, float)) or attack_speed <= 0:
+            raise ValueError("attack_speed must be a positive number")
+        
         skill_data = data.get("skill")
         skill = Skill.from_dict(skill_data) if skill_data else None
         return cls(
             hero_id=data["hero_id"],
             name=data["name"],
-            cost=data["cost"],
+            cost=cost,
             race=data["race"],
             profession=data["profession"],
             base_hp=data["base_hp"],
             base_attack=data["base_attack"],
             base_defense=data["base_defense"],
-            attack_speed=data["attack_speed"],
+            attack_speed=attack_speed,
             skill=skill,
         )
 
@@ -380,6 +427,35 @@ class Hero:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Hero:
         """从字典反序列化"""
+        # 输入验证
+        if not isinstance(data, dict):
+            raise TypeError("data must be a dictionary")
+        
+        required_fields = ["instance_id", "template_id", "name", "cost", "star",
+                          "race", "profession", "max_hp", "hp", "attack", 
+                          "defense", "attack_speed"]
+        for field_name in required_fields:
+            if field_name not in data:
+                raise KeyError(f"missing required field: {field_name}")
+        
+        # 验证数值范围
+        cost = data["cost"]
+        if not isinstance(cost, int) or not (1 <= cost <= 5):
+            raise ValueError("cost must be an integer between 1 and 5")
+        
+        star = data["star"]
+        if not isinstance(star, int) or not (1 <= star <= 3):
+            raise ValueError("star must be an integer between 1 and 3")
+        
+        for stat_field in ["max_hp", "hp", "attack", "defense"]:
+            value = data[stat_field]
+            if not isinstance(value, int) or value < 0:
+                raise ValueError(f"{stat_field} must be a non-negative integer")
+        
+        attack_speed = data["attack_speed"]
+        if not isinstance(attack_speed, (int, float)) or attack_speed <= 0:
+            raise ValueError("attack_speed must be a positive number")
+        
         skill_data = data.get("skill")
         skill = Skill.from_dict(skill_data) if skill_data else None
         
@@ -390,15 +466,15 @@ class Hero:
             instance_id=data["instance_id"],
             template_id=data["template_id"],
             name=data["name"],
-            cost=data["cost"],
-            star=data["star"],
+            cost=cost,
+            star=star,
             race=data["race"],
             profession=data["profession"],
             max_hp=data["max_hp"],
             hp=data["hp"],
             attack=data["attack"],
             defense=data["defense"],
-            attack_speed=data["attack_speed"],
+            attack_speed=attack_speed,
             skill=skill,
             position=position,
             mana=data.get("mana", INITIAL_MANA),
@@ -571,14 +647,20 @@ class Board:
             
         Returns:
             最近的敌方英雄，如果没有返回None
+            
+        Note:
+            性能优化: 使用 min() 替代 sort()，复杂度从 O(n log n) 降为 O(n)
         """
         enemies = enemy_board.get_all_heroes(alive_only=True)
         if not enemies:
             return None
         
-        # 按距离排序，返回最近的
-        enemies.sort(key=lambda e: from_pos.distance_to(e.position) if e.position else float('inf'))
-        return enemies[0]
+        # 使用 min() 只找最近的一个，O(n) 复杂度
+        return min(
+            enemies,
+            key=lambda e: from_pos.distance_to(e.position) if e.position else float('inf'),
+            default=None
+        )
     
     def to_dict(self) -> dict[str, Any]:
         """序列化为字典"""

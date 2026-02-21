@@ -12,7 +12,7 @@
     
     async with get_session() as session:
         crud = PlayerCRUD(session)
-        player = await crud.get_by_username("test")
+        player = await crud.get_by_user_id("test")
 """
 
 from __future__ import annotations
@@ -21,18 +21,18 @@ import hashlib
 import logging
 import secrets
 from datetime import datetime
-from typing import Any
+from typing import Any, Optional, List
 
 from sqlalchemy import and_, desc, func, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from ..models.player import (
-    Player,
-    PlayerInventory,
-    PlayerLoginLog,
-    PlayerRank,
-    PlayerStats,
+    PlayerDB,
+    PlayerRankDB,
+    PlayerStatsDB,
+    PlayerLoginLogDB,
+    PlayerInventoryDB,
     RankTier,
 )
 
@@ -55,7 +55,7 @@ class CacheMixin:
         return ":".join(str(arg) for arg in args)
     
     @classmethod
-    def _get_from_cache(cls, key: str) -> Any | None:
+    def _get_from_cache(cls, key: str) -> Optional[Any]:
         """从缓存获取数据"""
         if key in cls._cache:
             value, expire_at = cls._cache[key]
@@ -65,7 +65,7 @@ class CacheMixin:
         return None
     
     @classmethod
-    def _set_to_cache(cls, key: str, value: Any, ttl: int | None = None) -> None:
+    def _set_to_cache(cls, key: str, value: Any, ttl: Optional[int] = None) -> None:
         """设置缓存"""
         ttl = ttl or cls._cache_ttl
         expire_at = datetime.now().timestamp() + ttl
@@ -102,17 +102,19 @@ class PlayerCRUD(CacheMixin):
     
     async def create(
         self,
-        username: str,
+        user_id: str,
         nickname: str,
-        password: str | None = None,
+        username: Optional[str] = None,
+        password: Optional[str] = None,
         **kwargs: Any,
-    ) -> Player:
+    ) -> PlayerDB:
         """
         创建新玩家
         
         Args:
-            username: 用户名
+            user_id: 用户唯一标识
             nickname: 昵称
+            username: 用户名（可选，用于账号密码登录）
             password: 密码（可选，用于账号密码登录）
             **kwargs: 其他字段
             
@@ -124,9 +126,10 @@ class PlayerCRUD(CacheMixin):
         if password:
             password_hash = self._hash_password(password)
         
-        player = Player(
-            username=username,
+        player = PlayerDB(
+            user_id=user_id,
             nickname=nickname,
+            username=username,
             password_hash=password_hash,
             **kwargs,
         )
@@ -135,8 +138,8 @@ class PlayerCRUD(CacheMixin):
         await self.session.flush()
         
         # 创建关联的段位和统计记录
-        rank = PlayerRank(player_id=player.id)
-        stats = PlayerStats(player_id=player.id)
+        rank = PlayerRankDB(player_id=player.id)
+        stats = PlayerStatsDB(player_id=player.id)
         
         self.session.add(rank)
         self.session.add(stats)
@@ -144,14 +147,14 @@ class PlayerCRUD(CacheMixin):
         await self.session.flush()
         await self.session.refresh(player)
         
-        logger.info(f"创建新玩家: {username}")
+        logger.info(f"创建新玩家: {user_id}")
         return player
     
     async def create_with_device(
         self,
         device_id: str,
         nickname: str,
-    ) -> Player:
+    ) -> PlayerDB:
         """
         通过设备ID创建玩家（游客登录）
         
@@ -162,11 +165,11 @@ class PlayerCRUD(CacheMixin):
         Returns:
             创建的玩家实例
         """
-        # 生成随机用户名
-        username = f"guest_{secrets.token_hex(8)}"
+        # 生成随机用户ID
+        user_id = f"guest_{secrets.token_hex(8)}"
         
         return await self.create(
-            username=username,
+            user_id=user_id,
             nickname=nickname,
             device_id=device_id,
         )
@@ -175,7 +178,7 @@ class PlayerCRUD(CacheMixin):
     # 读取操作
     # ========================================================================
     
-    async def get_by_id(self, player_id: int) -> Player | None:
+    async def get_by_id(self, player_id: int) -> Optional[PlayerDB]:
         """
         通过ID获取玩家
         
@@ -191,9 +194,9 @@ class PlayerCRUD(CacheMixin):
             return cached
         
         stmt = (
-            select(Player)
-            .options(selectinload(Player.rank), selectinload(Player.stats))
-            .where(Player.id == player_id)
+            select(PlayerDB)
+            .options(selectinload(PlayerDB.rank), selectinload(PlayerDB.stats))
+            .where(PlayerDB.id == player_id)
         )
         result = await self.session.scalar(stmt)
         
@@ -202,7 +205,24 @@ class PlayerCRUD(CacheMixin):
         
         return result
     
-    async def get_by_username(self, username: str) -> Player | None:
+    async def get_by_user_id(self, user_id: str) -> Optional[PlayerDB]:
+        """
+        通过用户ID获取玩家
+        
+        Args:
+            user_id: 用户唯一标识
+            
+        Returns:
+            玩家实例
+        """
+        stmt = (
+            select(PlayerDB)
+            .options(selectinload(PlayerDB.rank), selectinload(PlayerDB.stats))
+            .where(PlayerDB.user_id == user_id)
+        )
+        return await self.session.scalar(stmt)
+    
+    async def get_by_username(self, username: str) -> Optional[PlayerDB]:
         """
         通过用户名获取玩家
         
@@ -213,13 +233,13 @@ class PlayerCRUD(CacheMixin):
             玩家实例
         """
         stmt = (
-            select(Player)
-            .options(selectinload(Player.rank), selectinload(Player.stats))
-            .where(Player.username == username)
+            select(PlayerDB)
+            .options(selectinload(PlayerDB.rank), selectinload(PlayerDB.stats))
+            .where(PlayerDB.username == username)
         )
         return await self.session.scalar(stmt)
     
-    async def get_by_device_id(self, device_id: str) -> Player | None:
+    async def get_by_device_id(self, device_id: str) -> Optional[PlayerDB]:
         """
         通过设备ID获取玩家
         
@@ -230,9 +250,9 @@ class PlayerCRUD(CacheMixin):
             玩家实例
         """
         stmt = (
-            select(Player)
-            .options(selectinload(Player.rank), selectinload(Player.stats))
-            .where(Player.device_id == device_id)
+            select(PlayerDB)
+            .options(selectinload(PlayerDB.rank), selectinload(PlayerDB.stats))
+            .where(PlayerDB.device_id == device_id)
         )
         return await self.session.scalar(stmt)
     
@@ -240,8 +260,8 @@ class PlayerCRUD(CacheMixin):
         self,
         offset: int = 0,
         limit: int = 100,
-        is_active: bool | None = None,
-    ) -> list[Player]:
+        is_active: Optional[bool] = None,
+    ) -> List[PlayerDB]:
         """
         获取多个玩家
         
@@ -253,12 +273,12 @@ class PlayerCRUD(CacheMixin):
         Returns:
             玩家列表
         """
-        stmt = select(Player).offset(offset).limit(limit)
+        stmt = select(PlayerDB).offset(offset).limit(limit)
         
         if is_active is not None:
-            stmt = stmt.where(Player.is_active == is_active)
+            stmt = stmt.where(PlayerDB.is_active == is_active)
         
-        stmt = stmt.order_by(desc(Player.id))
+        stmt = stmt.order_by(desc(PlayerDB.id))
         
         result = await self.session.scalars(stmt)
         return list(result.all())
@@ -267,7 +287,7 @@ class PlayerCRUD(CacheMixin):
         self,
         query: str,
         limit: int = 10,
-    ) -> list[Player]:
+    ) -> List[PlayerDB]:
         """
         搜索玩家
         
@@ -279,15 +299,16 @@ class PlayerCRUD(CacheMixin):
             匹配的玩家列表
         """
         stmt = (
-            select(Player)
+            select(PlayerDB)
             .where(
                 or_(
-                    Player.username.contains(query),
-                    Player.nickname.contains(query),
+                    PlayerDB.user_id.contains(query),
+                    PlayerDB.username.contains(query),
+                    PlayerDB.nickname.contains(query),
                 )
             )
             .limit(limit)
-            .order_by(desc(Player.id))
+            .order_by(desc(PlayerDB.id))
         )
         
         result = await self.session.scalars(stmt)
@@ -303,21 +324,21 @@ class PlayerCRUD(CacheMixin):
         Returns:
             是否存在
         """
-        stmt = select(func.count()).select_from(Player).where(Player.id == player_id)
+        stmt = select(func.count()).select_from(PlayerDB).where(PlayerDB.id == player_id)
         count = await self.session.scalar(stmt)
         return count > 0
     
-    async def username_exists(self, username: str) -> bool:
+    async def user_id_exists(self, user_id: str) -> bool:
         """
-        检查用户名是否已存在
+        检查用户ID是否已存在
         
         Args:
-            username: 用户名
+            user_id: 用户唯一标识
             
         Returns:
             是否存在
         """
-        stmt = select(func.count()).select_from(Player).where(Player.username == username)
+        stmt = select(func.count()).select_from(PlayerDB).where(PlayerDB.user_id == user_id)
         count = await self.session.scalar(stmt)
         return count > 0
     
@@ -329,7 +350,7 @@ class PlayerCRUD(CacheMixin):
         self,
         player_id: int,
         **kwargs: Any,
-    ) -> Player | None:
+    ) -> Optional[PlayerDB]:
         """
         更新玩家信息
         
@@ -345,7 +366,7 @@ class PlayerCRUD(CacheMixin):
             return None
         
         # 过滤不允许更新的字段
-        protected_fields = {"id", "created_at", "username"}
+        protected_fields = {"id", "created_at", "user_id"}
         for key in protected_fields:
             kwargs.pop(key, None)
         
@@ -361,7 +382,7 @@ class PlayerCRUD(CacheMixin):
     async def update_last_login(
         self,
         player_id: int,
-        ip_address: str | None = None,
+        ip_address: Optional[str] = None,
     ) -> None:
         """
         更新最后登录信息
@@ -371,8 +392,8 @@ class PlayerCRUD(CacheMixin):
             ip_address: 登录IP
         """
         stmt = (
-            update(Player)
-            .where(Player.id == player_id)
+            update(PlayerDB)
+            .where(PlayerDB.id == player_id)
             .values(
                 last_login_at=datetime.now(),
                 last_login_ip=ip_address,
@@ -383,7 +404,7 @@ class PlayerCRUD(CacheMixin):
         # 使缓存失效
         self._invalidate_cache(self._get_cache_key("player", player_id))
     
-    async def update_nickname(self, player_id: int, nickname: str) -> Player | None:
+    async def update_nickname(self, player_id: int, nickname: str) -> Optional[PlayerDB]:
         """
         更新昵称
         
@@ -418,7 +439,7 @@ class PlayerCRUD(CacheMixin):
     async def ban_player(
         self,
         player_id: int,
-        until: datetime | None = None,
+        until: Optional[datetime] = None,
     ) -> bool:
         """
         封禁玩家
@@ -499,13 +520,13 @@ class PlayerCRUD(CacheMixin):
     # 认证操作
     # ========================================================================
     
-    async def authenticate(
+    async def authenticate_with_password(
         self,
         username: str,
         password: str,
-    ) -> Player | None:
+    ) -> Optional[PlayerDB]:
         """
-        验证玩家登录
+        使用用户名和密码验证玩家登录
         
         Args:
             username: 用户名
@@ -529,7 +550,7 @@ class PlayerCRUD(CacheMixin):
             else:
                 return None
         
-        if not self._verify_password(password, player.password_hash or ""):
+        if not player.password_hash or not self._verify_password(password, player.password_hash):
             return None
         
         return player
@@ -538,7 +559,7 @@ class PlayerCRUD(CacheMixin):
     # 段位操作
     # ========================================================================
     
-    async def get_rank(self, player_id: int) -> PlayerRank | None:
+    async def get_rank(self, player_id: int) -> Optional[PlayerRankDB]:
         """
         获取玩家段位信息
         
@@ -548,7 +569,7 @@ class PlayerCRUD(CacheMixin):
         Returns:
             段位信息
         """
-        stmt = select(PlayerRank).where(PlayerRank.player_id == player_id)
+        stmt = select(PlayerRankDB).where(PlayerRankDB.player_id == player_id)
         return await self.session.scalar(stmt)
     
     async def update_rank(
@@ -556,8 +577,8 @@ class PlayerCRUD(CacheMixin):
         player_id: int,
         point_change: int,
         rank_up: bool = False,
-        new_tier: str | None = None,
-    ) -> PlayerRank | None:
+        new_tier: Optional[str] = None,
+    ) -> Optional[PlayerRankDB]:
         """
         更新玩家段位
         
@@ -597,7 +618,7 @@ class PlayerCRUD(CacheMixin):
     # 统计操作
     # ========================================================================
     
-    async def get_stats(self, player_id: int) -> PlayerStats | None:
+    async def get_stats(self, player_id: int) -> Optional[PlayerStatsDB]:
         """
         获取玩家统计数据
         
@@ -607,7 +628,7 @@ class PlayerCRUD(CacheMixin):
         Returns:
             统计数据
         """
-        stmt = select(PlayerStats).where(PlayerStats.player_id == player_id)
+        stmt = select(PlayerStatsDB).where(PlayerStatsDB.player_id == player_id)
         return await self.session.scalar(stmt)
     
     async def update_stats_after_match(
@@ -615,12 +636,11 @@ class PlayerCRUD(CacheMixin):
         player_id: int,
         rank: int,
         damage: int,
-        survivors: int,
         kills: int,
         gold: int,
         win_streak: int,
         round_num: int,
-    ) -> PlayerStats | None:
+    ) -> Optional[PlayerStatsDB]:
         """
         对局结束后更新统计数据
         
@@ -628,7 +648,6 @@ class PlayerCRUD(CacheMixin):
             player_id: 玩家ID
             rank: 本局排名
             damage: 造成伤害
-            survivors: 存活英雄数
             kills: 击杀数
             gold: 获得金币
             win_streak: 连胜场次
@@ -657,16 +676,15 @@ class PlayerCRUD(CacheMixin):
         stats.avg_rank = (stats.avg_rank * old_total + rank) / stats.total_matches
         
         # 更新战斗统计
-        stats.avg_damage = (stats.avg_damage * old_total + damage) / stats.total_matches
-        stats.avg_survivors = (stats.avg_survivors * old_total + survivors) / stats.total_matches
+        stats.total_damage_dealt += damage
         stats.total_kills += kills
         
         # 更新经济统计
         stats.total_gold_earned += gold
         
         # 更新连胜记录
-        if win_streak > stats.longest_win_streak:
-            stats.longest_win_streak = win_streak
+        if win_streak > stats.max_win_streak:
+            stats.max_win_streak = win_streak
         
         await self.session.flush()
         await self.session.refresh(stats)
@@ -680,12 +698,12 @@ class PlayerCRUD(CacheMixin):
     async def create_login_log(
         self,
         player_id: int,
-        ip_address: str | None = None,
-        device_id: str | None = None,
-        device_type: str | None = None,
-        client_version: str | None = None,
-        location: str | None = None,
-    ) -> PlayerLoginLog:
+        ip_address: Optional[str] = None,
+        device_id: Optional[str] = None,
+        device_type: Optional[str] = None,
+        client_version: Optional[str] = None,
+        location: Optional[str] = None,
+    ) -> PlayerLoginLogDB:
         """
         创建登录记录
         
@@ -700,7 +718,7 @@ class PlayerCRUD(CacheMixin):
         Returns:
             登录记录
         """
-        login_log = PlayerLoginLog(
+        login_log = PlayerLoginLogDB(
             player_id=player_id,
             login_ip=ip_address,
             device_id=device_id,
@@ -725,8 +743,8 @@ class PlayerCRUD(CacheMixin):
             是否成功
         """
         stmt = (
-            update(PlayerLoginLog)
-            .where(PlayerLoginLog.id == log_id)
+            update(PlayerLoginLogDB)
+            .where(PlayerLoginLogDB.id == log_id)
             .values(logout_time=datetime.now())
         )
         result = await self.session.execute(stmt)
@@ -739,8 +757,8 @@ class PlayerCRUD(CacheMixin):
     async def get_inventory(
         self,
         player_id: int,
-        item_type: str | None = None,
-    ) -> list[PlayerInventory]:
+        item_type: Optional[str] = None,
+    ) -> List[PlayerInventoryDB]:
         """
         获取玩家背包
         
@@ -751,10 +769,10 @@ class PlayerCRUD(CacheMixin):
         Returns:
             物品列表
         """
-        stmt = select(PlayerInventory).where(PlayerInventory.player_id == player_id)
+        stmt = select(PlayerInventoryDB).where(PlayerInventoryDB.player_id == player_id)
         
         if item_type:
-            stmt = stmt.where(PlayerInventory.item_type == item_type)
+            stmt = stmt.where(PlayerInventoryDB.item_type == item_type)
         
         result = await self.session.scalars(stmt)
         return list(result.all())
@@ -765,9 +783,9 @@ class PlayerCRUD(CacheMixin):
         item_type: str,
         item_id: str,
         quantity: int = 1,
-        expires_at: datetime | None = None,
-        extra_data: dict[str, Any] | None = None,
-    ) -> PlayerInventory:
+        expires_at: Optional[datetime] = None,
+        extra_data: Optional[dict] = None,
+    ) -> PlayerInventoryDB:
         """
         添加物品到背包
         
@@ -783,11 +801,11 @@ class PlayerCRUD(CacheMixin):
             背包物品记录
         """
         # 检查是否已存在
-        stmt = select(PlayerInventory).where(
+        stmt = select(PlayerInventoryDB).where(
             and_(
-                PlayerInventory.player_id == player_id,
-                PlayerInventory.item_type == item_type,
-                PlayerInventory.item_id == item_id,
+                PlayerInventoryDB.player_id == player_id,
+                PlayerInventoryDB.item_type == item_type,
+                PlayerInventoryDB.item_id == item_id,
             )
         )
         existing = await self.session.scalar(stmt)
@@ -802,7 +820,7 @@ class PlayerCRUD(CacheMixin):
             await self.session.refresh(existing)
             return existing
         
-        inventory_item = PlayerInventory(
+        inventory_item = PlayerInventoryDB(
             player_id=player_id,
             item_type=item_type,
             item_id=item_id,

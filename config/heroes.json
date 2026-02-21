@@ -439,28 +439,29 @@
       }
     },
     {
-      "id": "daqiao",
-      "name": "大乔",
-      "title": "伊人如梦",
+      "id": "guiguzi",
+      "name": "鬼谷子",
+      "title": "万物有灵",
       "cost": 3,
-      "origins": ["ThreeKingdoms", "Beauty"],
+      "origins": ["Demon", "Jixia"],
       "classes": ["Support"],
       "stats": {
-        "hp": 620,
-        "attack": 45,
-        "armor": 38,
-        "magic_resist": 55,
+        "hp": 650,
+        "attack": 48,
+        "armor": 40,
+        "magic_resist": 58,
         "attack_speed": 0.65,
         "range": 3
       },
       "skill": {
-        "name": "漩涡之门",
-        "mana_cost": 90,
-        "initial_mana": 30,
-        "description": "大乔召唤传送门，将血量最低友军传送回安全位置并治疗",
+        "name": "万物有灵",
+        "mana_cost": 85,
+        "initial_mana": 35,
+        "description": "鬼谷子隐身并拉扯周围敌人到身边，同时降低其魔抗",
         "effects": [
-          {"type": "reposition", "target": "lowest_hp_ally", "position": "safest"},
-          {"type": "heal", "value": 35, "scaling": "max_hp", "target": "repositioned"}
+          {"type": "stealth", "duration": 1},
+          {"type": "pull", "radius": 3},
+          {"type": "debuff", "attribute": "magic_resist", "value": 40, "duration": 4, "radius": 3}
         ]
       }
     },
@@ -570,55 +571,54 @@
       }
     },
     {
-      "id": "sunce",
-      "name": "孙策",
-      "title": "江东小霸王",
+      "id": "ailin",
+      "name": "艾琳",
+      "title": "精灵之舞",
       "cost": 4,
-      "origins": ["ThreeKingdoms", "Human"],
-      "classes": ["Warrior", "Tank"],
+      "origins": ["Divine", "Human"],
+      "classes": ["Marksman"],
       "stats": {
-        "hp": 880,
-        "attack": 82,
-        "armor": 58,
-        "magic_resist": 48,
-        "attack_speed": 0.7,
-        "range": 1
+        "hp": 580,
+        "attack": 88,
+        "armor": 32,
+        "magic_resist": 35,
+        "attack_speed": 0.85,
+        "range": 4
       },
       "skill": {
-        "name": "怒涛战船",
-        "mana_cost": 110,
+        "name": "精灵之舞",
+        "mana_cost": 95,
         "initial_mana": 40,
-        "description": "孙策驾驶战船冲锋，对路径上敌人造成伤害并眩晕",
+        "description": "艾琳进入舞蹈状态，普攻变为穿透箭矢并增加攻速",
         "effects": [
-          {"type": "line_damage", "damage_type": "physical", "value": 450, "scaling": "attack"},
-          {"type": "stun", "duration": 2, "target": "all_hit"}
+          {"type": "buff", "attribute": "attack_speed", "value": 60, "duration": 5},
+          {"type": "modify_attack", "effect": "piercing", "targets": 2, "damage_percent": 70, "duration": 5}
         ]
       }
     },
     {
-      "id": "zhangfei",
-      "name": "张飞",
-      "title": "燕人张翼德",
+      "id": "ganjiangmoye",
+      "name": "干将莫邪",
+      "title": "淬命双剑",
       "cost": 4,
-      "origins": ["ThreeKingdoms", "Human"],
-      "classes": ["Tank"],
+      "origins": ["Human", "Jixia"],
+      "classes": ["Mage"],
       "stats": {
-        "hp": 1000,
-        "attack": 70,
-        "armor": 72,
-        "magic_resist": 50,
+        "hp": 600,
+        "attack": 50,
+        "armor": 32,
+        "magic_resist": 55,
         "attack_speed": 0.6,
-        "range": 1
+        "range": 4
       },
       "skill": {
-        "name": "狂兽血性",
-        "mana_cost": 120,
-        "initial_mana": 50,
-        "description": "张飞变身狂兽，获得巨额护盾并对周围敌人造成伤害和恐惧",
+        "name": "剑来",
+        "mana_cost": 95,
+        "initial_mana": 40,
+        "description": "干将莫邪向前方投掷双剑，交叉点造成双倍伤害",
         "effects": [
-          {"type": "shield", "value": 60, "scaling": "max_hp"},
-          {"type": "aoe_damage", "damage_type": "magic", "value": 300, "scaling": "ap", "radius": 3},
-          {"type": "fear", "duration": 1.5, "radius": 3}
+          {"type": "dual_projectile", "damage_type": "magic", "value": 280, "scaling": "ap"},
+          {"type": "bonus_damage", "condition": "intersection", "multiplier": 2}
         ]
       }
     },
@@ -779,164 +779,24 @@
           {"type": "thorns", "value": 30, "duration": 5}
         ]
       }
-    },
-    {
-      "id": "guiguzi",
-      "name": "鬼谷子",
-      "title": "万物有灵",
-      "cost": 3,
-      "origins": ["Demon", "Jixia"],
-      "classes": ["Support"],
-      "stats": {
-        "hp": 650,
-        "attack": 48,
-        "armor": 40,
-        "magic_resist": 58,
-        "attack_speed": 0.65,
-        "range": 3
-      },
-      "skill": {
-        "name": "万物有灵",
-        "mana_cost": 85,
-        "initial_mana": 35,
-        "description": "鬼谷子隐身并拉扯周围敌人到身边，同时降低其魔抗",
-        "effects": [
-          {"type": "stealth", "duration": 1},
-          {"type": "pull", "radius": 3},
-          {"type": "debuff", "attribute": "magic_resist", "value": 40, "duration": 4, "radius": 3}
-        ]
-      }
-    },
-    {
-      "id": "ailin",
-      "name": "艾琳",
-      "title": "精灵之舞",
-      "cost": 4,
-      "origins": ["Divine", "Human"],
-      "classes": ["Marksman"],
-      "stats": {
-        "hp": 580,
-        "attack": 88,
-        "armor": 32,
-        "magic_resist": 35,
-        "attack_speed": 0.85,
-        "range": 4
-      },
-      "skill": {
-        "name": "精灵之舞",
-        "mana_cost": 95,
-        "initial_mana": 40,
-        "description": "艾琳进入舞蹈状态，普攻变为穿透箭矢并增加攻速",
-        "effects": [
-          {"type": "buff", "attribute": "attack_speed", "value": 60, "duration": 5},
-          {"type": "modify_attack", "effect": "piercing", "targets": 2, "damage_percent": 70, "duration": 5}
-        ]
-      }
-    },
-    {
-      "id": "gongbenwucao",
-      "name": "宫本武藏",
-      "title": "剑圣",
-      "cost": 4,
-      "origins": ["Western", "Human"],
-      "classes": ["Assassin", "Warrior"],
-      "stats": {
-        "hp": 680,
-        "attack": 90,
-        "armor": 42,
-        "magic_resist": 40,
-        "attack_speed": 0.8,
-        "range": 1
-      },
-      "skill": {
-        "name": "二天一流",
-        "mana_cost": 100,
-        "initial_mana": 40,
-        "description": "宫本武藏锁定一名敌人发起斩击，造成伤害并使其减速，同时进入无敌状态",
-        "effects": [
-          {"type": "targeted_damage", "damage_type": "physical", "value": 450, "scaling": "attack", "target": "lowest_hp"},
-          {"type": "slow", "value": 60, "duration": 2},
-          {"type": "untargetable", "duration": 1}
-        ]
-      }
-    },
-    {
-      "id": "ganjiangmoye",
-      "name": "干将莫邪",
-      "title": "淬命双剑",
-      "cost": 4,
-      "origins": ["Human", "Jixia"],
-      "classes": ["Mage"],
-      "stats": {
-        "hp": 600,
-        "attack": 50,
-        "armor": 32,
-        "magic_resist": 55,
-        "attack_speed": 0.6,
-        "range": 4
-      },
-      "skill": {
-        "name": "剑来",
-        "mana_cost": 95,
-        "initial_mana": 40,
-        "description": "干将莫邪向前方投掷双剑，交叉点造成双倍伤害",
-        "effects": [
-          {"type": "dual_projectile", "damage_type": "magic", "value": 280, "scaling": "ap"},
-          {"type": "bonus_damage", "condition": "intersection", "multiplier": 2}
-        ]
-      }
-    },
-    {
-      "id": "suilie",
-      "name": "盾山",
-      "title": "无尽之盾",
-      "cost": 3,
-      "origins": ["Machine", "Guardians"],
-      "classes": ["Tank", "Support"],
-      "stats": {
-        "hp": 950,
-        "attack": 55,
-        "armor": 68,
-        "magic_resist": 52,
-        "attack_speed": 0.55,
-        "range": 1
-      },
-      "skill": {
-        "name": "不动如山",
-        "mana_cost": 80,
-        "initial_mana": 30,
-        "description": "盾山举起盾牌，格挡前方所有飞行物并为身后友军提供护盾",
-        "effects": [
-          {"type": "windwall", "duration": 4},
-          {"type": "ally_shield", "value": 20, "scaling": "max_hp", "target": "behind", "duration": 4}
-        ]
-      }
-    },
-    {
-      "id": "buzhihuowu",
-      "name": "不知火舞",
-      "title": "明媚烈焰",
-      "cost": 3,
-      "origins": ["Western", "Beauty"],
-      "classes": ["Assassin", "Mage"],
-      "stats": {
-        "hp": 600,
-        "attack": 75,
-        "armor": 35,
-        "magic_resist": 50,
-        "attack_speed": 0.75,
-        "range": 1
-      },
-      "skill": {
-        "name": "必杀·忍蜂",
-        "mana_cost": 85,
-        "initial_mana": 35,
-        "description": "不知火舞向前冲刺，对路径上敌人造成伤害并击退",
-        "effects": [
-          {"type": "line_damage", "damage_type": "magic", "value": 350, "scaling": "ap"},
-          {"type": "knockback", "distance": 2}
-        ]
-      }
     }
-  ]
+  ],
+  "meta": {
+    "version": "1.0.0",
+    "last_updated": "2026-02-21",
+    "total_heroes": 30,
+    "cost_distribution": {
+      "1": 6,
+      "2": 6,
+      "3": 6,
+      "4": 6,
+      "5": 6
+    },
+    "balance_notes": [
+      "每个费用档位6个英雄，共30个英雄",
+      "属性根据费用递增，高费英雄属性更强",
+      "技能设计考虑IP还原和策略深度",
+      "羁绊分配确保每个羁绊至少有3-4个英雄可触发"
+    ]
+  }
 }

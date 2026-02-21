@@ -1,6 +1,6 @@
 # 王者之奕 - 项目进度管理
 
-> 最后更新: 2026-02-21 15:00
+> 最后更新: 2026-02-21 16:40
 
 ## 📊 整体进度
 
@@ -99,19 +99,26 @@ Docker部署   ████████████████████ 100%
 
 ## ⏳ 待完成
 
-### 单元测试 (40%)
+### 单元测试 (进行中 🔄)
 - [x] conftest.py
 - [x] test_models.py
 - [x] test_hero_pool.py
-- [ ] test_synergy.py
-- [ ] test_economy.py
-- [ ] test_battle.py
-- [ ] test_match.py
+- [ ] test_synergy.py 🔄
+- [ ] test_economy.py 🔄
+- [ ] test_battle.py 🔄
+- [ ] test_match.py 🔄
 
-### 优化任务
-- [ ] 修复代码审查发现的问题
+### 优化任务 (进行中 🔄)
+- [ ] 修复 find_nearest_enemy 性能问题 🔄
+- [ ] 优化 deepcopy 性能 🔄
+- [ ] 增量存活列表优化 🔄
 - [ ] 完善测试覆盖率
 - [ ] 性能基准测试
+
+### 游戏策划 (进行中 🔄)
+- [ ] 扩展英雄配置到30个 🔄
+- [ ] 创建羁绊配置文件 🔄
+- [ ] 数值平衡分析报告 🔄
 
 ## 📋 更新日志
 

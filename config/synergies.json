@@ -1,0 +1,213 @@
+{
+  "origins": [
+    {
+      "id": "ThreeKingdoms",
+      "name": "三国",
+      "description": "三国英雄同心协力，战力倍增",
+      "icon": "three_kingdoms",
+      "tiers": [
+        {"count": 3, "effect": "所有三国英雄获得+15%攻击力和+15%生命值"},
+        {"count": 5, "effect": "所有三国英雄获得+30%攻击力和+30%生命值"},
+        {"count": 7, "effect": "所有三国英雄获得+50%攻击力和+50%生命值"}
+      ],
+      "heroes": ["chengyaojin", "lianpo", "xiahoudun", "zhugeliang", "caiwenji", "diaochan", "sunshangxiang", "guanyu", "zhaoyun", "lvbu"]
+    },
+    {
+      "id": "Human",
+      "name": "人族",
+      "description": "人族团结一致，共同御敌",
+      "icon": "human",
+      "tiers": [
+        {"count": 2, "effect": "所有人族英雄获得+15%攻击速度"},
+        {"count": 4, "effect": "所有人族英雄获得+30%攻击速度，普攻有20%概率沉默敌人1秒"},
+        {"count": 6, "effect": "所有人族英雄获得+50%攻击速度，普攻有40%概率沉默敌人2秒"}
+      ],
+      "heroes": ["yase", "houyi", "chengyaojin", "angela", "lianpo", "xiangyu", "zhenji", "lubanqihao", "xiahoudun", "huamulan", "dianwei", "guanyu", "zhaoyun", "libai", "luna", "hanxin", "ailin", "ganjiangmoye", "wuzetian", "yingzheng", "shangguanwaner", "mengtian"]
+    },
+    {
+      "id": "Demon",
+      "name": "魔道",
+      "description": "魔道之力觉醒，伤害大增",
+      "icon": "demon",
+      "tiers": [
+        {"count": 2, "effect": "魔道英雄技能伤害+20%"},
+        {"count": 4, "effect": "魔道英雄技能伤害+45%，击杀敌人回复20点法力"},
+        {"count": 6, "effect": "魔道英雄技能伤害+70%，击杀敌人回复40点法力，技能有20%概率重置冷却"}
+      ],
+      "heroes": ["daji", "angela", "dianwei", "luna", "guiguzi", "lvbu"]
+    },
+    {
+      "id": "Divine",
+      "name": "神族",
+      "description": "神族血脉觉醒，获得神圣之力",
+      "icon": "divine",
+      "tiers": [
+        {"count": 2, "effect": "神族英雄减少20%受到的伤害"},
+        {"count": 4, "effect": "神族英雄减少35%受到的伤害，技能造成真实伤害+15%"},
+        {"count": 6, "effect": "神族英雄减少50%受到的伤害，技能造成真实伤害+30%，死亡时为友军提供增益"}
+      ],
+      "heroes": ["houyi", "ailin", "wuzetian", "yingzheng", "sunwukong"]
+    },
+    {
+      "id": "Beauty",
+      "name": "美人",
+      "description": "倾国倾城，魅惑众生",
+      "icon": "beauty",
+      "tiers": [
+        {"count": 2, "effect": "所有美人英雄获得+20%闪避率"},
+        {"count": 4, "effect": "所有美人英雄获得+35%闪避率，受到致命伤害时有30%概率免疫"},
+        {"count": 6, "effect": "所有美人英雄获得+50%闪避率，闪避成功时回复5%最大生命值"}
+      ],
+      "heroes": ["daji", "zhenji", "caiwenji", "diaochan", "sunshangxiang"]
+    },
+    {
+      "id": "Machine",
+      "name": "机关",
+      "description": "机关造物，精密计算",
+      "icon": "machine",
+      "tiers": [
+        {"count": 2, "effect": "机关英雄死亡时自爆，对周围敌人造成200点魔法伤害"},
+        {"count": 4, "effect": "机关英雄死亡时自爆，对周围敌人造成400点魔法伤害并眩晕1.5秒"}
+      ],
+      "heroes": ["lubanqihao"]
+    },
+    {
+      "id": "Western",
+      "name": "西域",
+      "description": "西域武者，身法飘忽",
+      "icon": "western",
+      "tiers": [
+        {"count": 2, "effect": "西域英雄获得+20%移动速度和+10%技能伤害"},
+        {"count": 4, "effect": "西域英雄获得+35%移动速度和+25%技能伤害，技能有25%概率暴击"}
+      ],
+      "heroes": ["sunwukong"]
+    },
+    {
+      "id": "Guardians",
+      "name": "长城守卫军",
+      "description": "守卫边疆，守护队友",
+      "icon": "guardians",
+      "tiers": [
+        {"count": 2, "effect": "守卫军为相邻友军提供+15护甲和+15魔抗"},
+        {"count": 4, "effect": "守卫军为相邻友军提供+30护甲和+30魔抗，并在战斗开始时获得护盾"}
+      ],
+      "heroes": ["huamulan"]
+    },
+    {
+      "id": "Jixia",
+      "name": "稷下学院",
+      "description": "稷下学子，智慧超群",
+      "icon": "jixia",
+      "tiers": [
+        {"count": 2, "effect": "稷下英雄获得+20初始法力"},
+        {"count": 4, "effect": "稷下英雄获得+40初始法力，技能冷却减少15%"},
+        {"count": 6, "effect": "稷下英雄获得+60初始法力，技能冷却减少30%，释放技能后回复20点法力"}
+      ],
+      "heroes": ["zhugeliang", "libai", "guiguzi", "ganjiangmoye", "shangguanwaner"]
+    },
+    {
+      "id": "Knights",
+      "name": "骑士",
+      "description": "骑士精神，荣耀守护",
+      "icon": "knights",
+      "tiers": [
+        {"count": 2, "effect": "骑士获得+15护甲和+15魔抗"},
+        {"count": 4, "effect": "骑士获得+35护甲和+35魔抗，受到的伤害减少10%"},
+        {"count": 6, "effect": "骑士获得+60护甲和+60魔抗，受到的伤害减少20%，为相邻友军分担15%伤害"}
+      ],
+      "heroes": ["yase", "xiangyu", "hanxin", "mengtian"]
+    }
+  ],
+  "classes": [
+    {
+      "id": "Warrior",
+      "name": "战士",
+      "description": "攻守兼备的近战战士",
+      "icon": "warrior",
+      "tiers": [
+        {"count": 2, "effect": "所有战士获得+100点生命值和+10点护甲"},
+        {"count": 4, "effect": "所有战士获得+250点生命值和+25点护甲"},
+        {"count": 6, "effect": "所有战士获得+450点生命值和+40点护甲，受到的物理伤害减少15%"},
+        {"count": 8, "effect": "所有战士获得+700点生命值和+60点护甲，受到的物理伤害减少25%"}
+      ],
+      "heroes": ["yase", "chengyaojin", "xiahoudun", "huamulan", "dianwei", "guanyu", "zhaoyun", "luna", "lvbu", "sunwukong", "mengtian"]
+    },
+    {
+      "id": "Mage",
+      "name": "法师",
+      "description": "掌控元素的魔法大师",
+      "icon": "mage",
+      "tiers": [
+        {"count": 2, "effect": "所有友军获得+20%技能伤害加成"},
+        {"count": 4, "effect": "所有友军获得+40%技能伤害加成，法师获得+30%法术强度"},
+        {"count": 6, "effect": "所有友军获得+65%技能伤害加成，法师获得+50%法术强度，技能有25%概率施放两次"},
+        {"count": 8, "effect": "所有友军获得+90%技能伤害加成，法师获得+80%法术强度，技能有40%概率施放两次"}
+      ],
+      "heroes": ["daji", "angela", "zhenji", "zhugeliang", "diaochan", "ganjiangmoye", "wuzetian", "yingzheng", "shangguanwaner"]
+    },
+    {
+      "id": "Assassin",
+      "name": "刺客",
+      "description": "来无影去无踪的暗杀者",
+      "icon": "assassin",
+      "tiers": [
+        {"count": 2, "effect": "刺客获得+10%暴击率和+10%暴击伤害，优先攻击后排"},
+        {"count": 4, "effect": "刺客获得+25%暴击率和+30%暴击伤害，优先攻击后排"},
+        {"count": 6, "effect": "刺客获得+40%暴击率和+60%暴击伤害，优先攻击后排，击杀敌人后回复30%最大生命值"},
+        {"count": 8, "effect": "刺客获得+55%暴击率和+100%暴击伤害，优先攻击后排，击杀敌人后回复50%最大生命值并获得1秒无敌"}
+      ],
+      "heroes": ["huamulan", "libai", "luna", "hanxin", "zhaoyun", "sunwukong", "shangguanwaner"]
+    },
+    {
+      "id": "Marksman",
+      "name": "射手",
+      "description": "远程物理输出专家",
+      "icon": "marksman",
+      "tiers": [
+        {"count": 2, "effect": "所有射手获得+15%攻击速度，攻击有30%概率额外攻击一次"},
+        {"count": 4, "effect": "所有射手获得+35%攻击速度，攻击有45%概率额外攻击一次，每次攻击增加1%攻击力（可叠加）"},
+        {"count": 6, "effect": "所有射手获得+55%攻击速度，攻击有60%概率额外攻击一次，每次攻击增加2%攻击力，普攻穿透1个目标"}
+      ],
+      "heroes": ["houyi", "lubanqihao", "sunshangxiang", "ailin"]
+    },
+    {
+      "id": "Tank",
+      "name": "坦克",
+      "description": "坚不可摧的前排肉盾",
+      "icon": "tank",
+      "tiers": [
+        {"count": 2, "effect": "所有坦克获得+15%最大生命值"},
+        {"count": 4, "effect": "所有坦克获得+30%最大生命值，受到的伤害减少10%"},
+        {"count": 6, "effect": "所有坦克获得+50%最大生命值，受到的伤害减少20%，每隔5秒回复5%最大生命值"},
+        {"count": 8, "effect": "所有坦克获得+70%最大生命值，受到的伤害减少30%，每隔5秒回复10%最大生命值，死亡时使友军获得护盾"}
+      ],
+      "heroes": ["yase", "chengyaojin", "lianpo", "xiangyu", "xiahoudun", "mengtian"]
+    },
+    {
+      "id": "Support",
+      "name": "辅助",
+      "description": "保护队友的守护者",
+      "icon": "support",
+      "tiers": [
+        {"count": 2, "effect": "所有辅助获得+15%治疗效果，并为相邻友军提供+10%伤害"},
+        {"count": 4, "effect": "所有辅助获得+30%治疗效果，为所有友军提供+20%伤害，战斗开始时回复友军20点法力"},
+        {"count": 6, "effect": "所有辅助获得+50%治疗效果，为所有友军提供+35%伤害，战斗开始时回复友军40点法力，每隔4秒为血量最低友军回复10%生命值"}
+      ],
+      "heroes": ["caiwenji", "guiguzi"]
+    }
+  ],
+  "meta": {
+    "version": "1.0.0",
+    "last_updated": "2026-02-21",
+    "total_origins": 10,
+    "total_classes": 6,
+    "balance_notes": [
+      "所有羁绊效果基于同羁绊英雄数量触发",
+      "羁绊效果可叠加（多个同羁绊英雄）",
+      "羁绊升级时替换低级效果，不叠加",
+      "装备加成在羁绊效果之后计算",
+      "某些羁绊需要更多英雄才能触发高层级效果以保持平衡",
+      "机关、西域、长城守卫军目前英雄较少，需要后续版本补充"
+    ]
+  }
+}

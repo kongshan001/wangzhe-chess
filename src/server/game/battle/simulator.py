@@ -8,6 +8,11 @@
 
 战斗模拟采用时间步进方式，使用整数运算避免浮点精度问题。
 所有随机操作通过确定性随机数生成器实现。
+
+优化记录:
+- 2026-02-21: 实现 BattleUnit.__copy__() 替代 deepcopy (S-003)
+- 2026-02-21: 增量维护存活单位列表 (S-004)
+- 2026-02-21: 修复技能类型 Any -> Optional[Skill] (S-007)
 """
 
 from __future__ import annotations
@@ -35,6 +40,7 @@ from shared.models import (
     Hero,
     HeroState,
     Position,
+    Skill,
     SkillEvent,
     BattleResult,
 )
@@ -298,6 +304,52 @@ class BattleUnit:
             "state": self.state.value,
             "position": self.get_position(),
         }
+    
+    def __copy__(self) -> BattleUnit:
+        """
+        轻量级复制方法
+        
+        用于替代 deepcopy，提升性能。
+        只复制战斗需要的字段，避免递归复制整个对象树。
+        
+        Returns:
+            新的 BattleUnit 实例
+        """
+        # 创建新的 Hero 实例（浅拷贝关键属性）
+        hero_copy = Hero(
+            instance_id=self.hero.instance_id,
+            template_id=self.hero.template_id,
+            name=self.hero.name,
+            cost=self.hero.cost,
+            star=self.hero.star,
+            race=self.hero.race,
+            profession=self.hero.profession,
+            max_hp=self.hero.max_hp,
+            hp=self.hero.hp,
+            attack=self.hero.attack,
+            defense=self.hero.defense,
+            attack_speed=self.hero.attack_speed,
+            skill=self.hero.skill,  # 技能定义是共享的，不需要深拷贝
+            position=self.hero.position,
+            mana=self.hero.mana,
+            state=self.hero.state,
+        )
+        
+        # 创建新的 BattleUnit
+        return BattleUnit(
+            hero=hero_copy,
+            team=self.team,
+            current_hp=self.current_hp,
+            current_mana=self.current_mana,
+            attack_cooldown=self.attack_cooldown,
+            skill_cooldown=self.skill_cooldown,
+            target_id=self.target_id,
+            state=self.state,
+            position_x=self.position_x,
+            position_y=self.position_y,
+            stunned_until=self.stunned_until,
+            invulnerable_until=self.invulnerable_until,
+        )
 
 
 def _integer_sqrt(n: int) -> int:
@@ -496,6 +548,10 @@ class BattleSimulator:
         self.units_a: list[BattleUnit] = []
         self.units_b: list[BattleUnit] = []
         
+        # 存活单位ID集合（增量维护，避免每帧重新过滤）
+        self._alive_ids_a: set[str] = set()
+        self._alive_ids_b: set[str] = set()
+        
         # 状态
         self.current_time = 0
         self.events: list[dict[str, Any]] = []
@@ -504,20 +560,25 @@ class BattleSimulator:
     
     def initialize(self) -> None:
         """初始化战斗"""
-        # 创建战斗单元（深拷贝英雄）
+        # 创建战斗单元（使用轻量级复制替代 deepcopy）
         self.units_a = []
+        self._alive_ids_a = set()
         for hero in self.board_a.get_all_heroes(alive_only=True):
-            hero_copy = copy.deepcopy(hero)
-            hero_copy.mana = INITIAL_MANA
-            unit = BattleUnit(hero=hero_copy, team=0)
+            # 创建临时 BattleUnit 用于复制
+            temp_unit = BattleUnit(hero=hero, team=0)
+            unit = temp_unit.__copy__()
+            unit.hero.mana = INITIAL_MANA
             self.units_a.append(unit)
+            self._alive_ids_a.add(unit.instance_id)
         
         self.units_b = []
+        self._alive_ids_b = set()
         for hero in self.board_b.get_all_heroes(alive_only=True):
-            hero_copy = copy.deepcopy(hero)
-            hero_copy.mana = INITIAL_MANA
-            unit = BattleUnit(hero=hero_copy, team=1)
+            temp_unit = BattleUnit(hero=hero, team=1)
+            unit = temp_unit.__copy__()
+            unit.hero.mana = INITIAL_MANA
             self.units_b.append(unit)
+            self._alive_ids_b.add(unit.instance_id)
         
         # 随机初始化行动顺序
         self.units_a = self.rng.shuffle(self.units_a)
@@ -573,24 +634,23 @@ class BattleSimulator:
         """
         检查胜利条件
         
+        使用增量维护的存活集合，避免每帧重新过滤。
+        
         Returns:
             是否已分出胜负
         """
-        alive_a = [u for u in self.units_a if u.is_alive()]
-        alive_b = [u for u in self.units_b if u.is_alive()]
-        
-        if not alive_a and not alive_b:
+        if not self._alive_ids_a and not self._alive_ids_b:
             # 双方同归于尽
             self.winner = "draw"
             self.is_finished = True
             return True
         
-        if not alive_a:
+        if not self._alive_ids_a:
             self.winner = self.board_b.owner_id or "player_b"
             self.is_finished = True
             return True
         
-        if not alive_b:
+        if not self._alive_ids_b:
             self.winner = self.board_a.owner_id or "player_a"
             self.is_finished = True
             return True
@@ -598,16 +658,32 @@ class BattleSimulator:
         return False
     
     def _get_all_alive_units(self) -> list[BattleUnit]:
-        """获取所有存活的战斗单元"""
-        units = [u for u in self.units_a if u.is_alive()]
-        units.extend(u for u in self.units_b if u.is_alive())
+        """
+        获取所有存活的战斗单元
+        
+        使用增量维护的存活集合进行快速过滤。
+        """
+        units = [u for u in self.units_a if u.instance_id in self._alive_ids_a]
+        units.extend(u for u in self.units_b if u.instance_id in self._alive_ids_b)
         return units
     
     def _get_enemy_units(self, unit: BattleUnit) -> list[BattleUnit]:
-        """获取敌方单位列表"""
+        """获取敌方单位列表（使用存活集合过滤）"""
         if unit.team == 0:
-            return [u for u in self.units_b if u.is_alive()]
-        return [u for u in self.units_a if u.is_alive()]
+            return [u for u in self.units_b if u.instance_id in self._alive_ids_b]
+        return [u for u in self.units_a if u.instance_id in self._alive_ids_a]
+    
+    def _mark_unit_dead(self, unit: BattleUnit) -> None:
+        """
+        标记单位死亡（从存活集合中移除）
+        
+        Args:
+            unit: 死亡的单位
+        """
+        if unit.team == 0:
+            self._alive_ids_a.discard(unit.instance_id)
+        else:
+            self._alive_ids_b.discard(unit.instance_id)
     
     def _select_target(self, unit: BattleUnit) -> Optional[BattleUnit]:
         """
@@ -682,6 +758,7 @@ class BattleSimulator:
         # 检查目标是否死亡
         if not target.is_alive():
             self._record_death_event(target.instance_id, attacker.instance_id)
+            self._mark_unit_dead(target)
         
         attacker.state = HeroState.IDLE
     
