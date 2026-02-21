@@ -289,7 +289,7 @@ class SeasonManager:
         """
         段位软重置
         
-        新赛季初始段位 = (上赛季段位 + 青铜) / 2
+        新赛季初始段位 = (上赛季段位 + 青铜) / 2，向上取整
         
         Args:
             current_tier: 当前段位
@@ -302,8 +302,9 @@ class SeasonManager:
             return Tier.BRONZE
         
         # 计算软重置后的段位
-        # 公式: new_tier = (current + 1) / 2，向下取整
-        new_tier_value = (current_tier.value + Tier.BRONZE.value) // 2
+        # 公式: new_tier = (current + 1) / 2，向上取整
+        import math
+        new_tier_value = math.ceil((current_tier.value + Tier.BRONZE.value) / 2)
         new_tier = Tier(new_tier_value)
         
         logger.info(

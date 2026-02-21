@@ -1,0 +1,386 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-02-22",
+  "total_achievements": 20,
+  "categories": {
+    "collection": "收集成就",
+    "battle": "对局成就",
+    "combat": "战斗成就",
+    "social": "社交成就",
+    "special": "特殊成就"
+  },
+  "achievements": [
+    {
+      "achievement_id": "collect_all_1star",
+      "name": "收集家·初",
+      "description": "累计收集30个1星英雄",
+      "category": "collection",
+      "tier": 1,
+      "requirement": {
+        "type": "collect_1star_heroes",
+        "target": 30
+      },
+      "rewards": {
+        "gold": 500,
+        "exp": 1000
+      },
+      "icon": "achievement_collect_1",
+      "hidden": false
+    },
+    {
+      "achievement_id": "collect_all_2star",
+      "name": "收集家·进",
+      "description": "累计收集20个2星英雄",
+      "category": "collection",
+      "tier": 2,
+      "requirement": {
+        "type": "collect_2star_heroes",
+        "target": 20
+      },
+      "rewards": {
+        "gold": 1000,
+        "exp": 2000
+      },
+      "icon": "achievement_collect_2",
+      "hidden": false,
+      "prerequisite": "collect_all_1star"
+    },
+    {
+      "achievement_id": "collect_all_3star",
+      "name": "收集家·极",
+      "description": "累计收集10个3星英雄",
+      "category": "collection",
+      "tier": 3,
+      "requirement": {
+        "type": "collect_3star_heroes",
+        "target": 10
+      },
+      "rewards": {
+        "gold": 2000,
+        "exp": 4000,
+        "title": "收藏大师"
+      },
+      "icon": "achievement_collect_3",
+      "hidden": false,
+      "prerequisite": "collect_all_2star"
+    },
+    {
+      "achievement_id": "synergy_master",
+      "name": "羁绊大师",
+      "description": "激活所有羁绊至少一次",
+      "category": "collection",
+      "tier": 2,
+      "requirement": {
+        "type": "activate_synergies",
+        "target": 16
+      },
+      "rewards": {
+        "gold": 800,
+        "exp": 1500,
+        "avatar_frame": "synergy_master_frame"
+      },
+      "icon": "achievement_synergy",
+      "hidden": false
+    },
+    {
+      "achievement_id": "win_100",
+      "name": "百战勇士",
+      "description": "累计获胜100场",
+      "category": "battle",
+      "tier": 1,
+      "requirement": {
+        "type": "win_games",
+        "target": 100
+      },
+      "rewards": {
+        "gold": 1000,
+        "exp": 2000
+      },
+      "icon": "achievement_win_100",
+      "hidden": false
+    },
+    {
+      "achievement_id": "win_500",
+      "name": "千胜将军",
+      "description": "累计获胜500场",
+      "category": "battle",
+      "tier": 3,
+      "requirement": {
+        "type": "win_games",
+        "target": 500
+      },
+      "rewards": {
+        "gold": 5000,
+        "exp": 10000,
+        "title": "千胜将军"
+      },
+      "icon": "achievement_win_500",
+      "hidden": false,
+      "prerequisite": "win_100"
+    },
+    {
+      "achievement_id": "streak_5",
+      "name": "五连胜",
+      "description": "单次达成5连胜",
+      "category": "battle",
+      "tier": 1,
+      "requirement": {
+        "type": "win_streak",
+        "target": 5
+      },
+      "rewards": {
+        "gold": 300,
+        "exp": 500
+      },
+      "icon": "achievement_streak_5",
+      "hidden": false
+    },
+    {
+      "achievement_id": "streak_10",
+      "name": "十连胜",
+      "description": "单次达成10连胜",
+      "category": "battle",
+      "tier": 3,
+      "requirement": {
+        "type": "win_streak",
+        "target": 10
+      },
+      "rewards": {
+        "gold": 1000,
+        "exp": 2000,
+        "title": "连胜王者"
+      },
+      "icon": "achievement_streak_10",
+      "hidden": false,
+      "prerequisite": "streak_5"
+    },
+    {
+      "achievement_id": "first_place_50",
+      "name": "吃鸡达人",
+      "description": "累计获得50次第一名",
+      "category": "battle",
+      "tier": 2,
+      "requirement": {
+        "type": "first_place",
+        "target": 50
+      },
+      "rewards": {
+        "gold": 1500,
+        "exp": 3000,
+        "avatar_frame": "chicken_dinner_frame"
+      },
+      "icon": "achievement_first_50",
+      "hidden": false
+    },
+    {
+      "achievement_id": "damage_10000",
+      "name": "伤害大师",
+      "description": "单局造成10000点伤害",
+      "category": "combat",
+      "tier": 1,
+      "requirement": {
+        "type": "deal_damage",
+        "target": 10000
+      },
+      "rewards": {
+        "gold": 200,
+        "exp": 400
+      },
+      "icon": "achievement_damage_10k",
+      "hidden": false
+    },
+    {
+      "achievement_id": "damage_50000",
+      "name": "伤害传说",
+      "description": "单局造成50000点伤害",
+      "category": "combat",
+      "tier": 3,
+      "requirement": {
+        "type": "deal_damage",
+        "target": 50000
+      },
+      "rewards": {
+        "gold": 1000,
+        "exp": 2000,
+        "title": "毁灭者"
+      },
+      "icon": "achievement_damage_50k",
+      "hidden": false,
+      "prerequisite": "damage_10000"
+    },
+    {
+      "achievement_id": "perfect_win",
+      "name": "完美胜利",
+      "description": "零损失获胜（所有英雄存活）",
+      "category": "combat",
+      "tier": 2,
+      "requirement": {
+        "type": "perfect_win",
+        "target": 1
+      },
+      "rewards": {
+        "gold": 500,
+        "exp": 1000
+      },
+      "icon": "achievement_perfect",
+      "hidden": false
+    },
+    {
+      "achievement_id": "comeback_king",
+      "name": "逆袭之王",
+      "description": "血量低于10时获得第一名",
+      "category": "combat",
+      "tier": 3,
+      "requirement": {
+        "type": "low_hp_win",
+        "target": 1,
+        "conditions": {
+          "hp_threshold": 10
+        }
+      },
+      "rewards": {
+        "gold": 800,
+        "exp": 1500,
+        "title": "逆袭之王"
+      },
+      "icon": "achievement_comeback",
+      "hidden": false
+    },
+    {
+      "achievement_id": "friend_10",
+      "name": "社交达人",
+      "description": "添加10个好友",
+      "category": "social",
+      "tier": 1,
+      "requirement": {
+        "type": "add_friends",
+        "target": 10
+      },
+      "rewards": {
+        "gold": 200,
+        "exp": 400
+      },
+      "icon": "achievement_friend_10",
+      "hidden": false
+    },
+    {
+      "achievement_id": "team_50",
+      "name": "团队玩家",
+      "description": "组队进行50场对局",
+      "category": "social",
+      "tier": 2,
+      "requirement": {
+        "type": "team_play",
+        "target": 50
+      },
+      "rewards": {
+        "gold": 500,
+        "exp": 1000
+      },
+      "icon": "achievement_team_50",
+      "hidden": false
+    },
+    {
+      "achievement_id": "reach_diamond",
+      "name": "钻石之光",
+      "description": "达到钻石段位",
+      "category": "special",
+      "tier": 2,
+      "requirement": {
+        "type": "reach_tier",
+        "target": 5,
+        "conditions": {
+          "tier": "diamond"
+        }
+      },
+      "rewards": {
+        "gold": 1000,
+        "exp": 2000,
+        "avatar_frame": "diamond_reach_frame"
+      },
+      "icon": "achievement_diamond",
+      "hidden": false
+    },
+    {
+      "achievement_id": "reach_king",
+      "name": "最强王者",
+      "description": "达到王者段位",
+      "category": "special",
+      "tier": 4,
+      "requirement": {
+        "type": "reach_tier",
+        "target": 8,
+        "conditions": {
+          "tier": "king"
+        }
+      },
+      "rewards": {
+        "gold": 5000,
+        "exp": 10000,
+        "skin": "king_skin",
+        "title": "王者归来"
+      },
+      "icon": "achievement_king",
+      "hidden": false,
+      "prerequisite": "reach_diamond"
+    },
+    {
+      "achievement_id": "gold_millionaire",
+      "name": "金币大亨",
+      "description": "累计获得100000金币",
+      "category": "special",
+      "tier": 2,
+      "requirement": {
+        "type": "earn_gold",
+        "target": 100000
+      },
+      "rewards": {
+        "gold": 2000,
+        "exp": 4000,
+        "avatar_frame": "gold_frame"
+      },
+      "icon": "achievement_gold",
+      "hidden": false
+    },
+    {
+      "achievement_id": "secret_perfect_season",
+      "name": "完美赛季",
+      "description": "一个赛季内胜率超过80%",
+      "category": "special",
+      "tier": 4,
+      "requirement": {
+        "type": "win_games",
+        "target": 50,
+        "conditions": {
+          "win_rate_threshold": 80,
+          "min_games": 50
+        }
+      },
+      "rewards": {
+        "gold": 10000,
+        "exp": 20000,
+        "skin": "perfect_season_skin",
+        "title": "完美赛季"
+      },
+      "icon": "achievement_perfect_season",
+      "hidden": true
+    },
+    {
+      "achievement_id": "upgrade_master",
+      "name": "升级大师",
+      "description": "累计升级100次英雄",
+      "category": "collection",
+      "tier": 2,
+      "requirement": {
+        "type": "upgrade_heroes",
+        "target": 100
+      },
+      "rewards": {
+        "gold": 800,
+        "exp": 1500
+      },
+      "icon": "achievement_upgrade",
+      "hidden": false
+    }
+  ]
+}

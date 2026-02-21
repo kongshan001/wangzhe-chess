@@ -181,6 +181,8 @@ class Season:
     def progress(self) -> float:
         """获取赛季进度(0-1)"""
         total = (self.end_time - self.start_time).total_seconds()
+        if total <= 0:
+            return 1.0  # 已完成
         elapsed = (datetime.now() - self.start_time).total_seconds()
         return min(1.0, max(0.0, elapsed / total))
 
