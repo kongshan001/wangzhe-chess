@@ -94,6 +94,10 @@ class TradingManager:
             remaining = sender_history.remaining_daily_trades()
             return None, f"今日交易次数已达上限，请明天再来"
         
+        # 预先增加每日计数（防止超限）
+        sender_history._check_daily_reset()
+        sender_history.daily_count += 1
+        
         # 不能和自己交易
         if sender_id == receiver_id:
             return None, "不能和自己交易"
@@ -131,6 +135,7 @@ class TradingManager:
         trade_request = TradeRequest(
             trade_id=trade_id,
             sender_offer=sender_offer,
+            receiver_id=receiver_id,
             message=message,
         )
         

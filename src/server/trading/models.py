@@ -177,6 +177,7 @@ class TradeRequest:
     Attributes:
         trade_id: 交易唯一ID
         sender_offer: 发起方报价
+        receiver_id: 接收方ID（交易发送目标）
         receiver_offer: 接收方报价（初始为空，对方接受后填充）
         status: 交易状态
         created_at: 创建时间
@@ -189,6 +190,7 @@ class TradeRequest:
     
     trade_id: str
     sender_offer: TradeOffer
+    receiver_id: Optional[str] = None
     receiver_offer: Optional[TradeOffer] = None
     status: TradeStatus = TradeStatus.PENDING
     created_at: Optional[datetime] = None
@@ -213,6 +215,7 @@ class TradeRequest:
         return {
             "trade_id": self.trade_id,
             "sender_offer": self.sender_offer.to_dict(),
+            "receiver_id": self.receiver_id,
             "receiver_offer": self.receiver_offer.to_dict() if self.receiver_offer else None,
             "status": self.status.value if isinstance(self.status, TradeStatus) else self.status,
             "created_at": self.created_at.isoformat() if self.created_at else None,
@@ -238,6 +241,7 @@ class TradeRequest:
         return cls(
             trade_id=data["trade_id"],
             sender_offer=sender_offer,
+            receiver_id=data.get("receiver_id"),
             receiver_offer=receiver_offer,
             status=status,
             created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else None,
@@ -252,11 +256,6 @@ class TradeRequest:
     def sender_id(self) -> str:
         """获取发起方ID"""
         return self.sender_offer.player_id
-    
-    @property
-    def receiver_id(self) -> Optional[str]:
-        """获取接收方ID"""
-        return self.receiver_offer.player_id if self.receiver_offer else None
     
     def is_expired(self) -> bool:
         """检查是否过期"""

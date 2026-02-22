@@ -408,6 +408,27 @@ class MessageType(str, Enum):
     TRADE_STATUS = "trade_status"                     # 交易状态响应
     TRADE_RECEIVED = "trade_received"                 # 收到交易请求通知
     
+    # ========== AI教练系统 ==========
+    # 客户端 -> 服务器
+    GET_COACH_SUGGESTIONS = "get_coach_suggestions"           # 获取教练建议
+    ANALYZE_LINEUP = "analyze_lineup"                         # 分析阵容
+    GET_LINEUP_RECOMMENDATIONS = "get_lineup_recommendations" # 获取阵容推荐
+    GET_MATCH_HISTORY = "get_match_history"                   # 获取对局历史
+    GET_EQUIPMENT_ADVICE = "get_equipment_advice"             # 获取装备建议
+    GET_POSITION_ADVICE = "get_position_advice"               # 获取站位建议
+    GET_ROUND_STRATEGY = "get_round_strategy"                 # 获取回合策略
+    GET_WIN_RATE_PREDICTION = "get_win_rate_prediction"       # 获取胜率预测
+    
+    # 服务器 -> 客户端
+    COACH_SUGGESTIONS = "coach_suggestions"                   # 教练建议响应
+    LINEUP_ANALYSIS = "lineup_analysis"                       # 阵容分析结果
+    LINEUP_RECOMMENDATIONS = "lineup_recommendations"         # 阵容推荐响应
+    MATCH_HISTORY = "match_history"                           # 对局历史响应
+    EQUIPMENT_ADVICE = "equipment_advice"                     # 装备建议响应
+    POSITION_ADVICE = "position_advice"                       # 站位建议响应
+    ROUND_STRATEGY = "round_strategy"                         # 回合策略响应
+    WIN_RATE_PREDICTION = "win_rate_prediction"               # 胜率预测响应
+    
     # ========== 错误消息 ==========
     ERROR = "error"                   # 错误消息
 
@@ -4763,6 +4784,460 @@ class ConsumableEffectAppliedMessage(BaseMessage):
 
 
 # ============================================================================
+# AI教练系统数据模型
+# ============================================================================
+
+
+class AISuggestionData(BaseModel):
+    """
+    AI建议数据
+    
+    Attributes:
+        suggestion_id: 建议ID
+        suggestion_type: 建议类型
+        priority: 优先级
+        title: 建议标题
+        description: 建议详细描述
+        reason: 建议原因
+        action: 建议采取的行动
+        expected_benefit: 预期收益
+        confidence: 置信度
+    """
+    
+    suggestion_id: str = Field(..., description="建议ID")
+    suggestion_type: str = Field(..., description="建议类型")
+    priority: str = Field(..., description="优先级")
+    title: str = Field(..., description="建议标题")
+    description: str = Field(..., description="建议详细描述")
+    reason: str = Field(..., description="建议原因")
+    action: dict[str, Any] = Field(default_factory=dict, description="建议采取的行动")
+    expected_benefit: str = Field(default="", description="预期收益")
+    confidence: float = Field(default=0.8, ge=0, le=1, description="置信度")
+
+
+class WinRatePredictionData(BaseModel):
+    """
+    胜率预测数据
+    
+    Attributes:
+        predicted_win_rate: 预测胜率
+        confidence: 置信度
+        factors: 影响因素
+        comparison_rank: 排名预测
+        key_advantages: 关键优势
+        key_weaknesses: 关键劣势
+        improvement_suggestions: 改进建议
+    """
+    
+    predicted_win_rate: float = Field(..., ge=0, le=1, description="预测胜率")
+    confidence: float = Field(..., ge=0, le=1, description="置信度")
+    factors: dict[str, float] = Field(default_factory=dict, description="影响因素")
+    comparison_rank: int = Field(default=4, ge=1, le=8, description="排名预测")
+    key_advantages: list[str] = Field(default_factory=list, description="关键优势")
+    key_weaknesses: list[str] = Field(default_factory=list, description="关键劣势")
+    improvement_suggestions: list[str] = Field(default_factory=list, description="改进建议")
+
+
+class CoachAnalysisData(BaseModel):
+    """
+    对局分析数据
+    
+    Attributes:
+        analysis_id: 分析ID
+        player_id: 玩家ID
+        game_id: 对局ID
+        analysis_type: 分析类型
+        round_num: 回合数
+        lineup_score: 阵容评分
+        economy_score: 经济评分
+        synergy_score: 羁绊评分
+        position_score: 站位评分
+        overall_score: 综合评分
+        strengths: 优势列表
+        weaknesses: 劣势列表
+        suggestions: 建议列表
+        win_rate_prediction: 胜率预测
+        created_at: 创建时间
+    """
+    
+    analysis_id: str = Field(..., description="分析ID")
+    player_id: int = Field(..., description="玩家ID")
+    game_id: str = Field(..., description="对局ID")
+    analysis_type: str = Field(..., description="分析类型")
+    round_num: int = Field(..., description="回合数")
+    lineup_score: float = Field(default=50.0, ge=0, le=100, description="阵容评分")
+    economy_score: float = Field(default=50.0, ge=0, le=100, description="经济评分")
+    synergy_score: float = Field(default=50.0, ge=0, le=100, description="羁绊评分")
+    position_score: float = Field(default=50.0, ge=0, le=100, description="站位评分")
+    overall_score: float = Field(default=50.0, ge=0, le=100, description="综合评分")
+    strengths: list[str] = Field(default_factory=list, description="优势列表")
+    weaknesses: list[str] = Field(default_factory=list, description="劣势列表")
+    suggestions: list[AISuggestionData] = Field(default_factory=list, description="建议列表")
+    win_rate_prediction: Optional[WinRatePredictionData] = Field(default=None, description="胜率预测")
+    created_at: int = Field(default=0, description="创建时间")
+
+
+class LineupRecommendationData(BaseModel):
+    """
+    阵容推荐数据
+    
+    Attributes:
+        lineup_id: 阵容ID
+        name: 阵容名称
+        description: 阵容描述
+        difficulty: 难度等级
+        core_heroes: 核心英雄
+        optional_heroes: 可选英雄
+        synergies: 激活的羁绊
+        play_style: 玩法风格
+        early_game: 前期阵容
+        mid_game: 中期阵容
+        late_game: 后期阵容
+        key_items: 核心装备
+        tips: 玩法提示
+        win_rate: 胜率
+        popularity: 流行度
+    """
+    
+    lineup_id: str = Field(..., description="阵容ID")
+    name: str = Field(..., description="阵容名称")
+    description: str = Field(default="", description="阵容描述")
+    difficulty: int = Field(default=3, ge=1, le=5, description="难度等级")
+    core_heroes: list[str] = Field(default_factory=list, description="核心英雄")
+    optional_heroes: list[str] = Field(default_factory=list, description="可选英雄")
+    synergies: dict[str, int] = Field(default_factory=dict, description="激活的羁绊")
+    play_style: str = Field(default="balanced", description="玩法风格")
+    early_game: list[str] = Field(default_factory=list, description="前期阵容")
+    mid_game: list[str] = Field(default_factory=list, description="中期阵容")
+    late_game: list[str] = Field(default_factory=list, description="后期阵容")
+    key_items: list[str] = Field(default_factory=list, description="核心装备")
+    tips: list[str] = Field(default_factory=list, description="玩法提示")
+    win_rate: float = Field(default=0.5, ge=0, le=1, description="胜率")
+    popularity: float = Field(default=0.5, ge=0, le=1, description="流行度")
+
+
+class MatchHistoryItemData(BaseModel):
+    """
+    对局历史记录数据
+    
+    Attributes:
+        match_id: 对局ID
+        game_id: 游戏ID
+        final_rank: 最终排名
+        total_rounds: 总回合数
+        duration_seconds: 对局时长
+        final_lineup: 最终阵容
+        final_synergies: 最终羁绊
+        damage_dealt: 造成伤害
+        damage_taken: 承受伤害
+        gold_earned: 获得金币
+        key_decisions: 关键决策
+        analysis: 对局分析
+        played_at: 对局时间
+    """
+    
+    match_id: str = Field(..., description="对局ID")
+    game_id: str = Field(..., description="游戏ID")
+    final_rank: int = Field(..., ge=1, le=8, description="最终排名")
+    total_rounds: int = Field(..., description="总回合数")
+    duration_seconds: int = Field(..., description="对局时长（秒）")
+    final_lineup: list[str] = Field(default_factory=list, description="最终阵容")
+    final_synergies: dict[str, int] = Field(default_factory=dict, description="最终羁绊")
+    damage_dealt: int = Field(default=0, description="造成伤害")
+    damage_taken: int = Field(default=0, description="承受伤害")
+    gold_earned: int = Field(default=0, description="获得金币")
+    key_decisions: list[str] = Field(default_factory=list, description="关键决策")
+    analysis: Optional[CoachAnalysisData] = Field(default=None, description="对局分析")
+    played_at: int = Field(default=0, description="对局时间")
+
+
+class EquipmentAdviceData(BaseModel):
+    """
+    装备建议数据
+    
+    Attributes:
+        equipment_id: 装备ID
+        equipment_name: 装备名称
+        target_hero_id: 目标英雄ID
+        reason: 建议原因
+        recipe: 合成配方
+        priority: 优先级
+        expected_stat_boost: 预期属性提升
+    """
+    
+    equipment_id: str = Field(..., description="装备ID")
+    equipment_name: str = Field(..., description="装备名称")
+    target_hero_id: Optional[str] = Field(default=None, description="目标英雄ID")
+    reason: str = Field(..., description="建议原因")
+    recipe: Optional[list[str]] = Field(default=None, description="合成配方")
+    priority: str = Field(default="medium", description="优先级")
+    expected_stat_boost: dict[str, float] = Field(default_factory=dict, description="预期属性提升")
+
+
+class PositionAdviceData(BaseModel):
+    """
+    站位建议数据
+    
+    Attributes:
+        hero_id: 英雄ID
+        hero_name: 英雄名称
+        current_position: 当前位置
+        recommended_position: 推荐位置
+        reason: 建议原因
+        priority: 优先级
+        tactical_role: 战术角色
+    """
+    
+    hero_id: str = Field(..., description="英雄ID")
+    hero_name: str = Field(..., description="英雄名称")
+    current_position: Optional[dict[str, int]] = Field(default=None, description="当前位置")
+    recommended_position: dict[str, int] = Field(..., description="推荐位置")
+    reason: str = Field(..., description="建议原因")
+    priority: str = Field(default="medium", description="优先级")
+    tactical_role: str = Field(default="fighter", description="战术角色")
+
+
+class RoundStrategyData(BaseModel):
+    """
+    回合策略数据
+    
+    Attributes:
+        round_num: 回合数
+        phase: 游戏阶段
+        strategy_type: 策略类型
+        description: 策略描述
+        key_actions: 关键行动
+        focus_synergies: 重点羁绊
+        economy_advice: 经济建议
+        risk_level: 风险等级
+        win_condition: 获胜条件
+    """
+    
+    round_num: int = Field(..., description="回合数")
+    phase: str = Field(..., description="游戏阶段")
+    strategy_type: str = Field(..., description="策略类型")
+    description: str = Field(..., description="策略描述")
+    key_actions: list[str] = Field(default_factory=list, description="关键行动")
+    focus_synergies: list[str] = Field(default_factory=list, description="重点羁绊")
+    economy_advice: Optional[str] = Field(default=None, description="经济建议")
+    risk_level: str = Field(default="medium", description="风险等级")
+    win_condition: Optional[str] = Field(default=None, description="获胜条件")
+
+
+# ============================================================================
+# AI教练系统消息
+# ============================================================================
+
+
+class GetCoachSuggestionsMessage(BaseMessage):
+    """
+    获取教练建议请求
+    
+    Attributes:
+        game_state: 当前游戏状态
+    """
+    
+    type: MessageType = MessageType.GET_COACH_SUGGESTIONS
+    game_state: dict[str, Any] = Field(default_factory=dict, description="当前游戏状态")
+
+
+class CoachSuggestionsMessage(BaseMessage):
+    """
+    教练建议响应
+    
+    Attributes:
+        suggestions: 建议列表
+        overall_score: 综合评分
+    """
+    
+    type: MessageType = MessageType.COACH_SUGGESTIONS
+    suggestions: list[AISuggestionData] = Field(default_factory=list, description="建议列表")
+    overall_score: float = Field(default=50.0, description="综合评分")
+
+
+class AnalyzeLineupMessage(BaseMessage):
+    """
+    分析阵容请求
+    
+    Attributes:
+        game_state: 当前游戏状态
+    """
+    
+    type: MessageType = MessageType.ANALYZE_LINEUP
+    game_state: dict[str, Any] = Field(default_factory=dict, description="当前游戏状态")
+
+
+class LineupAnalysisMessage(BaseMessage):
+    """
+    阵容分析结果
+    
+    Attributes:
+        analysis: 分析结果
+    """
+    
+    type: MessageType = MessageType.LINEUP_ANALYSIS
+    analysis: CoachAnalysisData = Field(..., description="分析结果")
+
+
+class GetLineupRecommendationsMessage(BaseMessage):
+    """
+    获取阵容推荐请求
+    
+    Attributes:
+        current_heroes: 当前拥有的英雄
+        limit: 返回数量限制
+    """
+    
+    type: MessageType = MessageType.GET_LINEUP_RECOMMENDATIONS
+    current_heroes: list[dict[str, Any]] = Field(default_factory=list, description="当前拥有的英雄")
+    limit: int = Field(default=5, ge=1, le=10, description="返回数量限制")
+
+
+class LineupRecommendationsMessage(BaseMessage):
+    """
+    阵容推荐响应
+    
+    Attributes:
+        recommendations: 推荐阵容列表
+    """
+    
+    type: MessageType = MessageType.LINEUP_RECOMMENDATIONS
+    recommendations: list[LineupRecommendationData] = Field(default_factory=list, description="推荐阵容列表")
+
+
+class GetMatchHistoryMessage(BaseMessage):
+    """
+    获取对局历史请求
+    
+    Attributes:
+        limit: 返回数量限制
+    """
+    
+    type: MessageType = MessageType.GET_MATCH_HISTORY
+    limit: int = Field(default=20, ge=1, le=100, description="返回数量限制")
+
+
+class MatchHistoryMessage(BaseMessage):
+    """
+    对局历史响应
+    
+    Attributes:
+        matches: 对局历史列表
+        total_matches: 总对局数
+        win_rate: 胜率
+        avg_rank: 平均排名
+    """
+    
+    type: MessageType = MessageType.MATCH_HISTORY
+    matches: list[MatchHistoryItemData] = Field(default_factory=list, description="对局历史列表")
+    total_matches: int = Field(default=0, description="总对局数")
+    win_rate: float = Field(default=0.0, description="胜率")
+    avg_rank: float = Field(default=4.0, description="平均排名")
+
+
+class GetEquipmentAdviceMessage(BaseMessage):
+    """
+    获取装备建议请求
+    
+    Attributes:
+        equipment: 当前装备列表
+        heroes: 当前英雄列表
+    """
+    
+    type: MessageType = MessageType.GET_EQUIPMENT_ADVICE
+    equipment: list[dict[str, Any]] = Field(default_factory=list, description="当前装备列表")
+    heroes: list[dict[str, Any]] = Field(default_factory=list, description="当前英雄列表")
+
+
+class EquipmentAdviceMessage(BaseMessage):
+    """
+    装备建议响应
+    
+    Attributes:
+        advice: 装备建议列表
+    """
+    
+    type: MessageType = MessageType.EQUIPMENT_ADVICE
+    advice: list[EquipmentAdviceData] = Field(default_factory=list, description="装备建议列表")
+
+
+class GetPositionAdviceMessage(BaseMessage):
+    """
+    获取站位建议请求
+    
+    Attributes:
+        board: 当前棋盘状态
+        heroes: 当前英雄列表
+    """
+    
+    type: MessageType = MessageType.GET_POSITION_ADVICE
+    board: dict[str, Any] = Field(default_factory=dict, description="当前棋盘状态")
+    heroes: list[dict[str, Any]] = Field(default_factory=list, description="当前英雄列表")
+
+
+class PositionAdviceMessage(BaseMessage):
+    """
+    站位建议响应
+    
+    Attributes:
+        advice: 站位建议列表
+    """
+    
+    type: MessageType = MessageType.POSITION_ADVICE
+    advice: list[PositionAdviceData] = Field(default_factory=list, description="站位建议列表")
+
+
+class GetRoundStrategyMessage(BaseMessage):
+    """
+    获取回合策略请求
+    
+    Attributes:
+        round_num: 当前回合
+        game_state: 当前游戏状态
+    """
+    
+    type: MessageType = MessageType.GET_ROUND_STRATEGY
+    round_num: int = Field(..., ge=1, description="当前回合")
+    game_state: dict[str, Any] = Field(default_factory=dict, description="当前游戏状态")
+
+
+class RoundStrategyMessage(BaseMessage):
+    """
+    回合策略响应
+    
+    Attributes:
+        strategy: 回合策略
+    """
+    
+    type: MessageType = MessageType.ROUND_STRATEGY
+    strategy: RoundStrategyData = Field(..., description="回合策略")
+
+
+class GetWinRatePredictionMessage(BaseMessage):
+    """
+    获取胜率预测请求
+    
+    Attributes:
+        game_state: 当前游戏状态
+    """
+    
+    type: MessageType = MessageType.GET_WIN_RATE_PREDICTION
+    game_state: dict[str, Any] = Field(default_factory=dict, description="当前游戏状态")
+
+
+class WinRatePredictionMessage(BaseMessage):
+    """
+    胜率预测响应
+    
+    Attributes:
+        prediction: 胜率预测
+    """
+    
+    type: MessageType = MessageType.WIN_RATE_PREDICTION
+    prediction: WinRatePredictionData = Field(..., description="胜率预测")
+
+
+# ============================================================================
 # 消息类型映射（用于反序列化）
 # ============================================================================
 
@@ -5059,6 +5534,24 @@ MESSAGE_CLASS_MAP: dict[MessageType, type[BaseMessage]] = {
     MessageType.CONSUMABLE_HISTORY: ConsumableHistoryMessage,
     MessageType.CONSUMABLE_ADDED: ConsumableAddedMessage,
     MessageType.CONSUMABLE_EFFECT_APPLIED: ConsumableEffectAppliedMessage,
+    
+    # AI教练系统
+    MessageType.GET_COACH_SUGGESTIONS: GetCoachSuggestionsMessage,
+    MessageType.COACH_SUGGESTIONS: CoachSuggestionsMessage,
+    MessageType.ANALYZE_LINEUP: AnalyzeLineupMessage,
+    MessageType.LINEUP_ANALYSIS: LineupAnalysisMessage,
+    MessageType.GET_LINEUP_RECOMMENDATIONS: GetLineupRecommendationsMessage,
+    MessageType.LINEUP_RECOMMENDATIONS: LineupRecommendationsMessage,
+    MessageType.GET_MATCH_HISTORY: GetMatchHistoryMessage,
+    MessageType.MATCH_HISTORY: MatchHistoryMessage,
+    MessageType.GET_EQUIPMENT_ADVICE: GetEquipmentAdviceMessage,
+    MessageType.EQUIPMENT_ADVICE: EquipmentAdviceMessage,
+    MessageType.GET_POSITION_ADVICE: GetPositionAdviceMessage,
+    MessageType.POSITION_ADVICE: PositionAdviceMessage,
+    MessageType.GET_ROUND_STRATEGY: GetRoundStrategyMessage,
+    MessageType.ROUND_STRATEGY: RoundStrategyMessage,
+    MessageType.GET_WIN_RATE_PREDICTION: GetWinRatePredictionMessage,
+    MessageType.WIN_RATE_PREDICTION: WinRatePredictionMessage,
     
     # 错误
     MessageType.ERROR: ErrorMessage,
