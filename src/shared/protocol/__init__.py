@@ -149,7 +149,7 @@ from .messages import (
     SpectatorPlayerStateData,
     SpectateChatMessage,
     SpectateChatReceivedMessage,
-    SpectateChatData,
+    SpectatorChatData,
     SpectateEndedMessage,
 )
 
@@ -271,7 +271,7 @@ __all__ = [
     "SpectatorPlayerStateData",
     "SpectateChatMessage",
     "SpectateChatReceivedMessage",
-    "SpectateChatData",
+    "SpectatorChatData",
     "SpectateEndedMessage",
     
     # 错误消息

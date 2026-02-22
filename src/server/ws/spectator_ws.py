@@ -31,7 +31,7 @@ from ...shared.protocol import (
     LeaveSpectateMessage,
     SpectatableGameData,
     SpectatableGamesListMessage,
-    SpectateChatData,
+    SpectatorChatData,
     SpectateChatMessage,
     SpectateChatReceivedMessage,
     SpectateEndedMessage,
@@ -554,7 +554,7 @@ class SpectatorWSHandler:
             )
             
             # 广播给所有观众
-            chat_data = SpectateChatData(
+            chat_data = SpectatorChatData(
                 chat_id=chat.chat_id,
                 sender_id=chat.sender_id,
                 sender_name=chat.sender_name,
