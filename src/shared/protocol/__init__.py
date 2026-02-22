@@ -207,6 +207,24 @@ from .messages import (
     VotingPollData,
     VotingInfoData,
     VotingResultData,
+    # 道具系统消息
+    GetConsumablesMessage,
+    ConsumablesListMessage,
+    GetPlayerConsumablesMessage,
+    PlayerConsumablesListMessage,
+    UseConsumableMessage,
+    ConsumableUsedMessage,
+    BuyConsumableMessage,
+    ConsumableBoughtMessage,
+    GetConsumableHistoryMessage,
+    ConsumableHistoryMessage,
+    ConsumableAddedMessage,
+    ConsumableEffectAppliedMessage,
+    # 道具系统数据模型
+    ConsumableData,
+    PlayerConsumableData,
+    ConsumableUsageData,
+    ConsumableEffectData,
 )
 
 __all__ = [
@@ -407,6 +425,24 @@ __all__ = [
     "VotingPollData",
     "VotingInfoData",
     "VotingResultData",
+    # 道具系统消息
+    "GetConsumablesMessage",
+    "ConsumablesListMessage",
+    "GetPlayerConsumablesMessage",
+    "PlayerConsumablesListMessage",
+    "UseConsumableMessage",
+    "ConsumableUsedMessage",
+    "BuyConsumableMessage",
+    "ConsumableBoughtMessage",
+    "GetConsumableHistoryMessage",
+    "ConsumableHistoryMessage",
+    "ConsumableAddedMessage",
+    "ConsumableEffectAppliedMessage",
+    # 道具系统数据模型
+    "ConsumableData",
+    "PlayerConsumableData",
+    "ConsumableUsageData",
+    "ConsumableEffectData",
     # 错误消息
     "ErrorMessage",
     
