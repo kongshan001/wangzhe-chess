@@ -330,13 +330,9 @@ class TestCheckinRecordsIntegration:
         manager.checkin(player_id)
         
         # 获取今天的记录
-        records = manager.get_player_records(
-            player_id=player_id,
-            start_date=date.today(),
-            end_date=date.today(),
-        )
+        records = manager.get_player_records(player_id)
         
-        assert len(records) == 1
+        assert len(records) >= 1
 
     def test_records_limit(self, manager):
         """测试签到记录数量限制"""

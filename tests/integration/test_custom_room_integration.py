@@ -119,12 +119,9 @@ class TestCustomRoomIntegration:
         )
         
         # 离开房间
-        result = await room_manager.leave_room(
-            player_id="player_002",
-            room_id=room.room_id,
-        )
+        result = await room_manager.leave_room(player_id="player_002")
         
-        assert result is not None
+        assert result is True
         
         # 验证房间只剩房主
         room = room_manager.get_room(room.room_id)
@@ -141,10 +138,7 @@ class TestCustomRoomIntegration:
         )
         
         # 房主离开
-        await room_manager.leave_room(
-            player_id="player_001",
-            room_id=room.room_id,
-        )
+        await room_manager.leave_room(player_id="player_001")
         
         # 房间应该被删除
         room = room_manager.get_room(room.room_id)
