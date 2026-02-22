@@ -47,6 +47,18 @@ from .custom_room import (
     CustomRoomStatsDB,
 )
 
+from .spectator import (
+    SpectatorDB,
+    SpectatorChatDB,
+    SpectatorStatsDB,
+)
+
+from .skin import (
+    SkinDB,
+    EquippedSkinDB,
+    SkinPurchaseLogDB,
+)
+
 __all__ = [
     # 好友模型
     "FriendDB",
@@ -73,4 +85,12 @@ __all__ = [
     "CustomRoomDB",
     "CustomRoomPlayerDB",
     "CustomRoomStatsDB",
+    # 观战模型
+    "SpectatorDB",
+    "SpectatorChatDB",
+    "SpectatorStatsDB",
+    # 皮肤模型
+    "SkinDB",
+    "EquippedSkinDB",
+    "SkinPurchaseLogDB",
 ]

@@ -1,0 +1,504 @@
+{
+  "version": "1.0",
+  "description": "王者之奕随机事件配置",
+  "events": [
+    {
+      "event_id": "gold_rain",
+      "name": "金币雨",
+      "description": "天降金币！所有玩家获得额外金币。",
+      "event_type": "gold_rain",
+      "rarity": "common",
+      "effects": [
+        {
+          "effect_type": "give_gold_all",
+          "value": 5,
+          "target": "",
+          "duration": 0,
+          "conditions": {}
+        }
+      ],
+      "trigger": {
+        "probability": 0.05,
+        "fixed_rounds": [],
+        "min_round": 1,
+        "max_round": 100,
+        "conditions": {}
+      },
+      "icon": "gold_rain",
+      "animation": "gold_rain",
+      "announcement": "💰 金币雨来了！所有玩家获得 {value} 金币！",
+      "enabled": true
+    },
+    {
+      "event_id": "big_gold_rain",
+      "name": "大金币雨",
+      "description": "金币如雨般落下！所有玩家获得大量金币。",
+      "event_type": "gold_rain",
+      "rarity": "rare",
+      "effects": [
+        {
+          "effect_type": "give_gold_all",
+          "value": 10,
+          "target": "",
+          "duration": 0,
+          "conditions": {}
+        }
+      ],
+      "trigger": {
+        "probability": 0.03,
+        "fixed_rounds": [],
+        "min_round": 3,
+        "max_round": 100,
+        "conditions": {}
+      },
+      "icon": "big_gold_rain",
+      "animation": "big_gold_rain",
+      "announcement": "💰💰 大金币雨！所有玩家获得 {value} 金币！",
+      "enabled": true
+    },
+    {
+      "event_id": "hero_discount_1",
+      "name": "一费英雄折扣",
+      "description": "商店的一费英雄正在打折！",
+      "event_type": "hero_discount",
+      "rarity": "common",
+      "effects": [
+        {
+          "effect_type": "discount_hero_cost",
+          "value": 1,
+          "target": "1",
+          "duration": 1,
+          "conditions": {}
+        }
+      ],
+      "trigger": {
+        "probability": 0.05,
+        "fixed_rounds": [],
+        "min_round": 1,
+        "max_round": 50,
+        "conditions": {}
+      },
+      "icon": "discount",
+      "animation": "discount",
+      "announcement": "🏷️ 一费英雄大减价！本回合购买立减1金币！",
+      "enabled": true
+    },
+    {
+      "event_id": "hero_discount_2",
+      "name": "二费英雄折扣",
+      "description": "商店的二费英雄正在打折！",
+      "event_type": "hero_discount",
+      "rarity": "rare",
+      "effects": [
+        {
+          "effect_type": "discount_hero_cost",
+          "value": 1,
+          "target": "2",
+          "duration": 1,
+          "conditions": {}
+        }
+      ],
+      "trigger": {
+        "probability": 0.03,
+        "fixed_rounds": [],
+        "min_round": 3,
+        "max_round": 50,
+        "conditions": {}
+      },
+      "icon": "discount",
+      "animation": "discount",
+      "announcement": "🏷️ 二费英雄大减价！本回合购买立减1金币！",
+      "enabled": true
+    },
+    {
+      "event_id": "hero_discount_3",
+      "name": "三费英雄折扣",
+      "description": "商店的三费英雄正在打折！",
+      "event_type": "hero_discount",
+      "rarity": "epic",
+      "effects": [
+        {
+          "effect_type": "discount_hero_cost",
+          "value": 2,
+          "target": "3",
+          "duration": 1,
+          "conditions": {}
+        }
+      ],
+      "trigger": {
+        "probability": 0.015,
+        "fixed_rounds": [],
+        "min_round": 5,
+        "max_round": 50,
+        "conditions": {}
+      },
+      "icon": "discount",
+      "animation": "discount",
+      "announcement": "🏷️ 三费英雄大减价！本回合购买立减2金币！",
+      "enabled": true
+    },
+    {
+      "event_id": "hero_discount_4",
+      "name": "四费英雄折扣",
+      "description": "商店的四费英雄正在打折！",
+      "event_type": "hero_discount",
+      "rarity": "epic",
+      "effects": [
+        {
+          "effect_type": "discount_hero_cost",
+          "value": 2,
+          "target": "4",
+          "duration": 1,
+          "conditions": {}
+        }
+      ],
+      "trigger": {
+        "probability": 0.01,
+        "fixed_rounds": [],
+        "min_round": 8,
+        "max_round": 50,
+        "conditions": {}
+      },
+      "icon": "discount",
+      "animation": "discount",
+      "announcement": "🏷️ 四费英雄大减价！本回合购买立减2金币！",
+      "enabled": true
+    },
+    {
+      "event_id": "free_refresh",
+      "name": "免费刷新",
+      "description": "本回合商店刷新免费！",
+      "event_type": "shop_refresh_free",
+      "rarity": "common",
+      "effects": [
+        {
+          "effect_type": "free_refresh",
+          "value": 1,
+          "target": "",
+          "duration": 1,
+          "conditions": {}
+        }
+      ],
+      "trigger": {
+        "probability": 0.05,
+        "fixed_rounds": [],
+        "min_round": 1,
+        "max_round": 50,
+        "conditions": {}
+      },
+      "icon": "free_refresh",
+      "animation": "free_refresh",
+      "announcement": "🔄 免费刷新！本回合商店刷新不消耗金币！",
+      "enabled": true
+    },
+    {
+      "event_id": "equipment_drop",
+      "name": "装备掉落",
+      "description": "野怪掉落额外装备！",
+      "event_type": "equipment_drop",
+      "rarity": "rare",
+      "effects": [
+        {
+          "effect_type": "drop_rate_boost",
+          "value": 50,
+          "target": "",
+          "duration": 1,
+          "conditions": {}
+        }
+      ],
+      "trigger": {
+        "probability": 0.03,
+        "fixed_rounds": [],
+        "min_round": 3,
+        "max_round": 100,
+        "conditions": {}
+      },
+      "icon": "equipment",
+      "animation": "equipment_drop",
+      "announcement": "⚔️ 装备掉落率提升！本回合野怪掉落额外装备！",
+      "enabled": true
+    },
+    {
+      "event_id": "equipment_bonus",
+      "name": "装备奖励",
+      "description": "所有玩家获得一件随机装备！",
+      "event_type": "equipment_bonus",
+      "rarity": "rare",
+      "effects": [
+        {
+          "effect_type": "give_equipment_all",
+          "value": 1,
+          "target": "",
+          "duration": 0,
+          "conditions": {}
+        }
+      ],
+      "trigger": {
+        "probability": 0.025,
+        "fixed_rounds": [],
+        "min_round": 5,
+        "max_round": 100,
+        "conditions": {}
+      },
+      "icon": "equipment",
+      "animation": "equipment_bonus",
+      "announcement": "🎁 装备奖励！所有玩家获得一件随机装备！",
+      "enabled": true
+    },
+    {
+      "event_id": "synergy_blessing_warrior",
+      "name": "战士祝福",
+      "description": "本回合战士羁绊效果翻倍！",
+      "event_type": "synergy_blessing",
+      "rarity": "epic",
+      "effects": [
+        {
+          "effect_type": "synergy_boost",
+          "value": 100,
+          "target": "warrior",
+          "duration": 1,
+          "conditions": {}
+        }
+      ],
+      "trigger": {
+        "probability": 0.015,
+        "fixed_rounds": [],
+        "min_round": 5,
+        "max_round": 100,
+        "conditions": {}
+      },
+      "icon": "synergy_blessing",
+      "animation": "synergy_blessing",
+      "announcement": "⚔️ 战士祝福！本回合战士羁绊效果翻倍！",
+      "enabled": true
+    },
+    {
+      "event_id": "synergy_blessing_mage",
+      "name": "法师祝福",
+      "description": "本回合法师羁绊效果翻倍！",
+      "event_type": "synergy_blessing",
+      "rarity": "epic",
+      "effects": [
+        {
+          "effect_type": "synergy_boost",
+          "value": 100,
+          "target": "mage",
+          "duration": 1,
+          "conditions": {}
+        }
+      ],
+      "trigger": {
+        "probability": 0.015,
+        "fixed_rounds": [],
+        "min_round": 5,
+        "max_round": 100,
+        "conditions": {}
+      },
+      "icon": "synergy_blessing",
+      "animation": "synergy_blessing",
+      "announcement": "✨ 法师祝福！本回合法师羁绊效果翻倍！",
+      "enabled": true
+    },
+    {
+      "event_id": "synergy_blessing_assassin",
+      "name": "刺客祝福",
+      "description": "本回合刺客羁绊效果翻倍！",
+      "event_type": "synergy_blessing",
+      "rarity": "epic",
+      "effects": [
+        {
+          "effect_type": "synergy_boost",
+          "value": 100,
+          "target": "assassin",
+          "duration": 1,
+          "conditions": {}
+        }
+      ],
+      "trigger": {
+        "probability": 0.015,
+        "fixed_rounds": [],
+        "min_round": 5,
+        "max_round": 100,
+        "conditions": {}
+      },
+      "icon": "synergy_blessing",
+      "animation": "synergy_blessing",
+      "announcement": "🗡️ 刺客祝福！本回合刺客羁绊效果翻倍！",
+      "enabled": true
+    },
+    {
+      "event_id": "synergy_blessing_tank",
+      "name": "坦克祝福",
+      "description": "本回合坦克羁绊效果翻倍！",
+      "event_type": "synergy_blessing",
+      "rarity": "epic",
+      "effects": [
+        {
+          "effect_type": "synergy_boost",
+          "value": 100,
+          "target": "tank",
+          "duration": 1,
+          "conditions": {}
+        }
+      ],
+      "trigger": {
+        "probability": 0.015,
+        "fixed_rounds": [],
+        "min_round": 5,
+        "max_round": 100,
+        "conditions": {}
+      },
+      "icon": "synergy_blessing",
+      "animation": "synergy_blessing",
+      "announcement": "🛡️ 坦克祝福！本回合坦克羁绊效果翻倍！",
+      "enabled": true
+    },
+    {
+      "event_id": "lucky_wheel",
+      "name": "幸运轮盘",
+      "description": "所有玩家转动幸运轮盘，获得随机奖励！",
+      "event_type": "lucky_wheel",
+      "rarity": "legendary",
+      "effects": [
+        {
+          "effect_type": "random_reward",
+          "value": 1,
+          "target": "",
+          "duration": 0,
+          "conditions": {
+            "rewards": [
+              {"type": "gold", "min": 3, "max": 15},
+              {"type": "exp", "min": 2, "max": 8},
+              {"type": "equipment", "chance": 0.3}
+            ]
+          }
+        }
+      ],
+      "trigger": {
+        "probability": 0.005,
+        "fixed_rounds": [10, 20, 30],
+        "min_round": 5,
+        "max_round": 100,
+        "conditions": {}
+      },
+      "icon": "lucky_wheel",
+      "animation": "lucky_wheel",
+      "announcement": "🎡 幸运轮盘！所有玩家获得随机奖励！",
+      "enabled": true
+    },
+    {
+      "event_id": "double_exp",
+      "name": "双倍经验",
+      "description": "本回合所有玩家获得的经验翻倍！",
+      "event_type": "double_exp",
+      "rarity": "rare",
+      "effects": [
+        {
+          "effect_type": "give_exp_all",
+          "value": 4,
+          "target": "",
+          "duration": 0,
+          "conditions": {}
+        }
+      ],
+      "trigger": {
+        "probability": 0.03,
+        "fixed_rounds": [],
+        "min_round": 3,
+        "max_round": 50,
+        "conditions": {}
+      },
+      "icon": "double_exp",
+      "animation": "double_exp",
+      "announcement": "⬆️ 双倍经验！所有玩家获得额外4点经验！",
+      "enabled": true
+    },
+    {
+      "event_id": "free_level_up",
+      "name": "免费升级",
+      "description": "所有玩家立即升级！",
+      "event_type": "level_up_bonus",
+      "rarity": "legendary",
+      "effects": [
+        {
+          "effect_type": "free_level_up",
+          "value": 1,
+          "target": "",
+          "duration": 0,
+          "conditions": {}
+        }
+      ],
+      "trigger": {
+        "probability": 0.005,
+        "fixed_rounds": [15, 25],
+        "min_round": 10,
+        "max_round": 50,
+        "conditions": {}
+      },
+      "icon": "level_up",
+      "animation": "level_up",
+      "announcement": "🌟 免费升级！所有玩家立即提升一级！",
+      "enabled": true
+    },
+    {
+      "event_id": "mystery_gift",
+      "name": "神秘礼物",
+      "description": "一个神秘礼物从天而降！",
+      "event_type": "mystery_gift",
+      "rarity": "rare",
+      "effects": [
+        {
+          "effect_type": "random_reward",
+          "value": 1,
+          "target": "",
+          "duration": 0,
+          "conditions": {
+            "rewards": [
+              {"type": "gold", "min": 5, "max": 20},
+              {"type": "exp", "min": 3, "max": 10},
+              {"type": "equipment", "chance": 0.5}
+            ]
+          }
+        }
+      ],
+      "trigger": {
+        "probability": 0.025,
+        "fixed_rounds": [],
+        "min_round": 5,
+        "max_round": 100,
+        "conditions": {}
+      },
+      "icon": "mystery_gift",
+      "animation": "mystery_gift",
+      "announcement": "🎁 神秘礼物从天而降！快看看里面有什么！",
+      "enabled": true
+    },
+    {
+      "event_id": "round_10_bonus",
+      "name": "里程碑奖励",
+      "description": "每10回合的里程碑奖励！",
+      "event_type": "gold_rain",
+      "rarity": "rare",
+      "effects": [
+        {
+          "effect_type": "give_gold_all",
+          "value": 8,
+          "target": "",
+          "duration": 0,
+          "conditions": {}
+        }
+      ],
+      "trigger": {
+        "probability": 0,
+        "fixed_rounds": [10, 20, 30, 40],
+        "min_round": 10,
+        "max_round": 50,
+        "conditions": {}
+      },
+      "icon": "milestone",
+      "animation": "gold_rain",
+      "announcement": "🏆 里程碑奖励！恭喜到达第{round}回合，所有玩家获得8金币！",
+      "enabled": true
+    }
+  ]
+}

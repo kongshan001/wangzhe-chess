@@ -1,0 +1,571 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-02-22",
+  "skins": [
+    {
+      "skin_id": "yase_default",
+      "hero_id": "yase",
+      "name": "圣光守护者",
+      "description": "亚瑟的默认皮肤",
+      "rarity": "normal",
+      "skin_type": "default",
+      "preview_image": "assets/skins/yase_default.png",
+      "model_path": "models/heroes/yase/default"
+    },
+    {
+      "skin_id": "yase_death_knight",
+      "hero_id": "yase",
+      "name": "死亡骑士",
+      "description": "堕落的圣骑士，被黑暗力量侵蚀的亚瑟。",
+      "rarity": "rare",
+      "skin_type": "shop",
+      "price": {"gold": 2000, "diamond": 200},
+      "stat_bonuses": [{"stat_name": "armor", "bonus_percent": 5}],
+      "effects": [
+        {"effect_type": "model", "effect_id": "yase_death_knight_model", "description": "暗黑骑士外观"},
+        {"effect_type": "particle", "effect_id": "yase_death_knight_particles", "description": "暗黑能量环绕"}
+      ],
+      "preview_image": "assets/skins/yase_death_knight.png",
+      "model_path": "models/heroes/yase/death_knight"
+    },
+    {
+      "skin_id": "yase_holy_king",
+      "hero_id": "yase",
+      "name": "圣域之王",
+      "description": "传说中的圣域统治者，拥有无上的光辉力量。",
+      "rarity": "legendary",
+      "skin_type": "shop",
+      "price": {"diamond": 1000},
+      "stat_bonuses": [
+        {"stat_name": "hp", "bonus_percent": 8},
+        {"stat_name": "attack", "bonus_percent": 8}
+      ],
+      "effects": [
+        {"effect_type": "model", "effect_id": "yase_holy_king_model", "description": "金色战甲"},
+        {"effect_type": "skill", "effect_id": "yase_holy_king_skill", "description": "圣剑裁决变为黄金圣剑"},
+        {"effect_type": "particle", "effect_id": "yase_holy_king_particles", "description": "神圣光环"},
+        {"effect_type": "sound", "effect_id": "yase_holy_king_sounds", "description": "专属语音"}
+      ],
+      "preview_image": "assets/skins/yase_holy_king.png",
+      "model_path": "models/heroes/yase/holy_king"
+    },
+    {
+      "skin_id": "daji_default",
+      "hero_id": "daji",
+      "name": "魅惑之狐",
+      "description": "妲己的默认皮肤",
+      "rarity": "normal",
+      "skin_type": "default",
+      "preview_image": "assets/skins/daji_default.png",
+      "model_path": "models/heroes/daji/default"
+    },
+    {
+      "skin_id": "daji_nine_tails",
+      "hero_id": "daji",
+      "name": "九尾妖狐",
+      "description": "觉醒九尾之力的妲己，魅惑之力更加强大。",
+      "rarity": "epic",
+      "skin_type": "shop",
+      "price": {"gold": 5000, "diamond": 500},
+      "stat_bonuses": [
+        {"stat_name": "magic_resist", "bonus_percent": 5},
+        {"stat_name": "attack_speed", "bonus_percent": 5}
+      ],
+      "effects": [
+        {"effect_type": "model", "effect_id": "daji_nine_tails_model", "description": "九尾造型"},
+        {"effect_type": "skill", "effect_id": "daji_nine_tails_skill", "description": "狐火变为紫色火焰"},
+        {"effect_type": "particle", "effect_id": "daji_nine_tails_particles", "description": "粉色樱花特效"}
+      ],
+      "preview_image": "assets/skins/daji_nine_tails.png",
+      "model_path": "models/heroes/daji/nine_tails"
+    },
+    {
+      "skin_id": "houyi_default",
+      "hero_id": "houyi",
+      "name": "半神之弓",
+      "description": "后羿的默认皮肤",
+      "rarity": "normal",
+      "skin_type": "default",
+      "preview_image": "assets/skins/houyi_default.png",
+      "model_path": "models/heroes/houyi/default"
+    },
+    {
+      "skin_id": "houyi_sun_god",
+      "hero_id": "houyi",
+      "name": "逐日之神",
+      "description": "拥有太阳神力的后羿，射出的箭矢带有灼热之光。",
+      "rarity": "legendary",
+      "skin_type": "shop",
+      "price": {"diamond": 800},
+      "stat_bonuses": [
+        {"stat_name": "attack", "bonus_percent": 8},
+        {"stat_name": "attack_speed", "bonus_percent": 8}
+      ],
+      "effects": [
+        {"effect_type": "model", "effect_id": "houyi_sun_god_model", "description": "金光铠甲"},
+        {"effect_type": "skill", "effect_id": "houyi_sun_god_skill", "description": "惩戒射击变为太阳神箭"},
+        {"effect_type": "particle", "effect_id": "houyi_sun_god_particles", "description": "太阳光晕"},
+        {"effect_type": "sound", "effect_id": "houyi_sun_god_sounds", "description": "专属音效"}
+      ],
+      "preview_image": "assets/skins/houyi_sun_god.png",
+      "model_path": "models/heroes/houyi/sun_god"
+    },
+    {
+      "skin_id": "libai_default",
+      "hero_id": "libai",
+      "name": "青莲剑仙",
+      "description": "李白的默认皮肤",
+      "rarity": "normal",
+      "skin_type": "default",
+      "preview_image": "assets/skins/libai_default.png",
+      "model_path": "models/heroes/libai/default"
+    },
+    {
+      "skin_id": "libai_fox",
+      "hero_id": "libai",
+      "name": "凤求凰",
+      "description": "传说中李白与凤凰的羁绊，剑意如凤舞九天。",
+      "rarity": "legendary",
+      "skin_type": "shop",
+      "price": {"diamond": 1200},
+      "stat_bonuses": [
+        {"stat_name": "attack", "bonus_percent": 8},
+        {"stat_name": "attack_speed", "bonus_percent": 8}
+      ],
+      "effects": [
+        {"effect_type": "model", "effect_id": "libai_fox_model", "description": "白羽剑仙造型"},
+        {"effect_type": "skill", "effect_id": "libai_fox_skill", "description": "青莲剑歌变为凤舞九天"},
+        {"effect_type": "particle", "effect_id": "libai_fox_particles", "description": "凤凰羽翼特效"},
+        {"effect_type": "sound", "effect_id": "libai_fox_sounds", "description": "凤凰鸣叫音效"}
+      ],
+      "preview_image": "assets/skins/libai_fox.png",
+      "model_path": "models/heroes/libai/fox"
+    },
+    {
+      "skin_id": "libai_drunk",
+      "hero_id": "libai",
+      "name": "醉酒剑仙",
+      "description": "三分醉意的李白，剑法更加飘逸。",
+      "rarity": "rare",
+      "skin_type": "shop",
+      "price": {"gold": 2500, "diamond": 250},
+      "stat_bonuses": [{"stat_name": "attack_speed", "bonus_percent": 5}],
+      "effects": [
+        {"effect_type": "model", "effect_id": "libai_drunk_model", "description": "醉剑侠客造型"},
+        {"effect_type": "particle", "effect_id": "libai_drunk_particles", "description": "酒气飘逸特效"}
+      ],
+      "preview_image": "assets/skins/libai_drunk.png",
+      "model_path": "models/heroes/libai/drunk"
+    },
+    {
+      "skin_id": "lvbu_default",
+      "hero_id": "lvbu",
+      "name": "无双战神",
+      "description": "吕布的默认皮肤",
+      "rarity": "normal",
+      "skin_type": "default",
+      "preview_image": "assets/skins/lvbu_default.png",
+      "model_path": "models/heroes/lvbu/default"
+    },
+    {
+      "skin_id": "lvbu_demon",
+      "hero_id": "lvbu",
+      "name": "魔神降临",
+      "description": "完全释放魔神之力的吕布，无人可挡。",
+      "rarity": "legendary",
+      "skin_type": "shop",
+      "price": {"diamond": 1500},
+      "stat_bonuses": [
+        {"stat_name": "hp", "bonus_percent": 8},
+        {"stat_name": "attack", "bonus_percent": 8},
+        {"stat_name": "armor", "bonus_percent": 8}
+      ],
+      "effects": [
+        {"effect_type": "model", "effect_id": "lvbu_demon_model", "description": "魔神战甲造型"},
+        {"effect_type": "skill", "effect_id": "lvbu_demon_skill", "description": "魔神降世变为毁灭冲击"},
+        {"effect_type": "particle", "effect_id": "lvbu_demon_particles", "description": "暗红魔气特效"},
+        {"effect_type": "sound", "effect_id": "lvbu_demon_sounds", "description": "魔神咆哮音效"}
+      ],
+      "preview_image": "assets/skins/lvbu_demon.png",
+      "model_path": "models/heroes/lvbu/demon"
+    },
+    {
+      "skin_id": "sunwukong_default",
+      "hero_id": "sunwukong",
+      "name": "齐天大圣",
+      "description": "孙悟空的默认皮肤",
+      "rarity": "normal",
+      "skin_type": "default",
+      "preview_image": "assets/skins/sunwukong_default.png",
+      "model_path": "models/heroes/sunwukong/default"
+    },
+    {
+      "skin_id": "sunwukong_golden",
+      "hero_id": "sunwukong",
+      "name": "大圣娶亲",
+      "description": "西游记经典造型，金箍棒闪耀着金色光芒。",
+      "rarity": "epic",
+      "skin_type": "shop",
+      "price": {"gold": 6000, "diamond": 600},
+      "stat_bonuses": [
+        {"stat_name": "attack", "bonus_percent": 5},
+        {"stat_name": "hp", "bonus_percent": 5}
+      ],
+      "effects": [
+        {"effect_type": "model", "effect_id": "sunwukong_golden_model", "description": "金色战甲造型"},
+        {"effect_type": "skill", "effect_id": "sunwukong_golden_skill", "description": "大圣神威变为金箍棒风暴"},
+        {"effect_type": "particle", "effect_id": "sunwukong_golden_particles", "description": "金色祥云特效"}
+      ],
+      "preview_image": "assets/skins/sunwukong_golden.png",
+      "model_path": "models/heroes/sunwukong/golden"
+    },
+    {
+      "skin_id": "sunwukong_year",
+      "hero_id": "sunwukong",
+      "name": "新年限定",
+      "description": "新年特别版孙悟空，喜庆的红色战袍。",
+      "rarity": "epic",
+      "skin_type": "event",
+      "price": {"diamond": 800},
+      "stat_bonuses": [
+        {"stat_name": "attack_speed", "bonus_percent": 5},
+        {"stat_name": "hp", "bonus_percent": 5}
+      ],
+      "effects": [
+        {"effect_type": "model", "effect_id": "sunwukong_year_model", "description": "新年红袍造型"},
+        {"effect_type": "skill", "effect_id": "sunwukong_year_skill", "description": "烟花特效技能"},
+        {"effect_type": "particle", "effect_id": "sunwukong_year_particles", "description": "红包和烟花特效"}
+      ],
+      "preview_image": "assets/skins/sunwukong_year.png",
+      "model_path": "models/heroes/sunwukong/year"
+    },
+    {
+      "skin_id": "diaochan_default",
+      "hero_id": "diaochan",
+      "name": "绝世舞姬",
+      "description": "貂蝉的默认皮肤",
+      "rarity": "normal",
+      "skin_type": "default",
+      "preview_image": "assets/skins/diaochan_default.png",
+      "model_path": "models/heroes/diaochan/default"
+    },
+    {
+      "skin_id": "diaochan_cat",
+      "hero_id": "diaochan",
+      "name": "猫影幻舞",
+      "description": "化身灵猫的貂蝉，舞姿更加妖娆。",
+      "rarity": "epic",
+      "skin_type": "shop",
+      "price": {"gold": 4500, "diamond": 450},
+      "stat_bonuses": [
+        {"stat_name": "magic_resist", "bonus_percent": 5},
+        {"stat_name": "attack_speed", "bonus_percent": 5}
+      ],
+      "effects": [
+        {"effect_type": "model", "effect_id": "diaochan_cat_model", "description": "猫娘造型"},
+        {"effect_type": "skill", "effect_id": "diaochan_cat_skill", "description": "花瓣变为猫爪印"},
+        {"effect_type": "particle", "effect_id": "diaochan_cat_particles", "description": "粉色猫耳特效"}
+      ],
+      "preview_image": "assets/skins/diaochan_cat.png",
+      "model_path": "models/heroes/diaochan/cat"
+    },
+    {
+      "skin_id": "zhaoyun_default",
+      "hero_id": "zhaoyun",
+      "name": "苍天翔龙",
+      "description": "赵云的默认皮肤",
+      "rarity": "normal",
+      "skin_type": "default",
+      "preview_image": "assets/skins/zhaoyun_default.png",
+      "model_path": "models/heroes/zhaoyun/default"
+    },
+    {
+      "skin_id": "zhaoyun_white_dragon",
+      "hero_id": "zhaoyun",
+      "name": "白龙吟",
+      "description": "传说中的白龙将军，枪出如龙。",
+      "rarity": "epic",
+      "skin_type": "shop",
+      "price": {"gold": 5500, "diamond": 550},
+      "stat_bonuses": [
+        {"stat_name": "attack", "bonus_percent": 5},
+        {"stat_name": "armor", "bonus_percent": 5}
+      ],
+      "effects": [
+        {"effect_type": "model", "effect_id": "zhaoyun_white_dragon_model", "description": "白龙战甲造型"},
+        {"effect_type": "skill", "effect_id": "zhaoyun_white_dragon_skill", "description": "天翔之龙变为白龙吐息"},
+        {"effect_type": "particle", "effect_id": "zhaoyun_white_dragon_particles", "description": "白龙鳞片特效"}
+      ],
+      "preview_image": "assets/skins/zhaoyun_white_dragon.png",
+      "model_path": "models/heroes/zhaoyun/white_dragon"
+    },
+    {
+      "skin_id": "zhaoyun_fire",
+      "hero_id": "zhaoyun",
+      "name": "龙胆枪",
+      "description": "战火中的赵云，枪法愈发凌厉。",
+      "rarity": "rare",
+      "skin_type": "shop",
+      "price": {"gold": 2000, "diamond": 200},
+      "stat_bonuses": [{"stat_name": "attack", "bonus_percent": 5}],
+      "effects": [
+        {"effect_type": "model", "effect_id": "zhaoyun_fire_model", "description": "火焰战甲造型"},
+        {"effect_type": "particle", "effect_id": "zhaoyun_fire_particles", "description": "火焰枪芒特效"}
+      ],
+      "preview_image": "assets/skins/zhaoyun_fire.png",
+      "model_path": "models/heroes/zhaoyun/fire"
+    },
+    {
+      "skin_id": "wuzetian_default",
+      "hero_id": "wuzetian",
+      "name": "女帝",
+      "description": "武则天的默认皮肤",
+      "rarity": "normal",
+      "skin_type": "default",
+      "preview_image": "assets/skins/wuzetian_default.png",
+      "model_path": "models/heroes/wuzetian/default"
+    },
+    {
+      "skin_id": "wuzetian_night",
+      "hero_id": "wuzetian",
+      "name": "暗夜女王",
+      "description": "掌握黑夜力量的武则天，威严更加深沉。",
+      "rarity": "legendary",
+      "skin_type": "shop",
+      "price": {"diamond": 1000},
+      "stat_bonuses": [
+        {"stat_name": "magic_resist", "bonus_percent": 8},
+        {"stat_name": "hp", "bonus_percent": 8}
+      ],
+      "effects": [
+        {"effect_type": "model", "effect_id": "wuzetian_night_model", "description": "暗黑女帝造型"},
+        {"effect_type": "skill", "effect_id": "wuzetian_night_skill", "description": "女帝辉光变为暗夜审判"},
+        {"effect_type": "particle", "effect_id": "wuzetian_night_particles", "description": "紫黑能量特效"},
+        {"effect_type": "sound", "effect_id": "wuzetian_night_sounds", "description": "专属语音"}
+      ],
+      "preview_image": "assets/skins/wuzetian_night.png",
+      "model_path": "models/heroes/wuzetian/night"
+    },
+    {
+      "skin_id": "yingzheng_default",
+      "hero_id": "yingzheng",
+      "name": "千古一帝",
+      "description": "嬴政的默认皮肤",
+      "rarity": "normal",
+      "skin_type": "default",
+      "preview_image": "assets/skins/yingzheng_default.png",
+      "model_path": "models/heroes/yingzheng/default"
+    },
+    {
+      "skin_id": "yingzheng_dragon",
+      "hero_id": "yingzheng",
+      "name": "龙御九天",
+      "description": "龙气护体的始皇帝，99把飞剑化为龙形。",
+      "rarity": "legendary",
+      "skin_type": "shop",
+      "price": {"diamond": 1200},
+      "stat_bonuses": [
+        {"stat_name": "attack", "bonus_percent": 8},
+        {"stat_name": "magic_resist", "bonus_percent": 8}
+      ],
+      "effects": [
+        {"effect_type": "model", "effect_id": "yingzheng_dragon_model", "description": "龙袍帝王造型"},
+        {"effect_type": "skill", "effect_id": "yingzheng_dragon_skill", "description": "至尊王权变为龙剑飞舞"},
+        {"effect_type": "particle", "effect_id": "yingzheng_dragon_particles", "description": "金龙特效"},
+        {"effect_type": "sound", "effect_id": "yingzheng_dragon_sounds", "description": "龙吟音效"}
+      ],
+      "preview_image": "assets/skins/yingzheng_dragon.png",
+      "model_path": "models/heroes/yingzheng/dragon"
+    },
+    {
+      "skin_id": "guanyu_default",
+      "hero_id": "guanyu",
+      "name": "一骑当千",
+      "description": "关羽的默认皮肤",
+      "rarity": "normal",
+      "skin_type": "default",
+      "preview_image": "assets/skins/guanyu_default.png",
+      "model_path": "models/heroes/guanyu/default"
+    },
+    {
+      "skin_id": "guanyu_red",
+      "hero_id": "guanyu",
+      "name": "武圣",
+      "description": "被尊为武圣的关羽，青龙偃月刀发出赤红光芒。",
+      "rarity": "epic",
+      "skin_type": "shop",
+      "price": {"gold": 5000, "diamond": 500},
+      "stat_bonuses": [
+        {"stat_name": "attack", "bonus_percent": 5},
+        {"stat_name": "hp", "bonus_percent": 5}
+      ],
+      "effects": [
+        {"effect_type": "model", "effect_id": "guanyu_red_model", "description": "武圣战袍造型"},
+        {"effect_type": "skill", "effect_id": "guanyu_red_skill", "description": "青龙偃月变为赤龙斩"},
+        {"effect_type": "particle", "effect_id": "guanyu_red_particles", "description": "红色刀芒特效"}
+      ],
+      "preview_image": "assets/skins/guanyu_red.png",
+      "model_path": "models/heroes/guanyu/red"
+    },
+    {
+      "skin_id": "luna_default",
+      "hero_id": "luna",
+      "name": "月光之女",
+      "description": "露娜的默认皮肤",
+      "rarity": "normal",
+      "skin_type": "default",
+      "preview_image": "assets/skins/luna_default.png",
+      "model_path": "models/heroes/luna/default"
+    },
+    {
+      "skin_id": "luna_phoenix",
+      "hero_id": "luna",
+      "name": "紫霞仙子",
+      "description": "传说中的紫霞仙子，月光化为紫霞。",
+      "rarity": "legendary",
+      "skin_type": "shop",
+      "price": {"diamond": 1100},
+      "stat_bonuses": [
+        {"stat_name": "attack", "bonus_percent": 8},
+        {"stat_name": "attack_speed", "bonus_percent": 8}
+      ],
+      "effects": [
+        {"effect_type": "model", "effect_id": "luna_phoenix_model", "description": "仙子造型"},
+        {"effect_type": "skill", "effect_id": "luna_phoenix_skill", "description": "新月突击变为紫霞剑舞"},
+        {"effect_type": "particle", "effect_id": "luna_phoenix_particles", "description": "紫霞光芒特效"},
+        {"effect_type": "sound", "effect_id": "luna_phoenix_sounds", "description": "仙子语音"}
+      ],
+      "preview_image": "assets/skins/luna_phoenix.png",
+      "model_path": "models/heroes/luna/phoenix"
+    },
+    {
+      "skin_id": "mengtian_default",
+      "hero_id": "mengtian",
+      "name": "秩序之盾",
+      "description": "蒙恬的默认皮肤",
+      "rarity": "normal",
+      "skin_type": "default",
+      "preview_image": "assets/skins/mengtian_default.png",
+      "model_path": "models/heroes/mengtian/default"
+    },
+    {
+      "skin_id": "mengtian_general",
+      "hero_id": "mengtian",
+      "name": "大将军",
+      "description": "统领万军的大将军，盾牌更加坚固。",
+      "rarity": "rare",
+      "skin_type": "shop",
+      "price": {"gold": 2500, "diamond": 250},
+      "stat_bonuses": [{"stat_name": "armor", "bonus_percent": 5}],
+      "effects": [
+        {"effect_type": "model", "effect_id": "mengtian_general_model", "description": "将军战甲造型"},
+        {"effect_type": "particle", "effect_id": "mengtian_general_particles", "description": "金色盾光特效"}
+      ],
+      "preview_image": "assets/skins/mengtian_general.png",
+      "model_path": "models/heroes/mengtian/general"
+    },
+    {
+      "skin_id": "hanxin_default",
+      "hero_id": "hanxin",
+      "name": "国士无双",
+      "description": "韩信的默认皮肤",
+      "rarity": "normal",
+      "skin_type": "default",
+      "preview_image": "assets/skins/hanxin_default.png",
+      "model_path": "models/heroes/hanxin/default"
+    },
+    {
+      "skin_id": "hanxin_street",
+      "hero_id": "hanxin",
+      "name": "街头霸王",
+      "description": "现代街头风格的韩信，枪法依旧犀利。",
+      "rarity": "epic",
+      "skin_type": "shop",
+      "price": {"gold": 4500, "diamond": 450},
+      "stat_bonuses": [
+        {"stat_name": "attack_speed", "bonus_percent": 5},
+        {"stat_name": "attack", "bonus_percent": 5}
+      ],
+      "effects": [
+        {"effect_type": "model", "effect_id": "hanxin_street_model", "description": "街头风格造型"},
+        {"effect_type": "skill", "effect_id": "hanxin_street_skill", "description": "国士无双变为街头风暴"},
+        {"effect_type": "particle", "effect_id": "hanxin_street_particles", "description": "霓虹特效"}
+      ],
+      "preview_image": "assets/skins/hanxin_street.png",
+      "model_path": "models/heroes/hanxin/street"
+    },
+    {
+      "skin_id": "shangguanwaner_default",
+      "hero_id": "shangguanwaner",
+      "name": "惊鸿之笔",
+      "description": "上官婉儿的默认皮肤",
+      "rarity": "normal",
+      "skin_type": "default",
+      "preview_image": "assets/skins/shangguanwaner_default.png",
+      "model_path": "models/heroes/shangguanwaner/default"
+    },
+    {
+      "skin_id": "shangguanwaner_phantom",
+      "hero_id": "shangguanwaner",
+      "name": "修竹墨客",
+      "description": "竹林中的墨客，笔法更加飘逸。",
+      "rarity": "epic",
+      "skin_type": "shop",
+      "price": {"gold": 5000, "diamond": 500},
+      "stat_bonuses": [
+        {"stat_name": "attack", "bonus_percent": 5},
+        {"stat_name": "magic_resist", "bonus_percent": 5}
+      ],
+      "effects": [
+        {"effect_type": "model", "effect_id": "shangguanwaner_phantom_model", "description": "竹林墨客造型"},
+        {"effect_type": "skill", "effect_id": "shangguanwaner_phantom_skill", "description": "章草横鳞变为竹影剑舞"},
+        {"effect_type": "particle", "effect_id": "shangguanwaner_phantom_particles", "description": "墨竹特效"}
+      ],
+      "preview_image": "assets/skins/shangguanwaner_phantom.png",
+      "model_path": "models/heroes/shangguanwaner/phantom"
+    },
+    {
+      "skin_id": "dunshan_default",
+      "hero_id": "dunshan",
+      "name": "无尽之盾",
+      "description": "盾山的默认皮肤",
+      "rarity": "normal",
+      "skin_type": "default",
+      "preview_image": "assets/skins/dunshan_default.png",
+      "model_path": "models/heroes/dunshan/default"
+    },
+    {
+      "skin_id": "dunshan_stone",
+      "hero_id": "dunshan",
+      "name": "石像守护",
+      "description": "古老石像的化身，防御更加坚固。",
+      "rarity": "rare",
+      "skin_type": "shop",
+      "price": {"gold": 2200, "diamond": 220},
+      "stat_bonuses": [{"stat_name": "armor", "bonus_percent": 5}],
+      "effects": [
+        {"effect_type": "model", "effect_id": "dunshan_stone_model", "description": "石像造型"},
+        {"effect_type": "particle", "effect_id": "dunshan_stone_particles", "description": "岩石裂纹特效"}
+      ],
+      "preview_image": "assets/skins/dunshan_stone.png",
+      "model_path": "models/heroes/dunshan/stone"
+    }
+  ],
+  "meta": {
+    "version": "1.0.0",
+    "last_updated": "2026-02-22",
+    "total_skins": 38,
+    "rarity_distribution": {
+      "normal": 19,
+      "rare": 7,
+      "epic": 7,
+      "legendary": 5
+    },
+    "notes": [
+      "普通皮肤：纯视觉变化，无属性加成",
+      "稀有皮肤：+5%某一属性，有模型和粒子特效",
+      "史诗皮肤：+5%多属性 + 技能特效",
+      "传说皮肤：+8%多属性 + 全新技能特效 + 专属音效"
+    ]
+  }
+}

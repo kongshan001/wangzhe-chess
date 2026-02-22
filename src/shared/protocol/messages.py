@@ -246,6 +246,54 @@ class MessageType(str, Enum):
     SYNERGY_ACHIEVEMENTS_RESULT = "synergy_achievements_result"  # 成就列表
     SYNERGY_ACHIEVEMENT_UNLOCKED = "synergy_achievement_unlocked"  # 成就解锁通知
     
+    # ========== 皮肤系统 ==========
+    # 客户端 -> 服务器
+    GET_SKINS = "get_skins"                   # 获取皮肤列表
+    GET_HERO_SKINS = "get_hero_skins"         # 获取英雄皮肤列表
+    GET_OWNED_SKINS = "get_owned_skins"       # 获取已拥有皮肤
+    EQUIP_SKIN = "equip_skin"                 # 装备皮肤
+    UNEQUIP_SKIN = "unequip_skin"             # 卸下皮肤
+    BUY_SKIN = "buy_skin"                     # 购买皮肤
+    SET_FAVORITE_SKIN = "set_favorite_skin"   # 设置收藏皮肤
+    
+    # 服务器 -> 客户端
+    SKINS_LIST = "skins_list"                 # 皮肤列表
+    HERO_SKINS_LIST = "hero_skins_list"       # 英雄皮肤列表
+    OWNED_SKINS_LIST = "owned_skins_list"     # 已拥有皮肤列表
+    SKIN_EQUIPPED = "skin_equipped"           # 皮肤已装备
+    SKIN_UNEQUIPPED = "skin_unequipped"       # 皮肤已卸下
+    SKIN_BOUGHT = "skin_bought"               # 皮肤已购买
+    SKIN_UNLOCKED = "skin_unlocked"           # 皮肤已解锁
+    SKIN_FAVORITE_SET = "skin_favorite_set"   # 收藏设置成功
+    
+    # ========== 错误消息 ==========
+    # ========== 观战系统 ==========
+    # 客户端 -> 服务器
+    GET_SPECTATABLE_GAMES = "get_spectatable_games"   # 获取可观战对局列表
+    JOIN_SPECTATE = "join_spectate"                   # 加入观战
+    LEAVE_SPECTATE = "leave_spectate"                 # 离开观战
+    SPECTATE_SWITCH = "spectate_switch"               # 切换观战对象
+    SPECTATE_SYNC = "spectate_sync"                   # 请求同步状态
+    SPECTATE_CHAT = "spectate_chat"                   # 发送弹幕
+    
+    # 服务器 -> 客户端
+    SPECTATABLE_GAMES_LIST = "spectatable_games_list"  # 可观战对局列表
+    SPECTATE_JOINED = "spectate_joined"                # 加入观战成功
+    SPECTATE_LEFT = "spectate_left"                    # 离开观战成功
+    SPECTATE_STATE = "spectate_state"                  # 观战状态同步
+    SPECTATE_CHAT_RECEIVED = "spectate_chat_received"  # 收到弹幕
+    SPECTATE_ENDED = "spectate_ended"                  # 观战结束通知
+    
+    # ========== 随机事件系统 ==========
+    # 客户端 -> 服务器
+    GET_EVENT_HISTORY = "get_event_history"           # 获取事件历史
+    GET_ACTIVE_EVENTS = "get_active_events"           # 获取当前活跃事件
+    
+    # 服务器 -> 客户端
+    RANDOM_EVENT_TRIGGERED = "random_event_triggered"  # 事件触发广播
+    EVENT_HISTORY = "event_history"                    # 事件历史响应
+    ACTIVE_EVENTS = "active_events"                    # 活跃事件响应
+    
     # ========== 错误消息 ==========
     ERROR = "error"                   # 错误消息
 
@@ -2612,6 +2660,403 @@ class SynergyAchievementUnlockedMessage(BaseMessage):
 
 
 # ============================================================================
+# 随机事件系统消息
+# ============================================================================
+
+class EventEffectData(BaseModel):
+    """事件效果数据"""
+    
+    effect_type: str = Field(..., description="效果类型")
+    value: int = Field(default=0, description="效果数值")
+    target: str = Field(default="", description="目标")
+    affected_players: list[int] = Field(default_factory=list, description="受影响玩家")
+    details: dict[str, Any] = Field(default_factory=dict, description="详情")
+
+
+class RandomEventData(BaseModel):
+    """随机事件数据"""
+    
+    event_id: str = Field(..., description="事件ID")
+    name: str = Field(..., description="事件名称")
+    description: str = Field(default="", description="事件描述")
+    event_type: str = Field(..., description="事件类型")
+    event_type_name: str = Field(default="", description="事件类型名称")
+    rarity: str = Field(default="common", description="稀有度")
+    rarity_name: str = Field(default="普通", description="稀有度名称")
+    icon: str = Field(default="", description="图标")
+    animation: str = Field(default="", description="动画")
+    announcement: str = Field(default="", description="广播文本")
+
+
+class EventHistoryEntryData(BaseModel):
+    """事件历史条目数据"""
+    
+    entry_id: str = Field(..., description="记录ID")
+    room_id: str = Field(..., description="房间ID")
+    event: RandomEventData = Field(..., description="事件信息")
+    round_number: int = Field(default=1, description="触发回合")
+    trigger_time: str = Field(default="", description="触发时间")
+    affected_players: list[int] = Field(default_factory=list, description="受影响玩家")
+    effect_results: list[EventEffectData] = Field(default_factory=list, description="效果结果")
+
+
+class ActiveEventData(BaseModel):
+    """活跃事件数据"""
+    
+    event: RandomEventData = Field(..., description="事件信息")
+    start_round: int = Field(default=1, description="开始回合")
+    remaining_duration: int = Field(default=1, description="剩余持续回合")
+    affected_players: list[int] = Field(default_factory=list, description="受影响玩家")
+
+
+class GetEventHistoryMessage(BaseMessage):
+    """
+    获取事件历史请求
+    
+    Attributes:
+        room_id: 房间ID
+        limit: 返回数量限制
+    """
+    
+    type: MessageType = MessageType.GET_EVENT_HISTORY
+    room_id: Optional[str] = Field(default=None, description="房间ID")
+    limit: int = Field(default=50, description="返回数量限制")
+
+
+class EventHistoryMessage(BaseMessage):
+    """
+    事件历史响应
+    
+    Attributes:
+        room_id: 房间ID
+        events: 事件历史列表
+        total_count: 总数量
+    """
+    
+    type: MessageType = MessageType.EVENT_HISTORY
+    room_id: str = Field(..., description="房间ID")
+    events: list[EventHistoryEntryData] = Field(default_factory=list, description="事件历史")
+    total_count: int = Field(default=0, description="总数量")
+
+
+class GetActiveEventsMessage(BaseMessage):
+    """
+    获取活跃事件请求
+    
+    Attributes:
+        room_id: 房间ID
+    """
+    
+    type: MessageType = MessageType.GET_ACTIVE_EVENTS
+    room_id: str = Field(..., description="房间ID")
+
+
+class ActiveEventsMessage(BaseMessage):
+    """
+    活跃事件响应
+    
+    Attributes:
+        room_id: 房间ID
+        events: 活跃事件列表
+    """
+    
+    type: MessageType = MessageType.ACTIVE_EVENTS
+    room_id: str = Field(..., description="房间ID")
+    events: list[ActiveEventData] = Field(default_factory=list, description="活跃事件")
+
+
+class RandomEventTriggeredMessage(BaseMessage):
+    """
+    事件触发广播
+    
+    当随机事件触发时，向房间内所有玩家广播。
+    
+    Attributes:
+        room_id: 房间ID
+        event: 触发的事件
+        round_number: 触发回合
+        effects: 效果执行结果
+        affected_players: 受影响玩家列表
+    """
+    
+    type: MessageType = MessageType.RANDOM_EVENT_TRIGGERED
+    room_id: str = Field(..., description="房间ID")
+    event: RandomEventData = Field(..., description="触发的事件")
+    round_number: int = Field(..., description="触发回合")
+    effects: list[EventEffectData] = Field(default_factory=list, description="效果结果")
+    affected_players: list[int] = Field(default_factory=list, description="受影响玩家")
+
+
+# ============================================================================
+# 观战系统消息
+# ============================================================================
+
+class SpectatableGameData(BaseModel):
+    """
+    可观战对局数据
+    
+    Attributes:
+        game_id: 对局ID
+        players: 玩家列表
+        created_at: 创建时间
+        current_round: 当前回合
+        spectator_count: 观众数量
+        visibility: 可见性
+        is_featured: 是否精选
+    """
+    
+    game_id: str = Field(..., description="对局ID")
+    players: list[dict[str, Any]] = Field(default_factory=list, description="玩家列表")
+    created_at: int = Field(..., description="创建时间")
+    current_round: int = Field(default=0, description="当前回合")
+    spectator_count: int = Field(default=0, description="观众数量")
+    visibility: str = Field(default="public", description="可见性")
+    is_featured: bool = Field(default=False, description="是否精选")
+
+
+class SpectatorPlayerStateData(BaseModel):
+    """
+    观战玩家状态数据
+    
+    Attributes:
+        player_id: 玩家ID
+        nickname: 昵称
+        avatar: 头像
+        tier: 段位
+        hp: 生命值
+        gold: 金币
+        level: 等级
+        board: 棋盘状态
+        bench: 备战席状态
+        synergies: 羁绊状态
+    """
+    
+    player_id: str = Field(..., description="玩家ID")
+    nickname: str = Field(default="", description="昵称")
+    avatar: Optional[str] = Field(default=None, description="头像")
+    tier: Optional[str] = Field(default=None, description="段位")
+    hp: int = Field(default=100, description="生命值")
+    gold: int = Field(default=0, description="金币")
+    level: int = Field(default=1, description="等级")
+    board: list[Any] = Field(default_factory=list, description="棋盘状态")
+    bench: list[Any] = Field(default_factory=list, description="备战席状态")
+    synergies: dict[str, Any] = Field(default_factory=dict, description="羁绊状态")
+
+
+class SpectatorChatData(BaseModel):
+    """
+    观战弹幕数据
+    
+    Attributes:
+        chat_id: 聊天ID
+        sender_id: 发送者ID
+        sender_name: 发送者昵称
+        content: 消息内容
+        sent_at: 发送时间
+        message_type: 消息类型
+        avatar: 头像
+        tier: 段位
+    """
+    
+    chat_id: str = Field(..., description="聊天ID")
+    sender_id: str = Field(..., description="发送者ID")
+    sender_name: str = Field(..., description="发送者昵称")
+    content: str = Field(..., description="消息内容")
+    sent_at: int = Field(..., description="发送时间")
+    message_type: str = Field(default="text", description="消息类型")
+    avatar: Optional[str] = Field(default=None, description="头像")
+    tier: Optional[str] = Field(default=None, description="段位")
+
+
+# 观战请求消息
+
+class GetSpectatableGamesMessage(BaseMessage):
+    """
+    获取可观战对局列表请求
+    
+    Attributes:
+        page: 页码
+        page_size: 每页大小
+    """
+    
+    type: MessageType = MessageType.GET_SPECTATABLE_GAMES
+    page: int = Field(default=1, description="页码")
+    page_size: int = Field(default=20, description="每页大小")
+
+
+class JoinSpectateMessage(BaseMessage):
+    """
+    加入观战请求
+    
+    Attributes:
+        game_id: 对局ID
+        watching_player_id: 观看的玩家ID
+    """
+    
+    type: MessageType = MessageType.JOIN_SPECTATE
+    game_id: str = Field(..., description="对局ID")
+    watching_player_id: str = Field(..., description="观看的玩家ID")
+
+
+class LeaveSpectateMessage(BaseMessage):
+    """
+    离开观战请求
+    
+    Attributes:
+        game_id: 对局ID
+    """
+    
+    type: MessageType = MessageType.LEAVE_SPECTATE
+    game_id: str = Field(..., description="对局ID")
+
+
+class SpectateSwitchMessage(BaseMessage):
+    """
+    切换观战对象请求
+    
+    Attributes:
+        game_id: 对局ID
+        new_player_id: 新的观看玩家ID
+    """
+    
+    type: MessageType = MessageType.SPECTATE_SWITCH
+    game_id: str = Field(..., description="对局ID")
+    new_player_id: str = Field(..., description="新的观看玩家ID")
+
+
+class SpectateSyncMessage(BaseMessage):
+    """
+    请求同步观战状态
+    
+    Attributes:
+        game_id: 对局ID
+    """
+    
+    type: MessageType = MessageType.SPECTATE_SYNC
+    game_id: str = Field(..., description="对局ID")
+
+
+class SpectateChatMessage(BaseMessage):
+    """
+    发送观战弹幕
+    
+    Attributes:
+        game_id: 对局ID
+        content: 消息内容
+        message_type: 消息类型
+    """
+    
+    type: MessageType = MessageType.SPECTATE_CHAT
+    game_id: str = Field(..., description="对局ID")
+    content: str = Field(..., description="消息内容")
+    message_type: str = Field(default="text", description="消息类型")
+
+
+# 观战响应消息
+
+class SpectatableGamesListMessage(BaseMessage):
+    """
+    可观战对局列表响应
+    
+    Attributes:
+        games: 对局列表
+        page: 当前页码
+        page_size: 每页大小
+        total_count: 总数量
+    """
+    
+    type: MessageType = MessageType.SPECTATABLE_GAMES_LIST
+    games: list[SpectatableGameData] = Field(default_factory=list, description="对局列表")
+    page: int = Field(default=1, description="当前页码")
+    page_size: int = Field(default=20, description="每页大小")
+    total_count: int = Field(default=0, description="总数量")
+
+
+class SpectateJoinedMessage(BaseMessage):
+    """
+    加入观战成功响应
+    
+    Attributes:
+        game_id: 对局ID
+        session_id: 观战会话ID
+        watching_player_id: 观看的玩家ID
+        delay_seconds: 延迟秒数
+        spectator_count: 当前观众数量
+    """
+    
+    type: MessageType = MessageType.SPECTATE_JOINED
+    game_id: str = Field(..., description="对局ID")
+    session_id: str = Field(..., description="观战会话ID")
+    watching_player_id: str = Field(..., description="观看的玩家ID")
+    delay_seconds: int = Field(default=30, description="延迟秒数")
+    spectator_count: int = Field(default=0, description="当前观众数量")
+
+
+class SpectateLeftMessage(BaseMessage):
+    """
+    离开观战成功响应
+    
+    Attributes:
+        game_id: 对局ID
+        session_id: 观战会话ID
+    """
+    
+    type: MessageType = MessageType.SPECTATE_LEFT
+    game_id: str = Field(..., description="对局ID")
+    session_id: Optional[str] = Field(default=None, description="观战会话ID")
+
+
+class SpectateStateMessage(BaseMessage):
+    """
+    观战状态同步消息
+    
+    Attributes:
+        game_id: 对局ID
+        round_num: 当前回合
+        phase: 当前阶段
+        player_states: 所有玩家状态
+        snapshot_time: 快照时间
+        delay_seconds: 延迟秒数
+    """
+    
+    type: MessageType = MessageType.SPECTATE_STATE
+    game_id: str = Field(..., description="对局ID")
+    round_num: int = Field(default=0, description="当前回合")
+    phase: str = Field(default="", description="当前阶段")
+    player_states: list[SpectatorPlayerStateData] = Field(default_factory=list, description="所有玩家状态")
+    snapshot_time: int = Field(..., description="快照时间")
+    delay_seconds: int = Field(default=30, description="延迟秒数")
+
+
+class SpectateChatReceivedMessage(BaseMessage):
+    """
+    收到观战弹幕消息
+    
+    Attributes:
+        game_id: 对局ID
+        chat: 弹幕数据
+    """
+    
+    type: MessageType = MessageType.SPECTATE_CHAT_RECEIVED
+    game_id: str = Field(..., description="对局ID")
+    chat: SpectatorChatData = Field(..., description="弹幕数据")
+
+
+class SpectateEndedMessage(BaseMessage):
+    """
+    观战结束通知
+    
+    Attributes:
+        game_id: 对局ID
+        reason: 结束原因
+    """
+    
+    type: MessageType = MessageType.SPECTATE_ENDED
+    game_id: str = Field(..., description="对局ID")
+    reason: str = Field(default="game_ended", description="结束原因")
+
+
+# ============================================================================
 # 消息类型映射（用于反序列化）
 # ============================================================================
 
@@ -2795,6 +3240,20 @@ MESSAGE_CLASS_MAP: dict[MessageType, type[BaseMessage]] = {
     MessageType.GET_SYNERGY_ACHIEVEMENTS: GetSynergyAchievementsMessage,
     MessageType.SYNERGY_ACHIEVEMENTS_RESULT: SynergyAchievementsResultMessage,
     MessageType.SYNERGY_ACHIEVEMENT_UNLOCKED: SynergyAchievementUnlockedMessage,
+    
+    # 观战系统
+    MessageType.GET_SPECTATABLE_GAMES: GetSpectatableGamesMessage,
+    MessageType.SPECTATABLE_GAMES_LIST: SpectatableGamesListMessage,
+    MessageType.JOIN_SPECTATE: JoinSpectateMessage,
+    MessageType.SPECTATE_JOINED: SpectateJoinedMessage,
+    MessageType.LEAVE_SPECTATE: LeaveSpectateMessage,
+    MessageType.SPECTATE_LEFT: SpectateLeftMessage,
+    MessageType.SPECTATE_SWITCH: SpectateSwitchMessage,
+    MessageType.SPECTATE_SYNC: SpectateSyncMessage,
+    MessageType.SPECTATE_STATE: SpectateStateMessage,
+    MessageType.SPECTATE_CHAT: SpectateChatMessage,
+    MessageType.SPECTATE_CHAT_RECEIVED: SpectateChatReceivedMessage,
+    MessageType.SPECTATE_ENDED: SpectateEndedMessage,
     
     # 错误
     MessageType.ERROR: ErrorMessage,

@@ -135,6 +135,22 @@ from .messages import (
     ShopUnlockMessage,
     ShopUnlockedMessage,
     SynergyUpdateMessage,
+    # 观战系统消息
+    GetSpectatableGamesMessage,
+    SpectatableGamesListMessage,
+    SpectatableGameData,
+    JoinSpectateMessage,
+    SpectateJoinedMessage,
+    LeaveSpectateMessage,
+    SpectateLeftMessage,
+    SpectateSwitchMessage,
+    SpectateSyncMessage,
+    SpectateStateMessage,
+    SpectatorPlayerStateData,
+    SpectateChatMessage,
+    SpectateChatReceivedMessage,
+    SpectateChatData,
+    SpectateEndedMessage,
 )
 
 __all__ = [
@@ -240,6 +256,23 @@ __all__ = [
     "LineupSlotData",
     "LineupSynergyData",
     "LineupPresetData",
+    
+    # 观战系统消息
+    "GetSpectatableGamesMessage",
+    "SpectatableGamesListMessage",
+    "SpectatableGameData",
+    "JoinSpectateMessage",
+    "SpectateJoinedMessage",
+    "LeaveSpectateMessage",
+    "SpectateLeftMessage",
+    "SpectateSwitchMessage",
+    "SpectateSyncMessage",
+    "SpectateStateMessage",
+    "SpectatorPlayerStateData",
+    "SpectateChatMessage",
+    "SpectateChatReceivedMessage",
+    "SpectateChatData",
+    "SpectateEndedMessage",
     
     # 错误消息
     "ErrorMessage",
