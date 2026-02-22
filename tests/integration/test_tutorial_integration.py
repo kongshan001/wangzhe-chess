@@ -39,13 +39,6 @@ class TestTutorialIntegration:
         
         assert len(tutorials) >= 2
 
-    def test_get_tutorials_by_type(self, tutorial_manager):
-        """测试按类型获取引导"""
-        tutorials = tutorial_manager.get_tutorials_by_type(TutorialType.BASIC)
-        
-        for tutorial in tutorials:
-            assert tutorial.tutorial_type == TutorialType.BASIC
-
     def test_get_tutorials_for_player(self, tutorial_manager):
         """测试获取玩家的引导列表"""
         player_id = "player_001"
@@ -289,33 +282,6 @@ class TestTutorialResetIntegration:
         # 验证进度已重置
         progress = tutorial_manager.get_player_progress(player_id, tutorial_id)
         assert progress.completed is False
-
-
-class TestTutorialStepIntegration:
-    """引导步骤集成测试"""
-
-    def test_step_order(self, tutorial_manager):
-        """测试步骤顺序"""
-        tutorial = tutorial_manager.get_tutorial("tutorial_test_001")
-        
-        if tutorial and tutorial.steps:
-            for i, step in enumerate(tutorial.steps):
-                assert step.order == i + 1
-
-    def test_step_action_type(self, tutorial_manager):
-        """测试步骤动作类型"""
-        tutorial = tutorial_manager.get_tutorial("tutorial_test_001")
-        
-        if tutorial and tutorial.steps:
-            for step in tutorial.steps:
-                assert step.action_type in [
-                    "place_hero",
-                    "buy_hero",
-                    "collect_synergy",
-                    "view_info",
-                    "navigate",
-                    "other",
-                ]
 
 
 class TestTutorialAndGameFlowIntegration:

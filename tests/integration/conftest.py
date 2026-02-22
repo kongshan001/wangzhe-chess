@@ -217,10 +217,10 @@ def leaderboard_manager():
 def tutorial_manager():
     """创建新手引导管理器"""
     from src.server.tutorial.manager import TutorialManager
-    # 创建临时配置文件
     import json
     import tempfile
     
+    # 使用正确的 TutorialType 值
     config_data = {
         "version": "1.0.0",
         "tutorials": [
@@ -228,7 +228,7 @@ def tutorial_manager():
                 "tutorial_id": "tutorial_test_001",
                 "name": "基础操作",
                 "description": "学习游戏的基本操作",
-                "tutorial_type": "basic",
+                "tutorial_type": "basic_operation",
                 "required": True,
                 "enabled": True,
                 "sort_order": 1,
@@ -261,7 +261,7 @@ def tutorial_manager():
                 "tutorial_id": "tutorial_test_002",
                 "name": "羁绊系统",
                 "description": "了解羁绊如何工作",
-                "tutorial_type": "synergy",
+                "tutorial_type": "synergy_concept",
                 "required": False,
                 "enabled": True,
                 "sort_order": 2,
@@ -273,7 +273,7 @@ def tutorial_manager():
                         "order": 1,
                         "title": "收集英雄",
                         "description": "收集两个相同种族的英雄",
-                        "action_type": "collect_synergy",
+                        "action_type": "view_synergy",
                         "action_target": "race_2",
                     },
                 ],
