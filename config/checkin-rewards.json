@@ -1,0 +1,251 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-02-22T10:00:00",
+  "description": "王者之奕签到奖励配置",
+  
+  "daily_rewards": [
+    {
+      "day": 1,
+      "day_type": "cycle",
+      "base_rewards": [
+        {
+          "reward_id": "day1_gold",
+          "reward_type": "gold",
+          "quantity": 100
+        }
+      ],
+      "bonus_rewards": [],
+      "streak_bonus": {}
+    },
+    {
+      "day": 2,
+      "day_type": "cycle",
+      "base_rewards": [
+        {
+          "reward_id": "day2_gold",
+          "reward_type": "gold",
+          "quantity": 150
+        },
+        {
+          "reward_id": "day2_fragment",
+          "reward_type": "hero_fragment",
+          "quantity": 5
+        }
+      ],
+      "bonus_rewards": [],
+      "streak_bonus": {}
+    },
+    {
+      "day": 3,
+      "day_type": "cycle",
+      "base_rewards": [
+        {
+          "reward_id": "day3_gold",
+          "reward_type": "gold",
+          "quantity": 200
+        }
+      ],
+      "bonus_rewards": [
+        {
+          "reward_id": "day3_item",
+          "reward_type": "item",
+          "item_id": "exp_boost",
+          "quantity": 1
+        }
+      ],
+      "streak_bonus": {
+        "7": 10
+      }
+    },
+    {
+      "day": 4,
+      "day_type": "cycle",
+      "base_rewards": [
+        {
+          "reward_id": "day4_gold",
+          "reward_type": "gold",
+          "quantity": 250
+        },
+        {
+          "reward_id": "day4_fragment",
+          "reward_type": "hero_fragment",
+          "quantity": 10
+        }
+      ],
+      "bonus_rewards": [],
+      "streak_bonus": {}
+    },
+    {
+      "day": 5,
+      "day_type": "cycle",
+      "base_rewards": [
+        {
+          "reward_id": "day5_gold",
+          "reward_type": "gold",
+          "quantity": 300
+        }
+      ],
+      "bonus_rewards": [
+        {
+          "reward_id": "day5_diamond",
+          "reward_type": "diamond",
+          "quantity": 10
+        }
+      ],
+      "streak_bonus": {
+        "7": 10,
+        "14": 20
+      }
+    },
+    {
+      "day": 6,
+      "day_type": "cycle",
+      "base_rewards": [
+        {
+          "reward_id": "day6_gold",
+          "reward_type": "gold",
+          "quantity": 400
+        },
+        {
+          "reward_id": "day6_fragment",
+          "reward_type": "hero_fragment",
+          "quantity": 15
+        }
+      ],
+      "bonus_rewards": [],
+      "streak_bonus": {}
+    },
+    {
+      "day": 7,
+      "day_type": "cycle",
+      "base_rewards": [
+        {
+          "reward_id": "day7_gold",
+          "reward_type": "gold",
+          "quantity": 500
+        }
+      ],
+      "bonus_rewards": [
+        {
+          "reward_id": "day7_diamond",
+          "reward_type": "diamond",
+          "quantity": 30
+        },
+        {
+          "reward_id": "day7_skin_box",
+          "reward_type": "skin",
+          "item_id": "random_skin_box",
+          "quantity": 1
+        }
+      ],
+      "streak_bonus": {
+        "7": 20,
+        "14": 30,
+        "21": 50
+      }
+    }
+  ],
+  
+  "monthly_rewards": [
+    {
+      "day": 7,
+      "day_type": "monthly",
+      "base_rewards": [
+        {
+          "reward_id": "month7_gold",
+          "reward_type": "gold",
+          "quantity": 500
+        },
+        {
+          "reward_id": "month7_diamond",
+          "reward_type": "diamond",
+          "quantity": 20
+        }
+      ],
+      "bonus_rewards": [],
+      "streak_bonus": {}
+    },
+    {
+      "day": 14,
+      "day_type": "monthly",
+      "base_rewards": [
+        {
+          "reward_id": "month14_gold",
+          "reward_type": "gold",
+          "quantity": 1000
+        },
+        {
+          "reward_id": "month14_fragment",
+          "reward_type": "hero_fragment",
+          "quantity": 30
+        }
+      ],
+      "bonus_rewards": [
+        {
+          "reward_id": "month14_item",
+          "reward_type": "item",
+          "item_id": "rank_protect",
+          "quantity": 1
+        }
+      ],
+      "streak_bonus": {}
+    },
+    {
+      "day": 21,
+      "day_type": "monthly",
+      "base_rewards": [
+        {
+          "reward_id": "month21_gold",
+          "reward_type": "gold",
+          "quantity": 1500
+        },
+        {
+          "reward_id": "month21_diamond",
+          "reward_type": "diamond",
+          "quantity": 50
+        }
+      ],
+      "bonus_rewards": [],
+      "streak_bonus": {}
+    },
+    {
+      "day": 30,
+      "day_type": "monthly",
+      "base_rewards": [
+        {
+          "reward_id": "month30_gold",
+          "reward_type": "gold",
+          "quantity": 3000
+        },
+        {
+          "reward_id": "month30_diamond",
+          "reward_type": "diamond",
+          "quantity": 100
+        },
+        {
+          "reward_id": "month30_skin",
+          "reward_type": "skin",
+          "item_id": "month_skin_box",
+          "quantity": 1
+        }
+      ],
+      "bonus_rewards": [
+        {
+          "reward_id": "month30_title",
+          "reward_type": "title",
+          "item_id": "monthly_master",
+          "quantity": 1
+        }
+      ],
+      "streak_bonus": {}
+    }
+  ],
+  
+  "settings": {
+    "max_supplement_days": 3,
+    "supplement_base_cost": 50,
+    "supplement_cost_formula": "base_cost * days_ago",
+    "reset_time": "00:00:00",
+    "timezone": "Asia/Shanghai"
+  }
+}

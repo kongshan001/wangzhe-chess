@@ -1,0 +1,540 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-02-22T10:00:00",
+  "daily_task_count": 3,
+  "free_refresh_count": 1,
+  "templates": [
+    {
+      "template_id": "play_3_games",
+      "name": "日常对战",
+      "description": "参与3次对局",
+      "requirement": {
+        "type": "play_games",
+        "target": 3,
+        "conditions": {}
+      },
+      "rewards": {
+        "gold": 100,
+        "exp": 50,
+        "equipment_shards": {},
+        "hero_shards": {}
+      },
+      "difficulty": 1,
+      "weight": 100,
+      "icon": "task_play"
+    },
+    {
+      "template_id": "play_5_games",
+      "name": "活跃玩家",
+      "description": "参与5次对局",
+      "requirement": {
+        "type": "play_games",
+        "target": 5,
+        "conditions": {}
+      },
+      "rewards": {
+        "gold": 150,
+        "exp": 80,
+        "equipment_shards": {},
+        "hero_shards": {}
+      },
+      "difficulty": 1,
+      "weight": 80,
+      "icon": "task_play"
+    },
+    {
+      "template_id": "win_2_games",
+      "name": "胜利之路",
+      "description": "获胜2次",
+      "requirement": {
+        "type": "win_games",
+        "target": 2,
+        "conditions": {}
+      },
+      "rewards": {
+        "gold": 200,
+        "exp": 100,
+        "equipment_shards": {},
+        "hero_shards": {}
+      },
+      "difficulty": 2,
+      "weight": 90,
+      "icon": "task_win"
+    },
+    {
+      "template_id": "win_3_games",
+      "name": "常胜将军",
+      "description": "获胜3次",
+      "requirement": {
+        "type": "win_games",
+        "target": 3,
+        "conditions": {}
+      },
+      "rewards": {
+        "gold": 300,
+        "exp": 150,
+        "equipment_shards": {"random": 1},
+        "hero_shards": {}
+      },
+      "difficulty": 3,
+      "weight": 60,
+      "icon": "task_win"
+    },
+    {
+      "template_id": "top4_3_times",
+      "name": "稳定发挥",
+      "description": "获得前4名3次",
+      "requirement": {
+        "type": "top_finish",
+        "target": 3,
+        "conditions": {"rank": 4}
+      },
+      "rewards": {
+        "gold": 150,
+        "exp": 80,
+        "equipment_shards": {},
+        "hero_shards": {}
+      },
+      "difficulty": 1,
+      "weight": 85,
+      "icon": "task_rank"
+    },
+    {
+      "template_id": "top4_5_times",
+      "name": "稳定输出",
+      "description": "获得前4名5次",
+      "requirement": {
+        "type": "top_finish",
+        "target": 5,
+        "conditions": {"rank": 4}
+      },
+      "rewards": {
+        "gold": 250,
+        "exp": 120,
+        "equipment_shards": {},
+        "hero_shards": {}
+      },
+      "difficulty": 2,
+      "weight": 70,
+      "icon": "task_rank"
+    },
+    {
+      "template_id": "first_place_1",
+      "name": "吃鸡达人",
+      "description": "获得1次第一名",
+      "requirement": {
+        "type": "first_place",
+        "target": 1,
+        "conditions": {}
+      },
+      "rewards": {
+        "gold": 300,
+        "exp": 150,
+        "equipment_shards": {"random": 1},
+        "hero_shards": {}
+      },
+      "difficulty": 3,
+      "weight": 60,
+      "icon": "task_chicken"
+    },
+    {
+      "template_id": "deal_3000_damage",
+      "name": "伤害输出",
+      "description": "累计造成3000点伤害",
+      "requirement": {
+        "type": "deal_damage",
+        "target": 3000,
+        "conditions": {}
+      },
+      "rewards": {
+        "gold": 120,
+        "exp": 60,
+        "equipment_shards": {},
+        "hero_shards": {}
+      },
+      "difficulty": 1,
+      "weight": 95,
+      "icon": "task_damage"
+    },
+    {
+      "template_id": "deal_8000_damage",
+      "name": "火力全开",
+      "description": "累计造成8000点伤害",
+      "requirement": {
+        "type": "deal_damage",
+        "target": 8000,
+        "conditions": {}
+      },
+      "rewards": {
+        "gold": 250,
+        "exp": 120,
+        "equipment_shards": {"attack": 1},
+        "hero_shards": {}
+      },
+      "difficulty": 2,
+      "weight": 70,
+      "icon": "task_damage"
+    },
+    {
+      "template_id": "deal_15000_damage",
+      "name": "毁灭打击",
+      "description": "累计造成15000点伤害",
+      "requirement": {
+        "type": "deal_damage",
+        "target": 15000,
+        "conditions": {}
+      },
+      "rewards": {
+        "gold": 400,
+        "exp": 200,
+        "equipment_shards": {"attack": 2},
+        "hero_shards": {}
+      },
+      "difficulty": 3,
+      "weight": 50,
+      "icon": "task_damage"
+    },
+    {
+      "template_id": "earn_100_gold",
+      "name": "财富积累",
+      "description": "累计获得100金币",
+      "requirement": {
+        "type": "earn_gold",
+        "target": 100,
+        "conditions": {}
+      },
+      "rewards": {
+        "gold": 50,
+        "exp": 30,
+        "equipment_shards": {},
+        "hero_shards": {}
+      },
+      "difficulty": 1,
+      "weight": 100,
+      "icon": "task_gold"
+    },
+    {
+      "template_id": "earn_200_gold",
+      "name": "金币大师",
+      "description": "累计获得200金币",
+      "requirement": {
+        "type": "earn_gold",
+        "target": 200,
+        "conditions": {}
+      },
+      "rewards": {
+        "gold": 100,
+        "exp": 50,
+        "equipment_shards": {},
+        "hero_shards": {}
+      },
+      "difficulty": 2,
+      "weight": 80,
+      "icon": "task_gold"
+    },
+    {
+      "template_id": "earn_400_gold",
+      "name": "富甲一方",
+      "description": "累计获得400金币",
+      "requirement": {
+        "type": "earn_gold",
+        "target": 400,
+        "conditions": {}
+      },
+      "rewards": {
+        "gold": 200,
+        "exp": 100,
+        "equipment_shards": {},
+        "hero_shards": {}
+      },
+      "difficulty": 3,
+      "weight": 60,
+      "icon": "task_gold"
+    },
+    {
+      "template_id": "collect_2star_2",
+      "name": "英雄进阶",
+      "description": "合成2个2星英雄",
+      "requirement": {
+        "type": "collect_2star",
+        "target": 2,
+        "conditions": {}
+      },
+      "rewards": {
+        "gold": 150,
+        "exp": 80,
+        "equipment_shards": {},
+        "hero_shards": {}
+      },
+      "difficulty": 2,
+      "weight": 85,
+      "icon": "task_upgrade"
+    },
+    {
+      "template_id": "collect_2star_4",
+      "name": "英雄强化",
+      "description": "合成4个2星英雄",
+      "requirement": {
+        "type": "collect_2star",
+        "target": 4,
+        "conditions": {}
+      },
+      "rewards": {
+        "gold": 280,
+        "exp": 140,
+        "equipment_shards": {},
+        "hero_shards": {}
+      },
+      "difficulty": 3,
+      "weight": 65,
+      "icon": "task_upgrade"
+    },
+    {
+      "template_id": "collect_3star_1",
+      "name": "三星传说",
+      "description": "合成1个3星英雄",
+      "requirement": {
+        "type": "collect_3star",
+        "target": 1,
+        "conditions": {}
+      },
+      "rewards": {
+        "gold": 400,
+        "exp": 200,
+        "equipment_shards": {},
+        "hero_shards": {"random": 1}
+      },
+      "difficulty": 3,
+      "weight": 50,
+      "icon": "task_3star"
+    },
+    {
+      "template_id": "buy_10_heroes",
+      "name": "购物达人",
+      "description": "购买10个英雄",
+      "requirement": {
+        "type": "buy_heroes",
+        "target": 10,
+        "conditions": {}
+      },
+      "rewards": {
+        "gold": 100,
+        "exp": 50,
+        "equipment_shards": {},
+        "hero_shards": {}
+      },
+      "difficulty": 1,
+      "weight": 90,
+      "icon": "task_buy"
+    },
+    {
+      "template_id": "buy_20_heroes",
+      "name": "收购大亨",
+      "description": "购买20个英雄",
+      "requirement": {
+        "type": "buy_heroes",
+        "target": 20,
+        "conditions": {}
+      },
+      "rewards": {
+        "gold": 200,
+        "exp": 100,
+        "equipment_shards": {},
+        "hero_shards": {}
+      },
+      "difficulty": 2,
+      "weight": 70,
+      "icon": "task_buy"
+    },
+    {
+      "template_id": "kill_30_heroes",
+      "name": "战场新秀",
+      "description": "累计击杀30个英雄",
+      "requirement": {
+        "type": "kill_heroes",
+        "target": 30,
+        "conditions": {}
+      },
+      "rewards": {
+        "gold": 120,
+        "exp": 60,
+        "equipment_shards": {},
+        "hero_shards": {}
+      },
+      "difficulty": 1,
+      "weight": 85,
+      "icon": "task_kill"
+    },
+    {
+      "template_id": "kill_50_heroes",
+      "name": "战场杀手",
+      "description": "累计击杀50个英雄",
+      "requirement": {
+        "type": "kill_heroes",
+        "target": 50,
+        "conditions": {}
+      },
+      "rewards": {
+        "gold": 180,
+        "exp": 90,
+        "equipment_shards": {},
+        "hero_shards": {}
+      },
+      "difficulty": 2,
+      "weight": 75,
+      "icon": "task_kill"
+    },
+    {
+      "template_id": "kill_100_heroes",
+      "name": "收割机器",
+      "description": "累计击杀100个英雄",
+      "requirement": {
+        "type": "kill_heroes",
+        "target": 100,
+        "conditions": {}
+      },
+      "rewards": {
+        "gold": 300,
+        "exp": 150,
+        "equipment_shards": {"attack": 1},
+        "hero_shards": {}
+      },
+      "difficulty": 3,
+      "weight": 55,
+      "icon": "task_kill"
+    },
+    {
+      "template_id": "team_play_2",
+      "name": "团队协作",
+      "description": "组队进行2次对局",
+      "requirement": {
+        "type": "team_play",
+        "target": 2,
+        "conditions": {}
+      },
+      "rewards": {
+        "gold": 150,
+        "exp": 80,
+        "equipment_shards": {},
+        "hero_shards": {}
+      },
+      "difficulty": 2,
+      "weight": 70,
+      "icon": "task_team"
+    },
+    {
+      "template_id": "team_play_4",
+      "name": "好友同行",
+      "description": "组队进行4次对局",
+      "requirement": {
+        "type": "team_play",
+        "target": 4,
+        "conditions": {}
+      },
+      "rewards": {
+        "gold": 250,
+        "exp": 120,
+        "equipment_shards": {},
+        "hero_shards": {}
+      },
+      "difficulty": 3,
+      "weight": 55,
+      "icon": "task_team"
+    },
+    {
+      "template_id": "perfect_win_1",
+      "name": "完美胜利",
+      "description": "达成1次完美胜利（零损失）",
+      "requirement": {
+        "type": "perfect_win",
+        "target": 1,
+        "conditions": {}
+      },
+      "rewards": {
+        "gold": 300,
+        "exp": 150,
+        "equipment_shards": {"defense": 1},
+        "hero_shards": {}
+      },
+      "difficulty": 3,
+      "weight": 40,
+      "icon": "task_perfect"
+    },
+    {
+      "template_id": "spend_100_gold",
+      "name": "挥金如土",
+      "description": "累计花费100金币",
+      "requirement": {
+        "type": "spend_gold",
+        "target": 100,
+        "conditions": {}
+      },
+      "rewards": {
+        "gold": 50,
+        "exp": 30,
+        "equipment_shards": {},
+        "hero_shards": {}
+      },
+      "difficulty": 1,
+      "weight": 90,
+      "icon": "task_spend"
+    },
+    {
+      "template_id": "spend_200_gold",
+      "name": "投资大师",
+      "description": "累计花费200金币",
+      "requirement": {
+        "type": "spend_gold",
+        "target": 200,
+        "conditions": {}
+      },
+      "rewards": {
+        "gold": 100,
+        "exp": 50,
+        "equipment_shards": {},
+        "hero_shards": {}
+      },
+      "difficulty": 2,
+      "weight": 75,
+      "icon": "task_spend"
+    },
+    {
+      "template_id": "save_30_gold",
+      "name": "理财专家",
+      "description": "单局保留30金币",
+      "requirement": {
+        "type": "save_gold",
+        "target": 30,
+        "conditions": {}
+      },
+      "rewards": {
+        "gold": 80,
+        "exp": 40,
+        "equipment_shards": {},
+        "hero_shards": {}
+      },
+      "difficulty": 2,
+      "weight": 80,
+      "icon": "task_save"
+    },
+    {
+      "template_id": "save_50_gold",
+      "name": "金库守卫",
+      "description": "单局保留50金币",
+      "requirement": {
+        "type": "save_gold",
+        "target": 50,
+        "conditions": {}
+      },
+      "rewards": {
+        "gold": 150,
+        "exp": 80,
+        "equipment_shards": {},
+        "hero_shards": {}
+      },
+      "difficulty": 3,
+      "weight": 60,
+      "icon": "task_save"
+    }
+  ]
+}

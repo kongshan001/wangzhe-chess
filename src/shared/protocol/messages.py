@@ -202,6 +202,34 @@ class MessageType(str, Enum):
     TEAM_MEMBER_JOINED = "team_member_joined"   # 成员加入队伍
     TEAM_MEMBER_LEFT = "team_member_left"       # 成员离开队伍
     
+    # ========== 排行榜系统 ==========
+    # 客户端 -> 服务器
+    GET_LEADERBOARD = "get_leaderboard"               # 获取排行榜
+    GET_PLAYER_RANK = "get_player_rank"               # 获取玩家排名
+    LEADERBOARD_LIST = "leaderboard_list"             # 获取排行榜列表
+    CLAIM_LEADERBOARD_REWARD = "claim_leaderboard_reward"  # 领取排行榜奖励
+    
+    # 服务器 -> 客户端
+    LEADERBOARD_DATA = "leaderboard_data"             # 排行榜数据
+    PLAYER_RANK_INFO = "player_rank_info"             # 玩家排名信息
+    LEADERBOARD_LIST_RESULT = "leaderboard_list_result"  # 排行榜列表结果
+    LEADERBOARD_REWARD_CLAIMED = "leaderboard_reward_claimed"  # 排行榜奖励已领取
+    
+    # ========== 签到系统 ==========
+    # 客户端 -> 服务器
+    CHECKIN = "checkin"                         # 每日签到
+    GET_CHECKIN_INFO = "get_checkin_info"       # 获取签到信息
+    SUPPLEMENT_CHECKIN = "supplement_checkin"   # 补签
+    GET_CHECKIN_RECORDS = "get_checkin_records" # 获取签到记录
+    GET_CHECKIN_REWARDS = "get_checkin_rewards" # 获取签到奖励配置
+    
+    # 服务器 -> 客户端
+    CHECKIN_SUCCESS = "checkin_success"         # 签到成功
+    CHECKIN_INFO = "checkin_info"               # 签到信息
+    CHECKIN_RECORDS = "checkin_records"         # 签到记录列表
+    CHECKIN_REWARDS = "checkin_rewards"         # 签到奖励配置
+    SUPPLEMENT_SUCCESS = "supplement_success"   # 补签成功
+    
     # ========== 错误消息 ==========
     ERROR = "error"                   # 错误消息
 
@@ -2019,6 +2047,370 @@ class TeamInviteData(BaseModel):
 
 
 # ============================================================================
+# 排行榜系统消息
+# ============================================================================
+
+class GetLeaderboardMessage(BaseMessage):
+    """
+    获取排行榜请求
+    
+    Attributes:
+        leaderboard_type: 排行榜类型 (tier/win_rate/first_place/damage/wealth)
+        period: 排行榜周期 (weekly/monthly/season)
+        page: 页码（从1开始）
+        page_size: 每页大小
+    """
+    
+    type: MessageType = MessageType.GET_LEADERBOARD
+    leaderboard_type: str = Field(default="tier", description="排行榜类型")
+    period: str = Field(default="weekly", description="排行榜周期")
+    page: int = Field(default=1, ge=1, description="页码")
+    page_size: int = Field(default=50, ge=1, le=100, description="每页大小")
+
+
+class LeaderboardEntryData(BaseModel):
+    """排行榜条目数据"""
+    
+    player_id: str = Field(..., description="玩家ID")
+    nickname: str = Field(default="", description="昵称")
+    avatar: str = Field(default="", description="头像")
+    rank: int = Field(default=0, description="排名")
+    score: float = Field(default=0.0, description="分数")
+    tier: str = Field(default="bronze", description="段位")
+    stars: int = Field(default=0, description="星数")
+    display_rank: str = Field(default="", description="段位显示")
+    extra_data: dict[str, Any] = Field(default_factory=dict, description="额外数据")
+
+
+class LeaderboardDataMessage(BaseMessage):
+    """
+    排行榜数据响应
+    
+    Attributes:
+        leaderboard_type: 排行榜类型
+        leaderboard_type_name: 排行榜类型名称
+        period: 排行榜周期
+        period_name: 周期名称
+        entries: 排行榜条目列表
+        total_count: 总记录数
+        page: 当前页码
+        page_size: 每页大小
+        total_pages: 总页数
+        updated_at: 更新时间
+        period_start: 周期开始时间
+        period_end: 周期结束时间
+    """
+    
+    type: MessageType = MessageType.LEADERBOARD_DATA
+    leaderboard_type: str = Field(..., description="排行榜类型")
+    leaderboard_type_name: str = Field(default="", description="排行榜类型名称")
+    period: str = Field(..., description="排行榜周期")
+    period_name: str = Field(default="", description="周期名称")
+    entries: list[LeaderboardEntryData] = Field(default_factory=list, description="条目列表")
+    total_count: int = Field(default=0, description="总记录数")
+    page: int = Field(default=1, description="当前页码")
+    page_size: int = Field(default=50, description="每页大小")
+    total_pages: int = Field(default=0, description="总页数")
+    updated_at: Optional[str] = Field(default=None, description="更新时间")
+    period_start: Optional[str] = Field(default=None, description="周期开始时间")
+    period_end: Optional[str] = Field(default=None, description="周期结束时间")
+
+
+class GetPlayerRankMessage(BaseMessage):
+    """
+    获取玩家排名请求
+    
+    Attributes:
+        leaderboard_type: 排行榜类型（可选，不传则返回所有类型）
+        period: 排行榜周期（可选，不传则返回所有周期）
+    """
+    
+    type: MessageType = MessageType.GET_PLAYER_RANK
+    leaderboard_type: Optional[str] = Field(default=None, description="排行榜类型")
+    period: Optional[str] = Field(default=None, description="排行榜周期")
+
+
+class PlayerRankInfoData(BaseModel):
+    """玩家排名信息数据"""
+    
+    player_id: str = Field(..., description="玩家ID")
+    leaderboard_type: str = Field(..., description="排行榜类型")
+    leaderboard_type_name: str = Field(default="", description="排行榜类型名称")
+    period: str = Field(..., description="排行榜周期")
+    period_name: str = Field(default="", description="周期名称")
+    rank: int = Field(default=0, description="排名")
+    score: float = Field(default=0.0, description="分数")
+    total_players: int = Field(default=0, description="总参与人数")
+    percentile: float = Field(default=100.0, description="百分位排名")
+    history_rank: int = Field(default=0, description="排名变化")
+    rank_change_text: str = Field(default="", description="排名变化文本")
+    rewards_claimed: bool = Field(default=False, description="是否已领取奖励")
+    best_rank: int = Field(default=0, description="历史最佳排名")
+    is_ranked: bool = Field(default=False, description="是否上榜")
+
+
+class PlayerRankInfoMessage(BaseMessage):
+    """
+    玩家排名信息响应
+    
+    Attributes:
+        ranks: 玩家排名信息列表（可能有多个类型/周期）
+    """
+    
+    type: MessageType = MessageType.PLAYER_RANK_INFO
+    ranks: list[PlayerRankInfoData] = Field(default_factory=list, description="排名信息列表")
+
+
+class LeaderboardListMessage(BaseMessage):
+    """获取排行榜列表请求"""
+    
+    type: MessageType = MessageType.LEADERBOARD_LIST
+
+
+class LeaderboardOverviewData(BaseModel):
+    """排行榜概览数据"""
+    
+    type: str = Field(..., description="排行榜类型")
+    type_name: str = Field(default="", description="类型名称")
+    period: str = Field(..., description="排行榜周期")
+    period_name: str = Field(default="", description="周期名称")
+    total_count: int = Field(default=0, description="总参与人数")
+    top_players: list[dict[str, Any]] = Field(default_factory=list, description="前三名")
+    updated_at: Optional[str] = Field(default=None, description="更新时间")
+
+
+class LeaderboardListResultMessage(BaseMessage):
+    """
+    排行榜列表响应
+    
+    Attributes:
+        leaderboards: 排行榜概览列表
+        page: 页码
+        page_size: 每页大小
+        total_count: 总数
+    """
+    
+    type: MessageType = MessageType.LEADERBOARD_LIST_RESULT
+    leaderboards: list[LeaderboardOverviewData] = Field(default_factory=list, description="排行榜列表")
+    page: int = Field(default=1, description="页码")
+    page_size: int = Field(default=20, description="每页大小")
+    total_count: int = Field(default=0, description="总数")
+
+
+class ClaimLeaderboardRewardMessage(BaseMessage):
+    """
+    领取排行榜奖励请求
+    
+    Attributes:
+        leaderboard_type: 排行榜类型
+        period: 排行榜周期
+    """
+    
+    type: MessageType = MessageType.CLAIM_LEADERBOARD_REWARD
+    leaderboard_type: str = Field(..., description="排行榜类型")
+    period: str = Field(..., description="排行榜周期")
+
+
+class LeaderboardRewardData(BaseModel):
+    """排行榜奖励数据"""
+    
+    gold: int = Field(default=0, description="金币")
+    exp: int = Field(default=0, description="经验值")
+    title: Optional[str] = Field(default=None, description="称号")
+    avatar_frame: Optional[str] = Field(default=None, description="头像框")
+    items: list[dict[str, Any]] = Field(default_factory=list, description="其他物品")
+
+
+class LeaderboardRewardClaimedMessage(BaseMessage):
+    """
+    排行榜奖励已领取响应
+    
+    Attributes:
+        leaderboard_type: 排行榜类型
+        period: 排行榜周期
+        rank: 排名
+        reward: 奖励内容
+    """
+    
+    type: MessageType = MessageType.LEADERBOARD_REWARD_CLAIMED
+    leaderboard_type: str = Field(..., description="排行榜类型")
+    period: str = Field(..., description="排行榜周期")
+    rank: int = Field(..., description="排名")
+    reward: LeaderboardRewardData = Field(..., description="奖励内容")
+
+
+# ============================================================================
+# 签到系统消息
+# ============================================================================
+
+class CheckinRewardData(BaseModel):
+    """签到奖励数据"""
+    
+    reward_id: str = Field(..., description="奖励ID")
+    reward_type: str = Field(..., description="奖励类型")
+    item_id: Optional[str] = Field(default=None, description="物品ID")
+    quantity: int = Field(default=1, description="数量")
+
+
+class CheckinStreakData(BaseModel):
+    """连续签到数据"""
+    
+    current_streak: int = Field(default=0, description="当前连续签到天数")
+    max_streak: int = Field(default=0, description="历史最大连续签到天数")
+    monthly_count: int = Field(default=0, description="本月签到天数")
+    total_count: int = Field(default=0, description="总签到天数")
+
+
+class CheckinMessage(BaseMessage):
+    """每日签到请求"""
+    
+    type: MessageType = MessageType.CHECKIN
+
+
+class CheckinSuccessMessage(BaseMessage):
+    """
+    签到成功响应
+    
+    Attributes:
+        rewards: 获得的奖励列表
+        day_in_cycle: 周期天数
+        streak_days: 连续签到天数
+        streak_info: 连续签到信息
+    """
+    
+    type: MessageType = MessageType.CHECKIN_SUCCESS
+    rewards: list[CheckinRewardData] = Field(default_factory=list, description="奖励列表")
+    day_in_cycle: int = Field(..., description="周期天数(1-7)")
+    streak_days: int = Field(..., description="连续签到天数")
+    streak_info: CheckinStreakData = Field(..., description="连续签到信息")
+
+
+class GetCheckinInfoMessage(BaseMessage):
+    """获取签到信息请求"""
+    
+    type: MessageType = MessageType.GET_CHECKIN_INFO
+
+
+class CheckinInfoMessage(BaseMessage):
+    """
+    签到信息响应
+    
+    Attributes:
+        can_checkin: 今日是否可签到
+        today_checked: 今日是否已签到
+        streak_info: 连续签到信息
+        today_rewards: 今日签到奖励预览
+        cycle_day: 当前周期天数
+        monthly_count: 本月签到次数
+        supplement_days: 可补签天数
+    """
+    
+    type: MessageType = MessageType.CHECKIN_INFO
+    can_checkin: bool = Field(..., description="今日是否可签到")
+    today_checked: bool = Field(..., description="今日是否已签到")
+    streak_info: CheckinStreakData = Field(..., description="连续签到信息")
+    today_rewards: list[CheckinRewardData] = Field(default_factory=list, description="今日奖励预览")
+    cycle_day: int = Field(default=1, description="周期天数")
+    monthly_count: int = Field(default=0, description="本月签到次数")
+    supplement_days: int = Field(default=0, description="可补签天数")
+
+
+class SupplementCheckinMessage(BaseMessage):
+    """
+    补签请求
+    
+    Attributes:
+        target_date: 补签日期 (YYYY-MM-DD)
+    """
+    
+    type: MessageType = MessageType.SUPPLEMENT_CHECKIN
+    target_date: str = Field(..., description="补签日期")
+
+
+class SupplementSuccessMessage(BaseMessage):
+    """
+    补签成功响应
+    
+    Attributes:
+        target_date: 补签日期
+        rewards: 获得的奖励
+        cost_diamond: 消耗钻石
+    """
+    
+    type: MessageType = MessageType.SUPPLEMENT_SUCCESS
+    target_date: str = Field(..., description="补签日期")
+    rewards: list[CheckinRewardData] = Field(default_factory=list, description="奖励列表")
+    cost_diamond: int = Field(..., description="消耗钻石")
+
+
+class GetCheckinRecordsMessage(BaseMessage):
+    """
+    获取签到记录请求
+    
+    Attributes:
+        limit: 返回数量限制
+    """
+    
+    type: MessageType = MessageType.GET_CHECKIN_RECORDS
+    limit: int = Field(default=30, description="返回数量限制")
+
+
+class CheckinRecordData(BaseModel):
+    """签到记录数据"""
+    
+    record_id: str = Field(..., description="记录ID")
+    checkin_date: str = Field(..., description="签到日期")
+    day_in_cycle: int = Field(default=1, description="周期天数")
+    streak_days: int = Field(default=1, description="连续签到天数")
+    rewards: list[CheckinRewardData] = Field(default_factory=list, description="奖励列表")
+    is_supplement: bool = Field(default=False, description="是否补签")
+
+
+class CheckinRecordsMessage(BaseMessage):
+    """
+    签到记录响应
+    
+    Attributes:
+        records: 签到记录列表
+    """
+    
+    type: MessageType = MessageType.CHECKIN_RECORDS
+    records: list[CheckinRecordData] = Field(default_factory=list, description="签到记录列表")
+
+
+class GetCheckinRewardsMessage(BaseMessage):
+    """获取签到奖励配置请求"""
+    
+    type: MessageType = MessageType.GET_CHECKIN_REWARDS
+
+
+class DailyRewardConfigData(BaseModel):
+    """每日奖励配置数据"""
+    
+    day: int = Field(..., description="天数")
+    base_rewards: list[CheckinRewardData] = Field(default_factory=list, description="基础奖励")
+    bonus_rewards: list[CheckinRewardData] = Field(default_factory=list, description="额外奖励")
+
+
+class CheckinRewardsMessage(BaseMessage):
+    """
+    签到奖励配置响应
+    
+    Attributes:
+        daily_rewards: 7天循环奖励配置
+        monthly_rewards: 月度累计奖励配置
+        max_supplement_days: 最大补签天数
+        supplement_base_cost: 补签基础消耗
+    """
+    
+    type: MessageType = MessageType.CHECKIN_REWARDS
+    daily_rewards: list[DailyRewardConfigData] = Field(default_factory=list, description="7天循环奖励")
+    monthly_rewards: list[DailyRewardConfigData] = Field(default_factory=list, description="月度累计奖励")
+    max_supplement_days: int = Field(default=3, description="最大补签天数")
+    supplement_base_cost: int = Field(default=50, description="补签基础消耗")
+
+
+# ============================================================================
 # 消息类型映射（用于反序列化）
 # ============================================================================
 
@@ -2167,6 +2559,28 @@ MESSAGE_CLASS_MAP: dict[MessageType, type[BaseMessage]] = {
     MessageType.TEAM_DISBANDED: TeamDisbandedMessage,
     MessageType.TEAM_MEMBER_JOINED: TeamMemberJoinedMessage,
     MessageType.TEAM_MEMBER_LEFT: TeamMemberLeftMessage,
+    
+    # 排行榜系统
+    MessageType.GET_LEADERBOARD: GetLeaderboardMessage,
+    MessageType.LEADERBOARD_DATA: LeaderboardDataMessage,
+    MessageType.GET_PLAYER_RANK: GetPlayerRankMessage,
+    MessageType.PLAYER_RANK_INFO: PlayerRankInfoMessage,
+    MessageType.LEADERBOARD_LIST: LeaderboardListMessage,
+    MessageType.LEADERBOARD_LIST_RESULT: LeaderboardListResultMessage,
+    MessageType.CLAIM_LEADERBOARD_REWARD: ClaimLeaderboardRewardMessage,
+    MessageType.LEADERBOARD_REWARD_CLAIMED: LeaderboardRewardClaimedMessage,
+    
+    # 签到系统
+    MessageType.CHECKIN: CheckinMessage,
+    MessageType.CHECKIN_SUCCESS: CheckinSuccessMessage,
+    MessageType.GET_CHECKIN_INFO: GetCheckinInfoMessage,
+    MessageType.CHECKIN_INFO: CheckinInfoMessage,
+    MessageType.SUPPLEMENT_CHECKIN: SupplementCheckinMessage,
+    MessageType.SUPPLEMENT_SUCCESS: SupplementSuccessMessage,
+    MessageType.GET_CHECKIN_RECORDS: GetCheckinRecordsMessage,
+    MessageType.CHECKIN_RECORDS: CheckinRecordsMessage,
+    MessageType.GET_CHECKIN_REWARDS: GetCheckinRewardsMessage,
+    MessageType.CHECKIN_REWARDS: CheckinRewardsMessage,
     
     # 错误
     MessageType.ERROR: ErrorMessage,

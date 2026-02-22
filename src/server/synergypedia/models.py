@@ -283,7 +283,7 @@ class RecommendedLineup:
             "name": self.name,
             "description": self.description,
             "core_synergies": self.core_synergies,
-            "hero_recommendations": self.heroo_recommendations,
+            "hero_recommendations": self.hero_recommendations,
             "priority": self.priority,
             "difficulty": self.difficulty,
             "playstyle": self.playstyle,
