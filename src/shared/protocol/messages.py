@@ -125,6 +125,83 @@ class MessageType(str, Enum):
     EXP_GAINED = "exp_gained"         # 获得经验
     LEVEL_UP = "level_up"             # 等级提升
     
+    # ========== 阵容预设 ==========
+    # 客户端 -> 服务器
+    LINEUP_SAVE = "lineup_save"       # 保存阵容预设
+    LINEUP_LOAD = "lineup_load"       # 加载阵容预设
+    LINEUP_DELETE = "lineup_delete"   # 删除阵容预设
+    LINEUP_RENAME = "lineup_rename"   # 重命名阵容预设
+    LINEUP_LIST = "lineup_list"       # 获取预设列表
+    LINEUP_APPLY = "lineup_apply"     # 应用预设到对局
+    
+    # 服务器 -> 客户端
+    LINEUP_SAVED = "lineup_saved"     # 预设保存成功
+    LINEUP_LOADED = "lineup_loaded"   # 预设加载成功
+    LINEUP_DELETED = "lineup_deleted" # 预设删除成功
+    LINEUP_RENAMED = "lineup_renamed" # 预设重命名成功
+    LINEUP_LIST_RESULT = "lineup_list_result"  # 预设列表结果
+    LINEUP_APPLIED = "lineup_applied" # 预设应用成功
+    
+    # ========== 好友系统 ==========
+    # 客户端 -> 服务器
+    FRIEND_REQUEST = "friend_request"           # 发送好友请求
+    FRIEND_ACCEPT = "friend_accept"             # 接受好友请求
+    FRIEND_REJECT = "friend_reject"             # 拒绝好友请求
+    FRIEND_REMOVE = "friend_remove"             # 删除好友
+    FRIEND_BLOCK = "friend_block"               # 拉黑玩家
+    FRIEND_UNBLOCK = "friend_unblock"           # 取消拉黑
+    GET_FRIEND_LIST = "get_friend_list"         # 获取好友列表
+    GET_PENDING_REQUESTS = "get_pending_requests"  # 获取待处理请求
+    SEARCH_PLAYER = "search_player"             # 搜索玩家
+    
+    # 服务器 -> 客户端
+    FRIEND_REQUEST_RECEIVED = "friend_request_received"  # 收到好友请求
+    FRIEND_REQUEST_SENT = "friend_request_sent"          # 好友请求已发送
+    FRIEND_REQUEST_ACCEPTED = "friend_request_accepted"  # 好友请求已接受
+    FRIEND_REQUEST_REJECTED = "friend_request_rejected"  # 好友请求已拒绝
+    FRIEND_LIST = "friend_list"                          # 好友列表
+    PENDING_REQUESTS = "pending_requests"                # 待处理请求列表
+    FRIEND_REMOVED = "friend_removed"                    # 好友已删除
+    FRIEND_BLOCKED = "friend_blocked"                    # 玩家已拉黑
+    FRIEND_UNBLOCKED = "friend_unblocked"                # 玩家已取消拉黑
+    FRIEND_STATUS_UPDATE = "friend_status_update"        # 好友状态更新
+    PLAYER_SEARCH_RESULT = "player_search_result"        # 玩家搜索结果
+    
+    # ========== 私聊系统 ==========
+    # 客户端 -> 服务器
+    PRIVATE_MESSAGE = "private_message"         # 发送私聊消息
+    GET_CHAT_HISTORY = "get_chat_history"       # 获取聊天记录
+    MARK_MESSAGES_READ = "mark_messages_read"   # 标记消息已读
+    
+    # 服务器 -> 客户端
+    PRIVATE_MESSAGE_RECEIVED = "private_message_received"  # 收到私聊消息
+    CHAT_HISTORY = "chat_history"                          # 聊天记录
+    MESSAGES_READ = "messages_read"                        # 消息已读确认
+    UNREAD_COUNT = "unread_count"                          # 未读消息数
+    
+    # ========== 组队系统 ==========
+    # 客户端 -> 服务器
+    CREATE_TEAM = "create_team"             # 创建队伍
+    JOIN_TEAM = "join_team"                 # 加入队伍
+    LEAVE_TEAM = "leave_team"               # 离开队伍
+    KICK_TEAM_MEMBER = "kick_team_member"   # 踢出成员
+    INVITE_TEAM = "invite_team"             # 邀请加入队伍
+    ACCEPT_TEAM_INVITE = "accept_team_invite"  # 接受队伍邀请
+    REJECT_TEAM_INVITE = "reject_team_invite"  # 拒绝队伍邀请
+    GET_TEAM_INFO = "get_team_info"         # 获取队伍信息
+    
+    # 服务器 -> 客户端
+    TEAM_CREATED = "team_created"               # 队伍创建成功
+    TEAM_JOINED = "team_joined"                 # 加入队伍成功
+    TEAM_LEFT = "team_left"                     # 离开队伍成功
+    TEAM_MEMBER_KICKED = "team_member_kicked"   # 成员被踢出
+    TEAM_INVITE_RECEIVED = "team_invite_received"  # 收到队伍邀请
+    TEAM_INVITE_SENT = "team_invite_sent"       # 队伍邀请已发送
+    TEAM_INFO = "team_info"                     # 队伍信息
+    TEAM_DISBANDED = "team_disbanded"           # 队伍已解散
+    TEAM_MEMBER_JOINED = "team_member_joined"   # 成员加入队伍
+    TEAM_MEMBER_LEFT = "team_member_left"       # 成员离开队伍
+    
     # ========== 错误消息 ==========
     ERROR = "error"                   # 错误消息
 
@@ -1098,6 +1175,850 @@ class RankingData(BaseModel):
 
 
 # ============================================================================
+# 阵容预设消息
+# ============================================================================
+
+class LineupSlotData(BaseModel):
+    """阵容槽位数据"""
+    
+    hero_id: str = Field(..., description="英雄ID")
+    row: int = Field(..., ge=0, le=7, description="行位置")
+    col: int = Field(..., ge=0, le=6, description="列位置")
+    equipment: list[str] = Field(default_factory=list, description="装备ID列表")
+    star_level: int = Field(default=1, ge=1, le=3, description="星级")
+
+
+class LineupSynergyData(BaseModel):
+    """目标羁绊数据"""
+    
+    synergy_id: str = Field(..., description="羁绊ID")
+    target_count: int = Field(default=1, description="目标数量")
+    priority: int = Field(default=3, ge=1, le=5, description="优先级")
+
+
+class LineupPresetData(BaseModel):
+    """阵容预设数据"""
+    
+    preset_id: str = Field(..., description="预设ID")
+    name: str = Field(..., description="预设名称")
+    description: str = Field(default="", description="预设描述")
+    slots: list[LineupSlotData] = Field(default_factory=list, description="槽位列表")
+    target_synergies: list[LineupSynergyData] = Field(default_factory=list, description="目标羁绊")
+    notes: str = Field(default="", description="策略备注")
+    created_at: Optional[str] = Field(default=None, description="创建时间")
+    updated_at: Optional[str] = Field(default=None, description="更新时间")
+
+
+class LineupSaveMessage(BaseMessage):
+    """
+    保存阵容预设请求
+    
+    Attributes:
+        name: 预设名称
+        description: 预设描述
+        slots: 英雄槽位列表
+        target_synergies: 目标羁绊列表
+        notes: 策略备注
+    """
+    
+    type: MessageType = MessageType.LINEUP_SAVE
+    name: str = Field(..., min_length=1, max_length=100, description="预设名称")
+    description: str = Field(default="", max_length=500, description="预设描述")
+    slots: list[LineupSlotData] = Field(default_factory=list, description="槽位列表")
+    target_synergies: list[LineupSynergyData] = Field(default_factory=list, description="目标羁绊")
+    notes: str = Field(default="", description="策略备注")
+
+
+class LineupSavedMessage(BaseMessage):
+    """
+    预设保存成功响应
+    
+    Attributes:
+        preset: 保存的预设数据
+    """
+    
+    type: MessageType = MessageType.LINEUP_SAVED
+    preset: LineupPresetData = Field(..., description="预设数据")
+
+
+class LineupLoadMessage(BaseMessage):
+    """
+    加载阵容预设请求
+    
+    Attributes:
+        preset_id: 预设ID
+    """
+    
+    type: MessageType = MessageType.LINEUP_LOAD
+    preset_id: str = Field(..., description="预设ID")
+
+
+class LineupLoadedMessage(BaseMessage):
+    """
+    预设加载成功响应
+    
+    Attributes:
+        preset: 加载的预设数据
+    """
+    
+    type: MessageType = MessageType.LINEUP_LOADED
+    preset: LineupPresetData = Field(..., description="预设数据")
+
+
+class LineupDeleteMessage(BaseMessage):
+    """
+    删除阵容预设请求
+    
+    Attributes:
+        preset_id: 预设ID
+    """
+    
+    type: MessageType = MessageType.LINEUP_DELETE
+    preset_id: str = Field(..., description="预设ID")
+
+
+class LineupDeletedMessage(BaseMessage):
+    """
+    预设删除成功响应
+    
+    Attributes:
+        preset_id: 被删除的预设ID
+    """
+    
+    type: MessageType = MessageType.LINEUP_DELETED
+    preset_id: str = Field(..., description="预设ID")
+
+
+class LineupRenameMessage(BaseMessage):
+    """
+    重命名阵容预设请求
+    
+    Attributes:
+        preset_id: 预设ID
+        new_name: 新名称
+    """
+    
+    type: MessageType = MessageType.LINEUP_RENAME
+    preset_id: str = Field(..., description="预设ID")
+    new_name: str = Field(..., min_length=1, max_length=100, description="新名称")
+
+
+class LineupRenamedMessage(BaseMessage):
+    """
+    预设重命名成功响应
+    
+    Attributes:
+        preset_id: 预设ID
+        new_name: 新名称
+    """
+    
+    type: MessageType = MessageType.LINEUP_RENAMED
+    preset_id: str = Field(..., description="预设ID")
+    new_name: str = Field(..., description="新名称")
+
+
+class LineupListMessage(BaseMessage):
+    """获取预设列表请求"""
+    
+    type: MessageType = MessageType.LINEUP_LIST
+
+
+class LineupListResultMessage(BaseMessage):
+    """
+    预设列表响应
+    
+    Attributes:
+        presets: 预设列表
+        max_presets: 最大预设数量
+    """
+    
+    type: MessageType = MessageType.LINEUP_LIST_RESULT
+    presets: list[LineupPresetData] = Field(default_factory=list, description="预设列表")
+    max_presets: int = Field(default=5, description="最大预设数量")
+
+
+class LineupApplyMessage(BaseMessage):
+    """
+    应用预设到对局请求
+    
+    Attributes:
+        preset_id: 预设ID
+    """
+    
+    type: MessageType = MessageType.LINEUP_APPLY
+    preset_id: str = Field(..., description="预设ID")
+
+
+class LineupAppliedMessage(BaseMessage):
+    """
+    预设应用成功响应
+    
+    Attributes:
+        preset_id: 预设ID
+        preset_name: 预设名称
+        heroes_to_buy: 需要购买的英雄ID列表
+        slots: 槽位建议
+    """
+    
+    type: MessageType = MessageType.LINEUP_APPLIED
+    preset_id: str = Field(..., description="预设ID")
+    preset_name: str = Field(..., description="预设名称")
+    heroes_to_buy: list[str] = Field(default_factory=list, description="需要购买的英雄")
+    slots: list[LineupSlotData] = Field(default_factory=list, description="槽位建议")
+
+
+# ============================================================================
+# 好友系统消息
+# ============================================================================
+
+class FriendRequestMessage(BaseMessage):
+    """
+    发送好友请求
+    
+    Attributes:
+        to_player_id: 目标玩家ID
+        message: 附带消息
+    """
+    
+    type: MessageType = MessageType.FRIEND_REQUEST
+    to_player_id: str = Field(..., description="目标玩家ID")
+    message: str = Field(default="", max_length=200, description="附带消息")
+
+
+class FriendRequestSentMessage(BaseMessage):
+    """
+    好友请求已发送
+    
+    Attributes:
+        request_id: 请求ID
+        to_player_id: 目标玩家ID
+    """
+    
+    type: MessageType = MessageType.FRIEND_REQUEST_SENT
+    request_id: str = Field(..., description="请求ID")
+    to_player_id: str = Field(..., description="目标玩家ID")
+
+
+class FriendRequestReceivedMessage(BaseMessage):
+    """
+    收到好友请求
+    
+    Attributes:
+        request: 请求数据
+    """
+    
+    type: MessageType = MessageType.FRIEND_REQUEST_RECEIVED
+    request: FriendRequestData = Field(..., description="请求数据")
+
+
+class FriendAcceptMessage(BaseMessage):
+    """
+    接受好友请求
+    
+    Attributes:
+        request_id: 请求ID
+    """
+    
+    type: MessageType = MessageType.FRIEND_ACCEPT
+    request_id: str = Field(..., description="请求ID")
+
+
+class FriendRequestAcceptedMessage(BaseMessage):
+    """
+    好友请求已接受
+    
+    Attributes:
+        request_id: 请求ID
+        friend: 新好友信息
+    """
+    
+    type: MessageType = MessageType.FRIEND_REQUEST_ACCEPTED
+    request_id: str = Field(..., description="请求ID")
+    friend: FriendInfoData = Field(..., description="新好友信息")
+
+
+class FriendRejectMessage(BaseMessage):
+    """
+    拒绝好友请求
+    
+    Attributes:
+        request_id: 请求ID
+    """
+    
+    type: MessageType = MessageType.FRIEND_REJECT
+    request_id: str = Field(..., description="请求ID")
+
+
+class FriendRequestRejectedMessage(BaseMessage):
+    """
+    好友请求已拒绝
+    
+    Attributes:
+        request_id: 请求ID
+        player_id: 拒绝者ID
+    """
+    
+    type: MessageType = MessageType.FRIEND_REQUEST_REJECTED
+    request_id: str = Field(..., description="请求ID")
+    player_id: str = Field(..., description="拒绝者ID")
+
+
+class FriendRemoveMessage(BaseMessage):
+    """
+    删除好友
+    
+    Attributes:
+        friend_id: 好友ID
+    """
+    
+    type: MessageType = MessageType.FRIEND_REMOVE
+    friend_id: str = Field(..., description="好友ID")
+
+
+class FriendRemovedMessage(BaseMessage):
+    """
+    好友已删除
+    
+    Attributes:
+        friend_id: 好友ID
+    """
+    
+    type: MessageType = MessageType.FRIEND_REMOVED
+    friend_id: str = Field(..., description="好友ID")
+
+
+class FriendBlockMessage(BaseMessage):
+    """
+    拉黑玩家
+    
+    Attributes:
+        player_id: 玩家ID
+        reason: 拉黑原因
+    """
+    
+    type: MessageType = MessageType.FRIEND_BLOCK
+    player_id: str = Field(..., description="玩家ID")
+    reason: str = Field(default="", description="拉黑原因")
+
+
+class FriendBlockedMessage(BaseMessage):
+    """
+    玩家已拉黑
+    
+    Attributes:
+        player_id: 被拉黑的玩家ID
+    """
+    
+    type: MessageType = MessageType.FRIEND_BLOCKED
+    player_id: str = Field(..., description="被拉黑的玩家ID")
+
+
+class FriendUnblockMessage(BaseMessage):
+    """
+    取消拉黑
+    
+    Attributes:
+        player_id: 玩家ID
+    """
+    
+    type: MessageType = MessageType.FRIEND_UNBLOCK
+    player_id: str = Field(..., description="玩家ID")
+
+
+class FriendUnblockedMessage(BaseMessage):
+    """
+    玩家已取消拉黑
+    
+    Attributes:
+        player_id: 玩家ID
+    """
+    
+    type: MessageType = MessageType.FRIEND_UNBLOCKED
+    player_id: str = Field(..., description="玩家ID")
+
+
+class GetFriendListMessage(BaseMessage):
+    """获取好友列表请求"""
+    
+    type: MessageType = MessageType.GET_FRIEND_LIST
+
+
+class FriendListMessage(BaseMessage):
+    """
+    好友列表响应
+    
+    Attributes:
+        friends: 好友列表
+        total: 总数
+    """
+    
+    type: MessageType = MessageType.FRIEND_LIST
+    friends: list[FriendInfoData] = Field(default_factory=list, description="好友列表")
+    total: int = Field(default=0, description="总数")
+
+
+class GetPendingRequestsMessage(BaseMessage):
+    """获取待处理好友请求"""
+    
+    type: MessageType = MessageType.GET_PENDING_REQUESTS
+
+
+class PendingRequestsMessage(BaseMessage):
+    """
+    待处理请求列表
+    
+    Attributes:
+        requests: 请求列表
+    """
+    
+    type: MessageType = MessageType.PENDING_REQUESTS
+    requests: list[FriendRequestData] = Field(default_factory=list, description="请求列表")
+
+
+class SearchPlayerMessage(BaseMessage):
+    """
+    搜索玩家
+    
+    Attributes:
+        query: 搜索关键词
+        limit: 返回数量
+    """
+    
+    type: MessageType = MessageType.SEARCH_PLAYER
+    query: str = Field(..., min_length=1, max_length=50, description="搜索关键词")
+    limit: int = Field(default=10, ge=1, le=50, description="返回数量")
+
+
+class PlayerSearchResultMessage(BaseMessage):
+    """
+    玩家搜索结果
+    
+    Attributes:
+        query: 搜索关键词
+        results: 搜索结果
+    """
+    
+    type: MessageType = MessageType.PLAYER_SEARCH_RESULT
+    query: str = Field(..., description="搜索关键词")
+    results: list[PlayerSearchInfoData] = Field(default_factory=list, description="搜索结果")
+
+
+class FriendStatusUpdateMessage(BaseMessage):
+    """
+    好友状态更新
+    
+    Attributes:
+        friend_id: 好友ID
+        status: 新状态
+        in_game_info: 游戏中信息（可选）
+    """
+    
+    type: MessageType = MessageType.FRIEND_STATUS_UPDATE
+    friend_id: str = Field(..., description="好友ID")
+    status: str = Field(..., description="新状态")
+    in_game_info: Optional[dict[str, Any]] = Field(default=None, description="游戏中信息")
+
+
+# ============================================================================
+# 私聊系统消息
+# ============================================================================
+
+class PrivateMessage(BaseMessage):
+    """
+    发送私聊消息
+    
+    Attributes:
+        to_player_id: 接收者ID
+        content: 消息内容
+        message_type: 消息类型
+    """
+    
+    type: MessageType = MessageType.PRIVATE_MESSAGE
+    to_player_id: str = Field(..., description="接收者ID")
+    content: str = Field(..., min_length=1, max_length=500, description="消息内容")
+    message_type: str = Field(default="text", description="消息类型")
+
+
+class PrivateMessageReceivedMessage(BaseMessage):
+    """
+    收到私聊消息
+    
+    Attributes:
+        message: 消息数据
+    """
+    
+    type: MessageType = MessageType.PRIVATE_MESSAGE_RECEIVED
+    message: PrivateMessageData = Field(..., description="消息数据")
+
+
+class GetChatHistoryMessage(BaseMessage):
+    """
+    获取聊天记录
+    
+    Attributes:
+        friend_id: 好友ID
+        limit: 返回数量
+        before_id: 此消息ID之前的记录
+    """
+    
+    type: MessageType = MessageType.GET_CHAT_HISTORY
+    friend_id: str = Field(..., description="好友ID")
+    limit: int = Field(default=50, ge=1, le=100, description="返回数量")
+    before_id: Optional[str] = Field(default=None, description="此消息ID之前的记录")
+
+
+class ChatHistoryMessage(BaseMessage):
+    """
+    聊天记录响应
+    
+    Attributes:
+        friend_id: 好友ID
+        messages: 消息列表
+    """
+    
+    type: MessageType = MessageType.CHAT_HISTORY
+    friend_id: str = Field(..., description="好友ID")
+    messages: list[PrivateMessageData] = Field(default_factory=list, description="消息列表")
+
+
+class MarkMessagesReadMessage(BaseMessage):
+    """
+    标记消息已读
+    
+    Attributes:
+        friend_id: 好友ID
+    """
+    
+    type: MessageType = MessageType.MARK_MESSAGES_READ
+    friend_id: str = Field(..., description="好友ID")
+
+
+class MessagesReadMessage(BaseMessage):
+    """
+    消息已读确认
+    
+    Attributes:
+        friend_id: 好友ID
+        count: 标记数量
+    """
+    
+    type: MessageType = MessageType.MESSAGES_READ
+    friend_id: str = Field(..., description="好友ID")
+    count: int = Field(..., description="标记数量")
+
+
+class UnreadCountMessage(BaseMessage):
+    """
+    未读消息数
+    
+    Attributes:
+        count: 未读消息总数
+    """
+    
+    type: MessageType = MessageType.UNREAD_COUNT
+    count: int = Field(..., description="未读消息总数")
+
+
+# ============================================================================
+# 组队系统消息
+# ============================================================================
+
+class CreateTeamMessage(BaseMessage):
+    """
+    创建队伍
+    
+    Attributes:
+        max_members: 最大成员数
+    """
+    
+    type: MessageType = MessageType.CREATE_TEAM
+    max_members: int = Field(default=3, ge=2, le=3, description="最大成员数")
+
+
+class TeamCreatedMessage(BaseMessage):
+    """
+    队伍创建成功
+    
+    Attributes:
+        team: 队伍信息
+    """
+    
+    type: MessageType = MessageType.TEAM_CREATED
+    team: TeamInfoData = Field(..., description="队伍信息")
+
+
+class JoinTeamMessage(BaseMessage):
+    """
+    加入队伍
+    
+    Attributes:
+        team_id: 队伍ID
+    """
+    
+    type: MessageType = MessageType.JOIN_TEAM
+    team_id: str = Field(..., description="队伍ID")
+
+
+class TeamJoinedMessage(BaseMessage):
+    """
+    加入队伍成功
+    
+    Attributes:
+        team: 队伍信息
+    """
+    
+    type: MessageType = MessageType.TEAM_JOINED
+    team: TeamInfoData = Field(..., description="队伍信息")
+
+
+class LeaveTeamMessage(BaseMessage):
+    """离开队伍"""
+    
+    type: MessageType = MessageType.LEAVE_TEAM
+
+
+class TeamLeftMessage(BaseMessage):
+    """
+    离开队伍成功
+    
+    Attributes:
+        team_id: 队伍ID
+    """
+    
+    type: MessageType = MessageType.TEAM_LEFT
+    team_id: str = Field(..., description="队伍ID")
+
+
+class KickTeamMemberMessage(BaseMessage):
+    """
+    踢出队伍成员
+    
+    Attributes:
+        player_id: 要踢出的玩家ID
+    """
+    
+    type: MessageType = MessageType.KICK_TEAM_MEMBER
+    player_id: str = Field(..., description="要踢出的玩家ID")
+
+
+class TeamMemberKickedMessage(BaseMessage):
+    """
+    成员被踢出
+    
+    Attributes:
+        team_id: 队伍ID
+        player_id: 被踢出的玩家ID
+    """
+    
+    type: MessageType = MessageType.TEAM_MEMBER_KICKED
+    team_id: str = Field(..., description="队伍ID")
+    player_id: str = Field(..., description="被踢出的玩家ID")
+
+
+class InviteTeamMessage(BaseMessage):
+    """
+    邀请加入队伍
+    
+    Attributes:
+        player_id: 被邀请者ID
+    """
+    
+    type: MessageType = MessageType.INVITE_TEAM
+    player_id: str = Field(..., description="被邀请者ID")
+
+
+class TeamInviteSentMessage(BaseMessage):
+    """
+    队伍邀请已发送
+    
+    Attributes:
+        team_id: 队伍ID
+        player_id: 被邀请者ID
+    """
+    
+    type: MessageType = MessageType.TEAM_INVITE_SENT
+    team_id: str = Field(..., description="队伍ID")
+    player_id: str = Field(..., description="被邀请者ID")
+
+
+class TeamInviteReceivedMessage(BaseMessage):
+    """
+    收到队伍邀请
+    
+    Attributes:
+        invite: 邀请数据
+    """
+    
+    type: MessageType = MessageType.TEAM_INVITE_RECEIVED
+    invite: TeamInviteData = Field(..., description="邀请数据")
+
+
+class AcceptTeamInviteMessage(BaseMessage):
+    """
+    接受队伍邀请
+    
+    Attributes:
+        invite_id: 邀请ID
+    """
+    
+    type: MessageType = MessageType.ACCEPT_TEAM_INVITE
+    invite_id: str = Field(..., description="邀请ID")
+
+
+class RejectTeamInviteMessage(BaseMessage):
+    """
+    拒绝队伍邀请
+    
+    Attributes:
+        invite_id: 邀请ID
+    """
+    
+    type: MessageType = MessageType.REJECT_TEAM_INVITE
+    invite_id: str = Field(..., description="邀请ID")
+
+
+class GetTeamInfoMessage(BaseMessage):
+    """获取队伍信息"""
+    
+    type: MessageType = MessageType.GET_TEAM_INFO
+
+
+class TeamInfoMessage(BaseMessage):
+    """
+    队伍信息响应
+    
+    Attributes:
+        team: 队伍信息（None表示不在队伍中）
+    """
+    
+    type: MessageType = MessageType.TEAM_INFO
+    team: Optional[TeamInfoData] = Field(default=None, description="队伍信息")
+
+
+class TeamDisbandedMessage(BaseMessage):
+    """
+    队伍已解散
+    
+    Attributes:
+        team_id: 队伍ID
+    """
+    
+    type: MessageType = MessageType.TEAM_DISBANDED
+    team_id: str = Field(..., description="队伍ID")
+
+
+class TeamMemberJoinedMessage(BaseMessage):
+    """
+    成员加入队伍广播
+    
+    Attributes:
+        team_id: 队伍ID
+        player_id: 加入的玩家ID
+        player_info: 玩家信息
+    """
+    
+    type: MessageType = MessageType.TEAM_MEMBER_JOINED
+    team_id: str = Field(..., description="队伍ID")
+    player_id: str = Field(..., description="加入的玩家ID")
+    player_info: PlayerInfoData = Field(..., description="玩家信息")
+
+
+class TeamMemberLeftMessage(BaseMessage):
+    """
+    成员离开队伍广播
+    
+    Attributes:
+        team_id: 队伍ID
+        player_id: 离开的玩家ID
+    """
+    
+    type: MessageType = MessageType.TEAM_MEMBER_LEFT
+    team_id: str = Field(..., description="队伍ID")
+    player_id: str = Field(..., description="离开的玩家ID")
+
+
+# ============================================================================
+# 好友系统数据模型
+# ============================================================================
+
+class FriendInfoData(BaseModel):
+    """好友信息数据"""
+    
+    player_id: str = Field(..., description="玩家ID")
+    nickname: str = Field(default="", description="昵称")
+    avatar: str = Field(default="", description="头像")
+    status: str = Field(default="offline", description="在线状态")
+    status_text: str = Field(default="离线", description="状态文本")
+    tier: str = Field(default="bronze", description="段位")
+    stars: int = Field(default=0, description="星数")
+    display_rank: str = Field(default="", description="段位显示")
+    relation: str = Field(default="friend", description="关系")
+    last_online_at: Optional[str] = Field(default=None, description="最后在线时间")
+    is_online: bool = Field(default=False, description="是否在线")
+    in_game_info: Optional[dict[str, Any]] = Field(default=None, description="游戏中信息")
+
+
+class FriendRequestData(BaseModel):
+    """好友请求数据"""
+    
+    request_id: str = Field(..., description="请求ID")
+    from_player_id: str = Field(..., description="发送者ID")
+    to_player_id: str = Field(..., description="接收者ID")
+    from_nickname: str = Field(default="", description="发送者昵称")
+    from_avatar: str = Field(default="", description="发送者头像")
+    message: str = Field(default="", description="附带消息")
+    created_at: Optional[str] = Field(default=None, description="创建时间")
+
+
+class PrivateMessageData(BaseModel):
+    """私聊消息数据"""
+    
+    message_id: str = Field(..., description="消息ID")
+    from_player_id: str = Field(..., description="发送者ID")
+    to_player_id: str = Field(..., description="接收者ID")
+    from_nickname: str = Field(default="", description="发送者昵称")
+    from_avatar: str = Field(default="", description="发送者头像")
+    content: str = Field(..., description="消息内容")
+    message_type: str = Field(default="text", description="消息类型")
+    created_at: Optional[str] = Field(default=None, description="创建时间")
+
+
+class PlayerSearchInfoData(BaseModel):
+    """玩家搜索结果数据"""
+    
+    player_id: str = Field(..., description="玩家ID")
+    nickname: str = Field(default="", description="昵称")
+    avatar: str = Field(default="", description="头像")
+    tier: str = Field(default="bronze", description="段位")
+    stars: int = Field(default=0, description="星数")
+    is_friend: bool = Field(default=False, description="是否已是好友")
+    has_pending_request: bool = Field(default=False, description="是否有待处理请求")
+
+
+class TeamInfoData(BaseModel):
+    """队伍信息数据"""
+    
+    team_id: str = Field(..., description="队伍ID")
+    leader_id: str = Field(..., description="队长ID")
+    members: list[PlayerInfoData] = Field(default_factory=list, description="成员列表")
+    member_count: int = Field(default=0, description="成员数")
+    max_members: int = Field(default=3, description="最大成员数")
+    is_full: bool = Field(default=False, description="是否已满")
+    created_at: Optional[str] = Field(default=None, description="创建时间")
+
+
+class TeamInviteData(BaseModel):
+    """队伍邀请数据"""
+    
+    invite_id: str = Field(..., description="邀请ID")
+    team_id: str = Field(..., description="队伍ID")
+    inviter_id: str = Field(..., description="邀请者ID")
+    inviter_nickname: str = Field(default="", description="邀请者昵称")
+    team_member_count: int = Field(default=1, description="队伍成员数")
+    created_at: Optional[str] = Field(default=None, description="创建时间")
+
+
+# ============================================================================
 # 消息类型映射（用于反序列化）
 # ============================================================================
 
@@ -1181,6 +2102,71 @@ MESSAGE_CLASS_MAP: dict[MessageType, type[BaseMessage]] = {
     MessageType.BUY_EXP: BuyExpMessage,
     MessageType.EXP_GAINED: ExpGainedMessage,
     MessageType.LEVEL_UP: LevelUpMessage,
+    
+    # 阵容预设
+    MessageType.LINEUP_SAVE: LineupSaveMessage,
+    MessageType.LINEUP_SAVED: LineupSavedMessage,
+    MessageType.LINEUP_LOAD: LineupLoadMessage,
+    MessageType.LINEUP_LOADED: LineupLoadedMessage,
+    MessageType.LINEUP_DELETE: LineupDeleteMessage,
+    MessageType.LINEUP_DELETED: LineupDeletedMessage,
+    MessageType.LINEUP_RENAME: LineupRenameMessage,
+    MessageType.LINEUP_RENAMED: LineupRenamedMessage,
+    MessageType.LINEUP_LIST: LineupListMessage,
+    MessageType.LINEUP_LIST_RESULT: LineupListResultMessage,
+    MessageType.LINEUP_APPLY: LineupApplyMessage,
+    MessageType.LINEUP_APPLIED: LineupAppliedMessage,
+    
+    # 好友系统
+    MessageType.FRIEND_REQUEST: FriendRequestMessage,
+    MessageType.FRIEND_ACCEPT: FriendAcceptMessage,
+    MessageType.FRIEND_REJECT: FriendRejectMessage,
+    MessageType.FRIEND_REMOVE: FriendRemoveMessage,
+    MessageType.FRIEND_BLOCK: FriendBlockMessage,
+    MessageType.FRIEND_UNBLOCK: FriendUnblockMessage,
+    MessageType.GET_FRIEND_LIST: GetFriendListMessage,
+    MessageType.GET_PENDING_REQUESTS: GetPendingRequestsMessage,
+    MessageType.SEARCH_PLAYER: SearchPlayerMessage,
+    MessageType.FRIEND_REQUEST_RECEIVED: FriendRequestReceivedMessage,
+    MessageType.FRIEND_REQUEST_SENT: FriendRequestSentMessage,
+    MessageType.FRIEND_REQUEST_ACCEPTED: FriendRequestAcceptedMessage,
+    MessageType.FRIEND_REQUEST_REJECTED: FriendRequestRejectedMessage,
+    MessageType.FRIEND_LIST: FriendListMessage,
+    MessageType.PENDING_REQUESTS: PendingRequestsMessage,
+    MessageType.FRIEND_REMOVED: FriendRemovedMessage,
+    MessageType.FRIEND_BLOCKED: FriendBlockedMessage,
+    MessageType.FRIEND_UNBLOCKED: FriendUnblockedMessage,
+    MessageType.FRIEND_STATUS_UPDATE: FriendStatusUpdateMessage,
+    MessageType.PLAYER_SEARCH_RESULT: PlayerSearchResultMessage,
+    
+    # 私聊系统
+    MessageType.PRIVATE_MESSAGE: PrivateMessage,
+    MessageType.GET_CHAT_HISTORY: GetChatHistoryMessage,
+    MessageType.MARK_MESSAGES_READ: MarkMessagesReadMessage,
+    MessageType.PRIVATE_MESSAGE_RECEIVED: PrivateMessageReceivedMessage,
+    MessageType.CHAT_HISTORY: ChatHistoryMessage,
+    MessageType.MESSAGES_READ: MessagesReadMessage,
+    MessageType.UNREAD_COUNT: UnreadCountMessage,
+    
+    # 组队系统
+    MessageType.CREATE_TEAM: CreateTeamMessage,
+    MessageType.JOIN_TEAM: JoinTeamMessage,
+    MessageType.LEAVE_TEAM: LeaveTeamMessage,
+    MessageType.KICK_TEAM_MEMBER: KickTeamMemberMessage,
+    MessageType.INVITE_TEAM: InviteTeamMessage,
+    MessageType.ACCEPT_TEAM_INVITE: AcceptTeamInviteMessage,
+    MessageType.REJECT_TEAM_INVITE: RejectTeamInviteMessage,
+    MessageType.GET_TEAM_INFO: GetTeamInfoMessage,
+    MessageType.TEAM_CREATED: TeamCreatedMessage,
+    MessageType.TEAM_JOINED: TeamJoinedMessage,
+    MessageType.TEAM_LEFT: TeamLeftMessage,
+    MessageType.TEAM_MEMBER_KICKED: TeamMemberKickedMessage,
+    MessageType.TEAM_INVITE_RECEIVED: TeamInviteReceivedMessage,
+    MessageType.TEAM_INVITE_SENT: TeamInviteSentMessage,
+    MessageType.TEAM_INFO: TeamInfoMessage,
+    MessageType.TEAM_DISBANDED: TeamDisbandedMessage,
+    MessageType.TEAM_MEMBER_JOINED: TeamMemberJoinedMessage,
+    MessageType.TEAM_MEMBER_LEFT: TeamMemberLeftMessage,
     
     # 错误
     MessageType.ERROR: ErrorMessage,
