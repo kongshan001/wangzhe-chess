@@ -1,0 +1,274 @@
+{
+  "version": "1.0",
+  "description": "王者之奕 - 表情配置",
+  
+  "emotes": [
+    {
+      "emote_id": "hello",
+      "name": "你好",
+      "description": "打招呼",
+      "category": "default",
+      "emote_type": "static",
+      "asset_url": "/assets/emotes/hello.png",
+      "thumbnail_url": "/assets/emotes/thumbs/hello.png",
+      "is_free": true,
+      "sort_order": 1
+    },
+    {
+      "emote_id": "good_game",
+      "name": "打得不错",
+      "description": "称赞对手",
+      "category": "default",
+      "emote_type": "static",
+      "asset_url": "/assets/emotes/good_game.png",
+      "thumbnail_url": "/assets/emotes/thumbs/good_game.png",
+      "is_free": true,
+      "sort_order": 2
+    },
+    {
+      "emote_id": "thanks",
+      "name": "谢谢",
+      "description": "表示感谢",
+      "category": "default",
+      "emote_type": "static",
+      "asset_url": "/assets/emotes/thanks.png",
+      "thumbnail_url": "/assets/emotes/thumbs/thanks.png",
+      "is_free": true,
+      "sort_order": 3
+    },
+    {
+      "emote_id": "well_played",
+      "name": "精彩操作",
+      "description": "称赞精彩操作",
+      "category": "default",
+      "emote_type": "animated",
+      "asset_url": "/assets/emotes/well_played.gif",
+      "thumbnail_url": "/assets/emotes/thumbs/well_played.png",
+      "is_free": true,
+      "sort_order": 4
+    },
+    {
+      "emote_id": "luck",
+      "name": "运气不错",
+      "description": "运气真好",
+      "category": "default",
+      "emote_type": "static",
+      "asset_url": "/assets/emotes/luck.png",
+      "thumbnail_url": "/assets/emotes/thumbs/luck.png",
+      "is_free": true,
+      "sort_order": 5
+    },
+    {
+      "emote_id": "thinking",
+      "name": "思考中",
+      "description": "正在思考",
+      "category": "default",
+      "emote_type": "animated",
+      "asset_url": "/assets/emotes/thinking.gif",
+      "thumbnail_url": "/assets/emotes/thumbs/thinking.png",
+      "is_free": true,
+      "sort_order": 6
+    },
+    {
+      "emote_id": "oops",
+      "name": "失误了",
+      "description": "不小心失误",
+      "category": "default",
+      "emote_type": "static",
+      "asset_url": "/assets/emotes/oops.png",
+      "thumbnail_url": "/assets/emotes/thumbs/oops.png",
+      "is_free": true,
+      "sort_order": 7
+    },
+    {
+      "emote_id": "gg",
+      "name": "GG",
+      "description": "Good Game",
+      "category": "default",
+      "emote_type": "static",
+      "asset_url": "/assets/emotes/gg.png",
+      "thumbnail_url": "/assets/emotes/thumbs/gg.png",
+      "is_free": true,
+      "sort_order": 8
+    },
+    {
+      "emote_id": "laugh",
+      "name": "哈哈",
+      "description": "大笑",
+      "category": "default",
+      "emote_type": "animated",
+      "asset_url": "/assets/emotes/laugh.gif",
+      "thumbnail_url": "/assets/emotes/thumbs/laugh.png",
+      "is_free": true,
+      "sort_order": 9
+    },
+    {
+      "emote_id": "cry",
+      "name": "呜呜",
+      "description": "哭泣",
+      "category": "default",
+      "emote_type": "animated",
+      "asset_url": "/assets/emotes/cry.gif",
+      "thumbnail_url": "/assets/emotes/thumbs/cry.png",
+      "is_free": true,
+      "sort_order": 10
+    },
+    {
+      "emote_id": "angry",
+      "name": "生气",
+      "description": "生气了",
+      "category": "default",
+      "emote_type": "static",
+      "asset_url": "/assets/emotes/angry.png",
+      "thumbnail_url": "/assets/emotes/thumbs/angry.png",
+      "is_free": true,
+      "sort_order": 11
+    },
+    {
+      "emote_id": "surprise",
+      "name": "惊讶",
+      "description": "好惊讶",
+      "category": "default",
+      "emote_type": "animated",
+      "asset_url": "/assets/emotes/surprise.gif",
+      "thumbnail_url": "/assets/emotes/thumbs/surprise.png",
+      "is_free": true,
+      "sort_order": 12
+    },
+    
+    {
+      "emote_id": "victory",
+      "name": "胜利",
+      "description": "胜利姿势",
+      "category": "unlock",
+      "emote_type": "animated",
+      "asset_url": "/assets/emotes/victory.gif",
+      "thumbnail_url": "/assets/emotes/thumbs/victory.png",
+      "is_free": false,
+      "unlock_condition": {
+        "type": "wins",
+        "count": 10
+      },
+      "sort_order": 20
+    },
+    {
+      "emote_id": "champion",
+      "name": "冠军",
+      "description": "冠军风采",
+      "category": "unlock",
+      "emote_type": "animated",
+      "asset_url": "/assets/emotes/champion.gif",
+      "thumbnail_url": "/assets/emotes/thumbs/champion.png",
+      "is_free": false,
+      "unlock_condition": {
+        "type": "wins",
+        "count": 50
+      },
+      "sort_order": 21
+    },
+    {
+      "emote_id": "diamond_emote",
+      "name": "钻石之光",
+      "description": "钻石段位专属",
+      "category": "unlock",
+      "emote_type": "animated",
+      "asset_url": "/assets/emotes/diamond.gif",
+      "thumbnail_url": "/assets/emotes/thumbs/diamond.png",
+      "is_free": false,
+      "unlock_condition": {
+        "type": "rank",
+        "tier": "diamond"
+      },
+      "sort_order": 22
+    },
+    {
+      "emote_id": "master_emote",
+      "name": "大师之威",
+      "description": "大师段位专属",
+      "category": "unlock",
+      "emote_type": "animated",
+      "asset_url": "/assets/emotes/master.gif",
+      "thumbnail_url": "/assets/emotes/thumbs/master.png",
+      "is_free": false,
+      "unlock_condition": {
+        "type": "rank",
+        "tier": "master"
+      },
+      "sort_order": 23
+    },
+    
+    {
+      "emote_id": "dragon",
+      "name": "神龙",
+      "description": "神龙摆尾",
+      "category": "special",
+      "emote_type": "animated",
+      "asset_url": "/assets/emotes/dragon.gif",
+      "thumbnail_url": "/assets/emotes/thumbs/dragon.png",
+      "sound_url": "/assets/sounds/dragon.mp3",
+      "is_free": false,
+      "unlock_condition": {
+        "type": "achievement",
+        "achievement_id": "dragon_master"
+      },
+      "sort_order": 30
+    },
+    {
+      "emote_id": "phoenix",
+      "name": "凤凰",
+      "description": "凤凰涅槃",
+      "category": "special",
+      "emote_type": "animated",
+      "asset_url": "/assets/emotes/phoenix.gif",
+      "thumbnail_url": "/assets/emotes/thumbs/phoenix.png",
+      "sound_url": "/assets/sounds/phoenix.mp3",
+      "is_free": false,
+      "unlock_condition": {
+        "type": "achievement",
+        "achievement_id": "phoenix_rising"
+      },
+      "sort_order": 31
+    },
+    
+    {
+      "emote_id": "golden_hello",
+      "name": "金色问候",
+      "description": "金色特效问候",
+      "category": "premium",
+      "emote_type": "animated",
+      "asset_url": "/assets/emotes/golden_hello.gif",
+      "thumbnail_url": "/assets/emotes/thumbs/golden_hello.png",
+      "is_free": false,
+      "unlock_condition": {
+        "type": "premium"
+      },
+      "sort_order": 40
+    },
+    {
+      "emote_id": "firework",
+      "name": "烟花",
+      "description": "烟花庆祝",
+      "category": "premium",
+      "emote_type": "animated",
+      "asset_url": "/assets/emotes/firework.gif",
+      "thumbnail_url": "/assets/emotes/thumbs/firework.png",
+      "sound_url": "/assets/sounds/firework.mp3",
+      "is_free": false,
+      "unlock_condition": {
+        "type": "premium"
+      },
+      "sort_order": 41
+    }
+  ],
+  
+  "hotkeys": {
+    "default_keys": ["1", "2", "3", "4", "5", "6", "7", "8"],
+    "max_slots": 8
+  },
+  
+  "settings": {
+    "cooldown_seconds": 3,
+    "max_history_per_room": 100,
+    "show_emote_duration_ms": 3000
+  }
+}

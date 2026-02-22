@@ -266,6 +266,28 @@ class MessageType(str, Enum):
     SKIN_UNLOCKED = "skin_unlocked"           # 皮肤已解锁
     SKIN_FAVORITE_SET = "skin_favorite_set"   # 收藏设置成功
     
+    # ========== 英雄碎片系统 ==========
+    # 客户端 -> 服务器
+    GET_SHARD_BACKPACK = "get_shard_backpack"       # 获取碎片背包
+    COMPOSE_HERO = "compose_hero"                   # 合成英雄
+    DECOMPOSE_HERO = "decompose_hero"               # 分解英雄
+    BATCH_COMPOSE = "batch_compose"                 # 批量合成
+    BATCH_DECOMPOSE = "batch_decompose"             # 批量分解
+    ONE_KEY_COMPOSE = "one_key_compose"             # 一键合成
+    GET_COMPOSE_REQUIREMENTS = "get_compose_requirements"  # 获取合成要求
+    GET_DECOMPOSE_REWARDS = "get_decompose_rewards"  # 获取分解奖励
+    
+    # 服务器 -> 客户端
+    SHARD_BACKPACK = "shard_backpack"               # 碎片背包响应
+    HERO_COMPOSED = "hero_composed"                 # 英雄合成成功
+    HERO_DECOMPOSED = "hero_decomposed"             # 英雄分解成功
+    BATCH_COMPOSE_RESULT = "batch_compose_result"   # 批量合成结果
+    BATCH_DECOMPOSE_RESULT = "batch_decompose_result"  # 批量分解结果
+    COMPOSE_REQUIREMENTS = "compose_requirements"   # 合成要求响应
+    DECOMPOSE_REWARDS = "decompose_rewards"         # 分解奖励响应
+    SHARD_UPDATED = "shard_updated"                 # 碎片更新通知
+    CAN_COMPOSE_NOTIFY = "can_compose_notify"       # 可合成通知
+    
     # ========== 错误消息 ==========
     # ========== 观战系统 ==========
     # 客户端 -> 服务器
@@ -293,6 +315,74 @@ class MessageType(str, Enum):
     RANDOM_EVENT_TRIGGERED = "random_event_triggered"  # 事件触发广播
     EVENT_HISTORY = "event_history"                    # 事件历史响应
     ACTIVE_EVENTS = "active_events"                    # 活跃事件响应
+    
+    # ========== 投票系统 ==========
+    # 客户端 -> 服务器
+    GET_VOTING_LIST = "get_voting_list"               # 获取投票列表
+    GET_VOTING_DETAILS = "get_voting_details"         # 获取投票详情
+    VOTE = "vote"                                     # 投票
+    GET_VOTING_RESULTS = "get_voting_results"         # 获取投票结果
+    CLAIM_VOTING_REWARDS = "claim_voting_rewards"     # 领取投票奖励
+    
+    # 服务器 -> 客户端
+    VOTING_LIST = "voting_list"                       # 投票列表响应
+    VOTING_DETAILS = "voting_details"                 # 投票详情响应
+    VOTE_CASTED = "vote_casted"                       # 投票成功
+    VOTING_RESULTS = "voting_results"                 # 投票结果响应
+    VOTING_REWARDS_CLAIMED = "voting_rewards_claimed" # 奖励领取成功
+    
+    # ========== 回放系统 ==========
+    # 客户端 -> 服务器
+    SAVE_REPLAY = "save_replay"                 # 保存回放
+    GET_REPLAY_LIST = "get_replay_list"         # 获取回放列表
+    LOAD_REPLAY = "load_replay"                 # 加载回放
+    DELETE_REPLAY = "delete_replay"             # 删除回放
+    REPLAY_CONTROL = "replay_control"           # 回放控制（播放/暂停/停止/倍速/跳转）
+    EXPORT_REPLAY = "export_replay"             # 导出回放
+    IMPORT_REPLAY = "import_replay"             # 导入回放
+    
+    # 服务器 -> 客户端
+    REPLAY_SAVED = "replay_saved"               # 回放保存成功
+    REPLAY_LIST = "replay_list"                 # 回放列表响应
+    REPLAY_LOADED = "replay_loaded"             # 回放加载成功
+    REPLAY_DELETED = "replay_deleted"           # 回放删除成功
+    REPLAY_EXPORTED = "replay_exported"         # 回放导出成功
+    REPLAY_IMPORTED = "replay_imported"         # 回放导入成功
+    REPLAY_STATE_UPDATE = "replay_state_update" # 回放状态更新
+    
+    # ========== 表情系统 ==========
+    # 客户端 -> 服务器
+    GET_EMOTES = "get_emotes"                   # 获取表情列表
+    GET_OWNED_EMOTES = "get_owned_emotes"       # 获取已拥有表情
+    SEND_EMOTE = "send_emote"                   # 发送表情
+    SET_EMOTE_HOTKEY = "set_emote_hotkey"       # 设置表情快捷键
+    GET_EMOTE_HISTORY = "get_emote_history"     # 获取表情历史
+    
+    # 服务器 -> 客户端
+    EMOTES_LIST = "emotes_list"                 # 表情列表响应
+    OWNED_EMOTES_LIST = "owned_emotes_list"     # 已拥有表情列表
+    EMOTE_SENT = "emote_sent"                   # 表情发送成功
+    EMOTE_RECEIVED = "emote_received"           # 收到表情（广播）
+    EMOTE_HOTKEY_SET = "emote_hotkey_set"       # 快捷键设置成功
+    EMOTE_HISTORY = "emote_history"             # 表情历史响应
+    EMOTE_UNLOCKED = "emote_unlocked"           # 表情解锁通知
+    
+    # ========== 道具系统 ==========
+    # 客户端 -> 服务器
+    GET_CONSUMABLES = "get_consumables"               # 获取道具列表
+    GET_PLAYER_CONSUMABLES = "get_player_consumables" # 获取玩家道具
+    USE_CONSUMABLE = "use_consumable"                 # 使用道具
+    BUY_CONSUMABLE = "buy_consumable"                 # 购买道具
+    GET_CONSUMABLE_HISTORY = "get_consumable_history" # 获取道具使用历史
+    
+    # 服务器 -> 客户端
+    CONSUMABLES_LIST = "consumables_list"             # 道具列表响应
+    PLAYER_CONSUMABLES_LIST = "player_consumables_list"  # 玩家道具列表
+    CONSUMABLE_USED = "consumable_used"               # 道具已使用
+    CONSUMABLE_BOUGHT = "consumable_bought"           # 道具已购买
+    CONSUMABLE_HISTORY = "consumable_history"         # 道具使用历史
+    CONSUMABLE_ADDED = "consumable_added"             # 道具获得通知
+    CONSUMABLE_EFFECT_APPLIED = "consumable_effect_applied"  # 道具效果生效
     
     # ========== 错误消息 ==========
     ERROR = "error"                   # 错误消息
@@ -2788,6 +2878,215 @@ class RandomEventTriggeredMessage(BaseMessage):
 
 
 # ============================================================================
+# 投票系统数据模型
+# ============================================================================
+
+class VotingOptionData(BaseModel):
+    """投票选项数据"""
+    
+    option_id: str = Field(..., description="选项ID")
+    title: str = Field(..., description="选项标题")
+    description: str = Field(default="", description="选项描述")
+    icon: Optional[str] = Field(default=None, description="选项图标")
+    vote_count: int = Field(default=0, description="当前票数")
+    percentage: float = Field(default=0.0, description="得票百分比")
+
+
+class VotingRewardData(BaseModel):
+    """投票奖励数据"""
+    
+    reward_id: str = Field(..., description="奖励ID")
+    reward_type: str = Field(..., description="奖励类型")
+    item_id: Optional[str] = Field(default=None, description="物品ID")
+    quantity: int = Field(default=1, description="数量")
+    is_bonus: bool = Field(default=False, description="是否为投中额外奖励")
+
+
+class VotingPollData(BaseModel):
+    """投票主题数据"""
+    
+    poll_id: str = Field(..., description="投票ID")
+    title: str = Field(..., description="投票标题")
+    description: str = Field(default="", description="投票描述")
+    voting_type: str = Field(..., description="投票类型")
+    status: str = Field(..., description="投票状态")
+    options: list[VotingOptionData] = Field(default_factory=list, description="投票选项")
+    start_time: Optional[str] = Field(default=None, description="开始时间")
+    end_time: Optional[str] = Field(default=None, description="结束时间")
+    total_votes: int = Field(default=0, description="总票数")
+    total_voters: int = Field(default=0, description="参与人数")
+    min_vip_level: int = Field(default=0, description="最低VIP等级要求")
+    tags: list[str] = Field(default_factory=list, description="标签")
+
+
+class VotingInfoData(BaseModel):
+    """投票信息数据（包含玩家投票状态）"""
+    
+    poll: VotingPollData = Field(..., description="投票详情")
+    player_voted: bool = Field(default=False, description="玩家是否已投票")
+    player_option_id: Optional[str] = Field(default=None, description="玩家投票选项ID")
+    player_vote_weight: int = Field(default=1, description="玩家投票权重")
+    can_vote: bool = Field(default=True, description="是否可以投票")
+    reason: str = Field(default="", description="不能投票的原因")
+
+
+class VotingResultData(BaseModel):
+    """投票结果数据"""
+    
+    poll_id: str = Field(..., description="投票ID")
+    winning_option_id: Optional[str] = Field(default=None, description="获胜选项ID")
+    winning_option: Optional[VotingOptionData] = Field(default=None, description="获胜选项")
+    total_votes: int = Field(default=0, description="总票数")
+    total_voters: int = Field(default=0, description="参与人数")
+    results: list[VotingOptionData] = Field(default_factory=list, description="各选项结果")
+    ended_at: Optional[str] = Field(default=None, description="结束时间")
+
+
+# ============================================================================
+# 投票系统消息
+# ============================================================================
+
+class GetVotingListMessage(BaseMessage):
+    """
+    获取投票列表请求
+    
+    Attributes:
+        status: 状态过滤 (ongoing/ended)
+        voting_type: 类型过滤
+        limit: 返回数量限制
+        offset: 偏移量
+    """
+    
+    type: MessageType = MessageType.GET_VOTING_LIST
+    status: Optional[str] = Field(default=None, description="状态过滤")
+    voting_type: Optional[str] = Field(default=None, description="类型过滤")
+    limit: int = Field(default=20, description="返回数量限制")
+    offset: int = Field(default=0, description="偏移量")
+
+
+class VotingListMessage(BaseMessage):
+    """
+    投票列表响应
+    
+    Attributes:
+        polls: 投票列表
+        total_count: 总数量
+    """
+    
+    type: MessageType = MessageType.VOTING_LIST
+    polls: list[VotingPollData] = Field(default_factory=list, description="投票列表")
+    total_count: int = Field(default=0, description="总数量")
+
+
+class GetVotingDetailsMessage(BaseMessage):
+    """
+    获取投票详情请求
+    
+    Attributes:
+        poll_id: 投票ID
+    """
+    
+    type: MessageType = MessageType.GET_VOTING_DETAILS
+    poll_id: str = Field(..., description="投票ID")
+
+
+class VotingDetailsMessage(BaseMessage):
+    """
+    投票详情响应
+    
+    Attributes:
+        info: 投票信息（包含玩家投票状态）
+    """
+    
+    type: MessageType = MessageType.VOTING_DETAILS
+    info: VotingInfoData = Field(..., description="投票信息")
+
+
+class VoteMessage(BaseMessage):
+    """
+    投票请求
+    
+    Attributes:
+        poll_id: 投票ID
+        option_id: 选项ID
+    """
+    
+    type: MessageType = MessageType.VOTE
+    poll_id: str = Field(..., description="投票ID")
+    option_id: str = Field(..., description="选项ID")
+
+
+class VoteCastedMessage(BaseMessage):
+    """
+    投票成功响应
+    
+    Attributes:
+        poll_id: 投票ID
+        option_id: 选择的选项ID
+        vote_weight: 投票权重
+        updated_poll: 更新后的投票信息
+    """
+    
+    type: MessageType = MessageType.VOTE_CASTED
+    poll_id: str = Field(..., description="投票ID")
+    option_id: str = Field(..., description="选择的选项ID")
+    vote_weight: int = Field(default=1, description="投票权重")
+    updated_poll: VotingPollData = Field(..., description="更新后的投票信息")
+
+
+class GetVotingResultsMessage(BaseMessage):
+    """
+    获取投票结果请求
+    
+    Attributes:
+        poll_id: 投票ID
+    """
+    
+    type: MessageType = MessageType.GET_VOTING_RESULTS
+    poll_id: str = Field(..., description="投票ID")
+
+
+class VotingResultsMessage(BaseMessage):
+    """
+    投票结果响应
+    
+    Attributes:
+        result: 投票结果
+    """
+    
+    type: MessageType = MessageType.VOTING_RESULTS
+    result: VotingResultData = Field(..., description="投票结果")
+
+
+class ClaimVotingRewardsMessage(BaseMessage):
+    """
+    领取投票奖励请求
+    
+    Attributes:
+        poll_id: 投票ID
+    """
+    
+    type: MessageType = MessageType.CLAIM_VOTING_REWARDS
+    poll_id: str = Field(..., description="投票ID")
+
+
+class VotingRewardsClaimedMessage(BaseMessage):
+    """
+    奖励领取成功响应
+    
+    Attributes:
+        poll_id: 投票ID
+        rewards: 领取的奖励列表
+        is_winner: 是否投中获胜选项
+    """
+    
+    type: MessageType = MessageType.VOTING_REWARDS_CLAIMED
+    poll_id: str = Field(..., description="投票ID")
+    rewards: list[VotingRewardData] = Field(default_factory=list, description="奖励列表")
+    is_winner: bool = Field(default=False, description="是否投中获胜选项")
+
+
+# ============================================================================
 # 观战系统消息
 # ============================================================================
 
@@ -3333,6 +3632,839 @@ class SkinFavoriteSetMessage(BaseMessage):
 
 
 # ============================================================================
+# 英雄碎片系统数据模型
+# ============================================================================
+
+class HeroShardData(BaseModel):
+    """英雄碎片数据"""
+    
+    hero_id: str = Field(..., description="英雄ID")
+    hero_name: str = Field(default="", description="英雄名称")
+    quantity: int = Field(default=0, description="碎片数量")
+    hero_cost: int = Field(default=1, description="英雄费用")
+    last_acquired_at: Optional[str] = Field(default=None, description="最后获得时间")
+    can_compose: bool = Field(default=False, description="是否可合成")
+
+
+class ComposeRequirementData(BaseModel):
+    """合成要求数据"""
+    
+    target_star: int = Field(..., description="目标星级")
+    shards_required: int = Field(default=100, description="需要碎片数")
+    same_star_heroes: int = Field(default=0, description="需要同星级英雄数")
+    hero_star_required: int = Field(default=1, description="需要的英雄星级")
+
+
+class DecomposeRewardData(BaseModel):
+    """分解奖励数据"""
+    
+    star_level: int = Field(..., description="星级")
+    shards_gained: int = Field(default=30, description="获得碎片数")
+
+
+# ============================================================================
+# 英雄碎片系统消息
+# ============================================================================
+
+class GetShardBackpackMessage(BaseMessage):
+    """
+    获取碎片背包请求
+    
+    Attributes:
+        hero_id: 英雄ID（可选，不传则返回所有）
+    """
+    
+    type: MessageType = MessageType.GET_SHARD_BACKPACK
+    hero_id: Optional[str] = Field(default=None, description="英雄ID")
+
+
+class ComposeHeroMessage(BaseMessage):
+    """
+    合成英雄请求
+    
+    Attributes:
+        hero_id: 英雄ID
+        target_star: 目标星级
+        hero_name: 英雄名称
+    """
+    
+    type: MessageType = MessageType.COMPOSE_HERO
+    hero_id: str = Field(..., description="英雄ID")
+    target_star: int = Field(default=1, ge=1, le=3, description="目标星级")
+    hero_name: str = Field(default="", description="英雄名称")
+
+
+class DecomposeHeroMessage(BaseMessage):
+    """
+    分解英雄请求
+    
+    Attributes:
+        hero_id: 英雄ID
+        star_level: 英雄星级
+        hero_name: 英雄名称
+        hero_cost: 英雄费用
+    """
+    
+    type: MessageType = MessageType.DECOMPOSE_HERO
+    hero_id: str = Field(..., description="英雄ID")
+    star_level: int = Field(default=1, ge=1, le=3, description="英雄星级")
+    hero_name: str = Field(default="", description="英雄名称")
+    hero_cost: int = Field(default=1, description="英雄费用")
+
+
+class BatchComposeMessage(BaseMessage):
+    """
+    批量合成请求
+    
+    Attributes:
+        compose_list: 合成列表
+    """
+    
+    type: MessageType = MessageType.BATCH_COMPOSE
+    compose_list: list[dict[str, Any]] = Field(default_factory=list, description="合成列表")
+
+
+class BatchDecomposeMessage(BaseMessage):
+    """
+    批量分解请求
+    
+    Attributes:
+        decompose_list: 分解列表
+    """
+    
+    type: MessageType = MessageType.BATCH_DECOMPOSE
+    decompose_list: list[dict[str, Any]] = Field(default_factory=list, description="分解列表")
+
+
+class OneKeyComposeMessage(BaseMessage):
+    """
+    一键合成请求（合成所有可合成的1星英雄）
+    """
+    
+    type: MessageType = MessageType.ONE_KEY_COMPOSE
+
+
+class GetComposeRequirementsMessage(BaseMessage):
+    """
+    获取合成要求请求
+    
+    Attributes:
+        target_star: 目标星级
+    """
+    
+    type: MessageType = MessageType.GET_COMPOSE_REQUIREMENTS
+    target_star: int = Field(default=1, ge=1, le=3, description="目标星级")
+
+
+class GetDecomposeRewardsMessage(BaseMessage):
+    """
+    获取分解奖励请求
+    
+    Attributes:
+        star_level: 星级
+    """
+    
+    type: MessageType = MessageType.GET_DECOMPOSE_REWARDS
+    star_level: int = Field(default=1, ge=1, le=3, description="星级")
+
+
+# 英雄碎片系统响应消息
+
+class ShardBackpackMessage(BaseMessage):
+    """
+    碎片背包响应
+    
+    Attributes:
+        shards: 碎片列表
+        total_shards: 总碎片数
+        total_heroes: 总英雄数
+    """
+    
+    type: MessageType = MessageType.SHARD_BACKPACK
+    shards: list[HeroShardData] = Field(default_factory=list, description="碎片列表")
+    total_shards: int = Field(default=0, description="总碎片数")
+    total_heroes: int = Field(default=0, description="总英雄数")
+
+
+class HeroComposedMessage(BaseMessage):
+    """
+    英雄合成成功响应
+    
+    Attributes:
+        hero_id: 英雄ID
+        hero_name: 英雄名称
+        star_level: 星级
+        shards_used: 消耗碎片数
+        heroes_used: 消耗英雄数
+        success: 是否成功
+        error_message: 错误信息
+    """
+    
+    type: MessageType = MessageType.HERO_COMPOSED
+    hero_id: str = Field(..., description="英雄ID")
+    hero_name: str = Field(default="", description="英雄名称")
+    star_level: int = Field(default=1, description="星级")
+    shards_used: int = Field(default=0, description="消耗碎片数")
+    heroes_used: int = Field(default=0, description="消耗英雄数")
+    success: bool = Field(default=True, description="是否成功")
+    error_message: Optional[str] = Field(default=None, description="错误信息")
+
+
+class HeroDecomposedMessage(BaseMessage):
+    """
+    英雄分解成功响应
+    
+    Attributes:
+        hero_id: 英雄ID
+        hero_name: 英雄名称
+        star_level: 星级
+        shards_gained: 获得碎片数
+        success: 是否成功
+        error_message: 错误信息
+    """
+    
+    type: MessageType = MessageType.HERO_DECOMPOSED
+    hero_id: str = Field(..., description="英雄ID")
+    hero_name: str = Field(default="", description="英雄名称")
+    star_level: int = Field(default=1, description="星级")
+    shards_gained: int = Field(default=0, description="获得碎片数")
+    success: bool = Field(default=True, description="是否成功")
+    error_message: Optional[str] = Field(default=None, description="错误信息")
+
+
+class BatchComposeResultMessage(BaseMessage):
+    """
+    批量合成结果响应
+    
+    Attributes:
+        success_count: 成功数量
+        fail_count: 失败数量
+        total_shards_used: 总消耗碎片
+        results: 合成结果列表
+    """
+    
+    type: MessageType = MessageType.BATCH_COMPOSE_RESULT
+    success_count: int = Field(default=0, description="成功数量")
+    fail_count: int = Field(default=0, description="失败数量")
+    total_shards_used: int = Field(default=0, description="总消耗碎片")
+    results: list[dict[str, Any]] = Field(default_factory=list, description="合成结果列表")
+
+
+class BatchDecomposeResultMessage(BaseMessage):
+    """
+    批量分解结果响应
+    
+    Attributes:
+        success_count: 成功数量
+        fail_count: 失败数量
+        total_shards_gained: 总获得碎片
+        results: 分解结果列表
+    """
+    
+    type: MessageType = MessageType.BATCH_DECOMPOSE_RESULT
+    success_count: int = Field(default=0, description="成功数量")
+    fail_count: int = Field(default=0, description="失败数量")
+    total_shards_gained: int = Field(default=0, description="总获得碎片")
+    results: list[dict[str, Any]] = Field(default_factory=list, description="分解结果列表")
+
+
+class ComposeRequirementsMessage(BaseMessage):
+    """
+    合成要求响应
+    
+    Attributes:
+        target_star: 目标星级
+        shards_required: 需要碎片数
+        same_star_heroes: 需要同星级英雄数
+        hero_star_required: 需要的英雄星级
+    """
+    
+    type: MessageType = MessageType.COMPOSE_REQUIREMENTS
+    target_star: int = Field(default=1, description="目标星级")
+    shards_required: int = Field(default=100, description="需要碎片数")
+    same_star_heroes: int = Field(default=0, description="需要同星级英雄数")
+    hero_star_required: int = Field(default=1, description="需要的英雄星级")
+
+
+class DecomposeRewardsMessage(BaseMessage):
+    """
+    分解奖励响应
+    
+    Attributes:
+        star_level: 星级
+        shards_gained: 获得碎片数
+    """
+    
+    type: MessageType = MessageType.DECOMPOSE_REWARDS
+    star_level: int = Field(default=1, description="星级")
+    shards_gained: int = Field(default=30, description="获得碎片数")
+
+
+class ShardUpdatedMessage(BaseMessage):
+    """
+    碎片更新通知
+    
+    Attributes:
+        hero_id: 英雄ID
+        hero_name: 英雄名称
+        quantity: 当前数量
+        change: 变动数量
+        source: 变动来源
+    """
+    
+    type: MessageType = MessageType.SHARD_UPDATED
+    hero_id: str = Field(..., description="英雄ID")
+    hero_name: str = Field(default="", description="英雄名称")
+    quantity: int = Field(default=0, description="当前数量")
+    change: int = Field(default=0, description="变动数量")
+    source: str = Field(default="", description="变动来源")
+
+
+class CanComposeNotifyMessage(BaseMessage):
+    """
+    可合成通知
+    
+    Attributes:
+        hero_id: 英雄ID
+        hero_name: 英雄名称
+        shard_quantity: 当前碎片数
+    """
+    
+    type: MessageType = MessageType.CAN_COMPOSE_NOTIFY
+    hero_id: str = Field(..., description="英雄ID")
+    hero_name: str = Field(default="", description="英雄名称")
+    shard_quantity: int = Field(default=0, description="当前碎片数")
+
+
+# ============================================================================
+# 回放系统数据模型
+# ============================================================================
+
+class ReplayPlayerSnapshotData(BaseModel):
+    """回放玩家快照数据"""
+    
+    player_id: int = Field(..., description="玩家ID")
+    nickname: str = Field(default="", description="昵称")
+    avatar: Optional[str] = Field(default=None, description="头像")
+    tier: Optional[str] = Field(default=None, description="段位")
+    hp: int = Field(default=100, description="生命值")
+    gold: int = Field(default=0, description="金币")
+    level: int = Field(default=1, description="等级")
+    exp: int = Field(default=0, description="经验值")
+    board: list[Any] = Field(default_factory=list, description="棋盘状态")
+    bench: list[Any] = Field(default_factory=list, description="备战席状态")
+    synergies: dict[str, int] = Field(default_factory=dict, description="羁绊状态")
+    equipment: list[Any] = Field(default_factory=list, description="装备信息")
+
+
+class ReplayFrameData(BaseModel):
+    """回放帧数据"""
+    
+    round_num: int = Field(..., description="回合数")
+    phase: str = Field(default="", description="阶段")
+    timestamp: int = Field(default=0, description="时间戳")
+    player_snapshots: dict[str, ReplayPlayerSnapshotData] = Field(default_factory=dict, description="玩家快照")
+    shop_data: Optional[dict[str, Any]] = Field(default=None, description="商店数据")
+    battle_data: Optional[dict[str, Any]] = Field(default=None, description="战斗数据")
+    events: list[dict[str, Any]] = Field(default_factory=list, description="事件列表")
+
+
+class ReplayMetadataData(BaseModel):
+    """回放元数据"""
+    
+    match_id: str = Field(..., description="对局ID")
+    player_id: int = Field(..., description="玩家ID")
+    player_nickname: str = Field(default="", description="玩家昵称")
+    final_rank: int = Field(default=0, description="最终排名")
+    total_rounds: int = Field(default=0, description="总回合数")
+    duration_seconds: int = Field(default=0, description="对局时长（秒）")
+    player_count: int = Field(default=8, description="参与人数")
+    created_at: int = Field(default=0, description="创建时间")
+    game_version: str = Field(default="1.0.0", description="游戏版本")
+    is_shared: bool = Field(default=False, description="是否已分享")
+    share_code: Optional[str] = Field(default=None, description="分享码")
+    tags: list[str] = Field(default_factory=list, description="标签")
+
+
+class ReplayListItemData(BaseModel):
+    """回放列表项数据"""
+    
+    replay_id: str = Field(..., description="回放ID")
+    match_id: str = Field(..., description="对局ID")
+    player_nickname: str = Field(default="", description="玩家昵称")
+    final_rank: int = Field(default=0, description="最终排名")
+    total_rounds: int = Field(default=0, description="总回合数")
+    duration_seconds: int = Field(default=0, description="对局时长（秒）")
+    duration_minutes: float = Field(default=0.0, description="对局时长（分钟）")
+    created_at: int = Field(default=0, description="创建时间")
+    is_shared: bool = Field(default=False, description="是否已分享")
+    share_code: Optional[str] = Field(default=None, description="分享码")
+
+
+class ReplayData(BaseModel):
+    """完整回放数据"""
+    
+    replay_id: str = Field(..., description="回放ID")
+    metadata: Optional[ReplayMetadataData] = Field(default=None, description="元数据")
+    frames: list[ReplayFrameData] = Field(default_factory=list, description="帧列表")
+    initial_state: Optional[dict[str, Any]] = Field(default=None, description="初始状态")
+    final_rankings: list[dict[str, Any]] = Field(default_factory=list, description="最终排名")
+
+
+# ============================================================================
+# 回放系统消息
+# ============================================================================
+
+class SaveReplayMessage(BaseMessage):
+    """
+    保存回放请求
+    
+    Attributes:
+        match_id: 对局ID
+        match_data: 对局数据（包含帧数据等）
+    """
+    
+    type: MessageType = MessageType.SAVE_REPLAY
+    match_id: str = Field(..., description="对局ID")
+    match_data: dict[str, Any] = Field(default_factory=dict, description="对局数据")
+
+
+class ReplaySavedMessage(BaseMessage):
+    """
+    回放保存成功响应
+    
+    Attributes:
+        replay_id: 回放ID
+        match_id: 对局ID
+        message: 成功消息
+    """
+    
+    type: MessageType = MessageType.REPLAY_SAVED
+    replay_id: str = Field(..., description="回放ID")
+    match_id: str = Field(..., description="对局ID")
+    message: str = Field(default="回放保存成功", description="成功消息")
+
+
+class GetReplayListMessage(BaseMessage):
+    """
+    获取回放列表请求
+    
+    Attributes:
+        page: 页码（从1开始）
+        page_size: 每页数量
+    """
+    
+    type: MessageType = MessageType.GET_REPLAY_LIST
+    page: int = Field(default=1, ge=1, description="页码")
+    page_size: int = Field(default=20, ge=1, le=50, description="每页数量")
+
+
+class ReplayListMessage(BaseMessage):
+    """
+    回放列表响应
+    
+    Attributes:
+        replays: 回放列表
+        page: 当前页码
+        page_size: 每页数量
+        total_count: 总数量
+        max_replays: 最大回放数量
+    """
+    
+    type: MessageType = MessageType.REPLAY_LIST
+    replays: list[ReplayListItemData] = Field(default_factory=list, description="回放列表")
+    page: int = Field(default=1, description="当前页码")
+    page_size: int = Field(default=20, description="每页数量")
+    total_count: int = Field(default=0, description="总数量")
+    max_replays: int = Field(default=20, description="最大回放数量")
+
+
+class LoadReplayMessage(BaseMessage):
+    """
+    加载回放请求
+    
+    Attributes:
+        replay_id: 回放ID
+    """
+    
+    type: MessageType = MessageType.LOAD_REPLAY
+    replay_id: str = Field(..., description="回放ID")
+
+
+class ReplayLoadedMessage(BaseMessage):
+    """
+    回放加载成功响应
+    
+    Attributes:
+        replay: 回放数据
+    """
+    
+    type: MessageType = MessageType.REPLAY_LOADED
+    replay: ReplayData = Field(..., description="回放数据")
+
+
+class DeleteReplayMessage(BaseMessage):
+    """
+    删除回放请求
+    
+    Attributes:
+        replay_id: 回放ID
+    """
+    
+    type: MessageType = MessageType.DELETE_REPLAY
+    replay_id: str = Field(..., description="回放ID")
+
+
+class ReplayDeletedMessage(BaseMessage):
+    """
+    回放删除成功响应
+    
+    Attributes:
+        replay_id: 被删除的回放ID
+    """
+    
+    type: MessageType = MessageType.REPLAY_DELETED
+    replay_id: str = Field(..., description="回放ID")
+
+
+class ReplayControlMessage(BaseMessage):
+    """
+    回放控制请求
+    
+    Attributes:
+        session_id: 播放会话ID
+        action: 控制动作 (play/pause/stop/speed/seek)
+        speed: 播放速度 (0.5/1/2/4)
+        round_num: 跳转回合（仅 seek 时需要）
+    """
+    
+    type: MessageType = MessageType.REPLAY_CONTROL
+    session_id: str = Field(..., description="播放会话ID")
+    action: str = Field(..., description="控制动作")
+    speed: Optional[float] = Field(default=None, description="播放速度")
+    round_num: Optional[int] = Field(default=None, description="跳转回合")
+
+
+class ReplayStateUpdateMessage(BaseMessage):
+    """
+    回放状态更新消息
+    
+    Attributes:
+        session_id: 播放会话ID
+        status: 播放状态 (idle/playing/paused/ended)
+        current_round: 当前回合
+        current_frame_index: 当前帧索引
+        total_frames: 总帧数
+        speed: 播放速度
+        current_frame: 当前帧数据
+    """
+    
+    type: MessageType = MessageType.REPLAY_STATE_UPDATE
+    session_id: str = Field(..., description="播放会话ID")
+    status: str = Field(default="idle", description="播放状态")
+    current_round: int = Field(default=1, description="当前回合")
+    current_frame_index: int = Field(default=0, description="当前帧索引")
+    total_frames: int = Field(default=0, description="总帧数")
+    speed: float = Field(default=1.0, description="播放速度")
+    current_frame: Optional[ReplayFrameData] = Field(default=None, description="当前帧数据")
+
+
+class ExportReplayMessage(BaseMessage):
+    """
+    导出回放请求
+    
+    Attributes:
+        replay_id: 回放ID
+    """
+    
+    type: MessageType = MessageType.EXPORT_REPLAY
+    replay_id: str = Field(..., description="回放ID")
+
+
+class ReplayExportedMessage(BaseMessage):
+    """
+    回放导出成功响应
+    
+    Attributes:
+        replay_id: 回放ID
+        share_code: 分享码
+        export_data: 导出数据（JSON字符串）
+    """
+    
+    type: MessageType = MessageType.REPLAY_EXPORTED
+    replay_id: str = Field(..., description="回放ID")
+    share_code: str = Field(..., description="分享码")
+    export_data: Optional[str] = Field(default=None, description="导出数据")
+
+
+class ImportReplayMessage(BaseMessage):
+    """
+    导入回放请求
+    
+    Attributes:
+        share_code: 分享码
+        import_data: 导入数据（JSON字符串，可选）
+    """
+    
+    type: MessageType = MessageType.IMPORT_REPLAY
+    share_code: Optional[str] = Field(default=None, description="分享码")
+    import_data: Optional[str] = Field(default=None, description="导入数据")
+
+
+class ReplayImportedMessage(BaseMessage):
+    """
+    回放导入成功响应
+    
+    Attributes:
+        replay: 导入的回放数据
+        message: 成功消息
+    """
+    
+    type: MessageType = MessageType.REPLAY_IMPORTED
+    replay: ReplayData = Field(..., description="回放数据")
+    message: str = Field(default="回放导入成功", description="成功消息")
+
+
+# ============================================================================
+# 表情系统数据模型
+# ============================================================================
+
+class EmoteData(BaseModel):
+    """表情数据"""
+    
+    emote_id: str = Field(..., description="表情ID")
+    name: str = Field(default="", description="表情名称")
+    description: str = Field(default="", description="表情描述")
+    category: str = Field(default="default", description="表情分类")
+    emote_type: str = Field(default="static", description="表情类型")
+    asset_url: str = Field(default="", description="表情资源URL")
+    thumbnail_url: str = Field(default="", description="缩略图URL")
+    sound_url: Optional[str] = Field(default=None, description="音效URL")
+    unlock_condition: Optional[dict[str, Any]] = Field(default=None, description="解锁条件")
+    is_free: bool = Field(default=True, description="是否免费")
+    sort_order: int = Field(default=0, description="排序顺序")
+
+
+class PlayerEmoteData(BaseModel):
+    """玩家表情数据"""
+    
+    emote_id: str = Field(..., description="表情ID")
+    name: str = Field(default="", description="表情名称")
+    asset_url: str = Field(default="", description="表情资源URL")
+    thumbnail_url: str = Field(default="", description="缩略图URL")
+    category: str = Field(default="default", description="表情分类")
+    emote_type: str = Field(default="static", description="表情类型")
+    hotkey: Optional[str] = Field(default=None, description="快捷键")
+    use_count: int = Field(default=0, description="使用次数")
+
+
+class EmoteSentData(BaseModel):
+    """已发送表情数据"""
+    
+    emote_id: str = Field(..., description="表情ID")
+    name: str = Field(default="", description="表情名称")
+    asset_url: str = Field(default="", description="表情资源URL")
+    thumbnail_url: str = Field(default="", description="缩略图URL")
+    emote_type: str = Field(default="static", description="表情类型")
+    from_player_id: str = Field(..., description="发送者ID")
+    from_nickname: str = Field(default="", description="发送者昵称")
+    to_player_id: Optional[str] = Field(default=None, description="目标玩家ID")
+    room_id: str = Field(default="", description="房间ID")
+    round_number: int = Field(default=0, description="回合数")
+    timestamp: str = Field(default="", description="发送时间")
+
+
+class EmoteHistoryItemData(BaseModel):
+    """表情历史项数据"""
+    
+    history_id: str = Field(..., description="历史记录ID")
+    emote_id: str = Field(..., description="表情ID")
+    name: str = Field(default="", description="表情名称")
+    asset_url: str = Field(default="", description="表情资源URL")
+    from_player_id: str = Field(..., description="发送者ID")
+    from_nickname: str = Field(default="", description="发送者昵称")
+    to_player_id: Optional[str] = Field(default=None, description="目标玩家ID")
+    to_nickname: str = Field(default="", description="目标玩家昵称")
+    room_id: str = Field(default="", description="房间ID")
+    round_number: int = Field(default=0, description="回合数")
+    created_at: Optional[str] = Field(default=None, description="发送时间")
+
+
+# ============================================================================
+# 表情系统消息
+# ============================================================================
+
+class GetEmotesMessage(BaseMessage):
+    """
+    获取表情列表请求
+    
+    Attributes:
+        category: 分类过滤（可选）
+    """
+    
+    type: MessageType = MessageType.GET_EMOTES
+    category: Optional[str] = Field(default=None, description="分类过滤")
+
+
+class EmotesListMessage(BaseMessage):
+    """
+    表情列表响应
+    
+    Attributes:
+        emotes: 表情列表
+        total_count: 总数量
+    """
+    
+    type: MessageType = MessageType.EMOTES_LIST
+    emotes: list[EmoteData] = Field(default_factory=list, description="表情列表")
+    total_count: int = Field(default=0, description="总数量")
+
+
+class GetOwnedEmotesMessage(BaseMessage):
+    """
+    获取已拥有表情请求
+    """
+    
+    type: MessageType = MessageType.GET_OWNED_EMOTES
+
+
+class OwnedEmotesListMessage(BaseMessage):
+    """
+    已拥有表情列表响应
+    
+    Attributes:
+        emotes: 已拥有表情列表
+        hotkeys: 快捷键映射
+        total_count: 总数量
+    """
+    
+    type: MessageType = MessageType.OWNED_EMOTES_LIST
+    emotes: list[PlayerEmoteData] = Field(default_factory=list, description="表情列表")
+    hotkeys: dict[str, str] = Field(default_factory=dict, description="快捷键映射")
+    total_count: int = Field(default=0, description="总数量")
+
+
+class SendEmoteMessage(BaseMessage):
+    """
+    发送表情请求
+    
+    Attributes:
+        emote_id: 表情ID
+        to_player_id: 目标玩家ID（可选，不传则发送给所有玩家）
+        room_id: 房间ID
+        round_number: 回合数
+    """
+    
+    type: MessageType = MessageType.SEND_EMOTE
+    emote_id: str = Field(..., description="表情ID")
+    to_player_id: Optional[str] = Field(default=None, description="目标玩家ID")
+    room_id: str = Field(default="", description="房间ID")
+    round_number: int = Field(default=0, description="回合数")
+
+
+class EmoteSentMessage(BaseMessage):
+    """
+    表情发送成功响应
+    
+    Attributes:
+        emote: 发送的表情数据
+        cooldown_remaining: 剩余冷却时间（秒）
+    """
+    
+    type: MessageType = MessageType.EMOTE_SENT
+    emote: EmoteSentData = Field(..., description="表情数据")
+    cooldown_remaining: float = Field(default=0.0, description="剩余冷却时间")
+
+
+class EmoteReceivedMessage(BaseMessage):
+    """
+    收到表情广播
+    
+    Attributes:
+        emote: 收到的表情数据
+    """
+    
+    type: MessageType = MessageType.EMOTE_RECEIVED
+    emote: EmoteSentData = Field(..., description="表情数据")
+
+
+class SetEmoteHotkeyMessage(BaseMessage):
+    """
+    设置表情快捷键请求
+    
+    Attributes:
+        emote_id: 表情ID
+        hotkey: 快捷键（如 "1", "2", "ctrl+1" 等）
+    """
+    
+    type: MessageType = MessageType.SET_EMOTE_HOTKEY
+    emote_id: str = Field(..., description="表情ID")
+    hotkey: str = Field(..., description="快捷键")
+
+
+class EmoteHotkeySetMessage(BaseMessage):
+    """
+    快捷键设置成功响应
+    
+    Attributes:
+        emote_id: 表情ID
+        hotkey: 快捷键
+        previous_hotkey: 之前的快捷键（如果有）
+    """
+    
+    type: MessageType = MessageType.EMOTE_HOTKEY_SET
+    emote_id: str = Field(..., description="表情ID")
+    hotkey: str = Field(..., description="快捷键")
+    previous_hotkey: Optional[str] = Field(default=None, description="之前的快捷键")
+
+
+class GetEmoteHistoryMessage(BaseMessage):
+    """
+    获取表情历史请求
+    
+    Attributes:
+        room_id: 房间ID（可选）
+        limit: 返回数量限制
+    """
+    
+    type: MessageType = MessageType.GET_EMOTE_HISTORY
+    room_id: Optional[str] = Field(default=None, description="房间ID")
+    limit: int = Field(default=50, ge=1, le=100, description="返回数量限制")
+
+
+class EmoteHistoryMessage(BaseMessage):
+    """
+    表情历史响应
+    
+    Attributes:
+        history: 历史记录列表
+        room_id: 房间ID
+        total_count: 总数量
+    """
+    
+    type: MessageType = MessageType.EMOTE_HISTORY
+    history: list[EmoteHistoryItemData] = Field(default_factory=list, description="历史记录")
+    room_id: Optional[str] = Field(default=None, description="房间ID")
+    total_count: int = Field(default=0, description="总数量")
+
+
+class EmoteUnlockedMessage(BaseMessage):
+    """
+    表情解锁通知
+    
+    Attributes:
+        emote_id: 表情ID
+        name: 表情名称
+        unlock_type: 解锁类型
+    """
+    
+    type: MessageType = MessageType.EMOTE_UNLOCKED
+    emote_id: str = Field(..., description="表情ID")
+    name: str = Field(default="", description="表情名称")
+    unlock_type: str = Field(default="achievement", description="解锁类型")
+
+
+# ============================================================================
 # 消息类型映射（用于反序列化）
 # ============================================================================
 
@@ -3554,6 +4686,36 @@ MESSAGE_CLASS_MAP: dict[MessageType, type[BaseMessage]] = {
     MessageType.SKIN_BOUGHT: SkinBoughtMessage,
     MessageType.SKIN_UNLOCKED: SkinUnlockedMessage,
     MessageType.SKIN_FAVORITE_SET: SkinFavoriteSetMessage,
+    
+    # 回放系统
+    MessageType.SAVE_REPLAY: SaveReplayMessage,
+    MessageType.REPLAY_SAVED: ReplaySavedMessage,
+    MessageType.GET_REPLAY_LIST: GetReplayListMessage,
+    MessageType.REPLAY_LIST: ReplayListMessage,
+    MessageType.LOAD_REPLAY: LoadReplayMessage,
+    MessageType.REPLAY_LOADED: ReplayLoadedMessage,
+    MessageType.DELETE_REPLAY: DeleteReplayMessage,
+    MessageType.REPLAY_DELETED: ReplayDeletedMessage,
+    MessageType.REPLAY_CONTROL: ReplayControlMessage,
+    MessageType.REPLAY_STATE_UPDATE: ReplayStateUpdateMessage,
+    MessageType.EXPORT_REPLAY: ExportReplayMessage,
+    MessageType.REPLAY_EXPORTED: ReplayExportedMessage,
+    MessageType.IMPORT_REPLAY: ImportReplayMessage,
+    MessageType.REPLAY_IMPORTED: ReplayImportedMessage,
+    
+    # 表情系统
+    MessageType.GET_EMOTES: GetEmotesMessage,
+    MessageType.EMOTES_LIST: EmotesListMessage,
+    MessageType.GET_OWNED_EMOTES: GetOwnedEmotesMessage,
+    MessageType.OWNED_EMOTES_LIST: OwnedEmotesListMessage,
+    MessageType.SEND_EMOTE: SendEmoteMessage,
+    MessageType.EMOTE_SENT: EmoteSentMessage,
+    MessageType.EMOTE_RECEIVED: EmoteReceivedMessage,
+    MessageType.SET_EMOTE_HOTKEY: SetEmoteHotkeyMessage,
+    MessageType.EMOTE_HOTKEY_SET: EmoteHotkeySetMessage,
+    MessageType.GET_EMOTE_HISTORY: GetEmoteHistoryMessage,
+    MessageType.EMOTE_HISTORY: EmoteHistoryMessage,
+    MessageType.EMOTE_UNLOCKED: EmoteUnlockedMessage,
     
     # 错误
     MessageType.ERROR: ErrorMessage,

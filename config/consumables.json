@@ -1,0 +1,98 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-02-22T12:00:00+08:00",
+  "consumables": [
+    {
+      "consumable_id": "rank_protect_card",
+      "name": "段位保护卡",
+      "description": "输掉对局时不扣除星星，自动消耗。每张保护卡可保护一次。",
+      "consumable_type": "rank_protect",
+      "rarity": "rare",
+      "effects": [
+        {
+          "effect_type": "rank_protect",
+          "value": 1.0,
+          "duration_type": "instant",
+          "duration_value": 1
+        }
+      ],
+      "price": {
+        "gold": 500,
+        "diamond": 50
+      },
+      "max_stack": 10,
+      "is_active": true,
+      "icon": "icons/consumables/rank_protect.png",
+      "auto_use": true
+    },
+    {
+      "consumable_id": "gold_double_card",
+      "name": "双倍金币卡",
+      "description": "对局金币收益翻倍，持续3回合。",
+      "consumable_type": "gold_double",
+      "rarity": "rare",
+      "effects": [
+        {
+          "effect_type": "gold_multiplier",
+          "value": 2.0,
+          "duration_type": "rounds",
+          "duration_value": 3
+        }
+      ],
+      "price": {
+        "gold": 300,
+        "diamond": 30
+      },
+      "max_stack": 20,
+      "is_active": true,
+      "icon": "icons/consumables/gold_double.png",
+      "auto_use": false
+    },
+    {
+      "consumable_id": "exp_boost_card",
+      "name": "经验加成卡",
+      "description": "经验获取提升50%，持续5回合。",
+      "consumable_type": "exp_boost",
+      "rarity": "common",
+      "effects": [
+        {
+          "effect_type": "exp_multiplier",
+          "value": 1.5,
+          "duration_type": "rounds",
+          "duration_value": 5
+        }
+      ],
+      "price": {
+        "gold": 200,
+        "diamond": 20
+      },
+      "max_stack": 30,
+      "is_active": true,
+      "icon": "icons/consumables/exp_boost.png",
+      "auto_use": false
+    },
+    {
+      "consumable_id": "shop_discount_card",
+      "name": "刷新折扣卡",
+      "description": "商店刷新费用减少1金币，持续3回合。",
+      "consumable_type": "shop_discount",
+      "rarity": "common",
+      "effects": [
+        {
+          "effect_type": "shop_refresh_discount",
+          "value": 1.0,
+          "duration_type": "rounds",
+          "duration_value": 3
+        }
+      ],
+      "price": {
+        "gold": 150,
+        "diamond": 15
+      },
+      "max_stack": 30,
+      "is_active": true,
+      "icon": "icons/consumables/shop_discount.png",
+      "auto_use": false
+    }
+  ]
+}

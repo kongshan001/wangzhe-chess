@@ -8,6 +8,8 @@
 - synergypedia: 羁绊图鉴模型
 - daily_task: 每日任务相关模型
 - custom_room: 自定义房间相关模型
+- emote: 表情系统相关模型
+- consumable: 道具相关模型
 """
 
 from .friend import (
@@ -59,6 +61,24 @@ from .skin import (
     SkinPurchaseLogDB,
 )
 
+from .emote import (
+    EmoteDB,
+    PlayerEmoteDB,
+    EmoteHistoryDB,
+    EmoteHotkeyDB,
+)
+
+from .replay import (
+    ReplayDB,
+)
+
+from .consumable import (
+    ConsumableDB,
+    ConsumableEffectDB,
+    ConsumableUsageDB,
+    ConsumablePurchaseLogDB,
+)
+
 __all__ = [
     # 好友模型
     "FriendDB",
@@ -93,4 +113,16 @@ __all__ = [
     "SkinDB",
     "EquippedSkinDB",
     "SkinPurchaseLogDB",
+    # 回放模型
+    "ReplayDB",
+    # 表情模型
+    "EmoteDB",
+    "PlayerEmoteDB",
+    "EmoteHistoryDB",
+    "EmoteHotkeyDB",
+    # 道具模型
+    "ConsumableDB",
+    "ConsumableEffectDB",
+    "ConsumableUsageDB",
+    "ConsumablePurchaseLogDB",
 ]

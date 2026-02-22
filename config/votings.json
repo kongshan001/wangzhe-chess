@@ -1,0 +1,270 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-02-22",
+  "voting_templates": [
+    {
+      "title": "下一个新英雄投票",
+      "description": "选择下一个加入游戏的英雄类型",
+      "voting_type": "new_hero",
+      "auto_create": false,
+      "duration_days": 7,
+      "min_vip_level": 0,
+      "tags": ["英雄", "新内容"],
+      "options": [
+        {
+          "title": "战士型英雄",
+          "description": "高血量高防御的近战英雄",
+          "icon": "warrior",
+          "extra_data": {
+            "hero_class": "warrior",
+            "synergies": ["战士", "魏国"]
+          }
+        },
+        {
+          "title": "法师型英雄",
+          "description": "高法术伤害的远程英雄",
+          "icon": "mage",
+          "extra_data": {
+            "hero_class": "mage",
+            "synergies": ["法师", "蜀国"]
+          }
+        },
+        {
+          "title": "刺客型英雄",
+          "description": "高爆发快速切入的刺客",
+          "icon": "assassin",
+          "extra_data": {
+            "hero_class": "assassin",
+            "synergies": ["刺客", "蜀国"]
+          }
+        },
+        {
+          "title": "辅助型英雄",
+          "description": "提供治疗和增益的辅助",
+          "icon": "support",
+          "extra_data": {
+            "hero_class": "support",
+            "synergies": ["辅助", "吴国"]
+          }
+        }
+      ],
+      "participation_reward": [
+        {
+          "reward_id": "participation_gold",
+          "reward_type": "gold",
+          "quantity": 100
+        },
+        {
+          "reward_id": "participation_fragment",
+          "reward_type": "hero_fragment",
+          "quantity": 10
+        }
+      ],
+      "win_bonus_reward": [
+        {
+          "reward_id": "win_gold",
+          "reward_type": "gold",
+          "quantity": 200
+        },
+        {
+          "reward_id": "win_diamond",
+          "reward_type": "diamond",
+          "quantity": 20
+        }
+      ]
+    },
+    {
+      "title": "平衡性调整投票",
+      "description": "选择需要优先平衡调整的方向",
+      "voting_type": "balance",
+      "auto_create": false,
+      "duration_days": 5,
+      "min_vip_level": 1,
+      "tags": ["平衡", "调整"],
+      "options": [
+        {
+          "title": "增强弱势英雄",
+          "description": "优先增强使用率较低的英雄",
+          "icon": "buff"
+        },
+        {
+          "title": "削弱强势英雄",
+          "description": "优先削弱过于强势的英雄",
+          "icon": "nerf"
+        },
+        {
+          "title": "羁绊效果调整",
+          "description": "优先调整羁绊效果平衡",
+          "icon": "synergy"
+        },
+        {
+          "title": "装备平衡",
+          "description": "优先调整装备平衡性",
+          "icon": "equipment"
+        }
+      ],
+      "participation_reward": [
+        {
+          "reward_id": "balance_gold",
+          "reward_type": "gold",
+          "quantity": 50
+        }
+      ],
+      "win_bonus_reward": [
+        {
+          "reward_id": "balance_bonus_gold",
+          "reward_type": "gold",
+          "quantity": 100
+        }
+      ]
+    },
+    {
+      "title": "下期活动主题投票",
+      "description": "选择下期活动的内容主题",
+      "voting_type": "event_theme",
+      "auto_create": false,
+      "duration_days": 3,
+      "min_vip_level": 0,
+      "tags": ["活动", "主题"],
+      "options": [
+        {
+          "title": "双倍金币活动",
+          "description": "对局金币翻倍，快速积累财富",
+          "icon": "gold_event"
+        },
+        {
+          "title": "英雄招募活动",
+          "description": "特定英雄刷新概率提升",
+          "icon": "hero_event"
+        },
+        {
+          "title": "装备狂欢活动",
+          "description": "装备掉落率翻倍",
+          "icon": "equipment_event"
+        },
+        {
+          "title": "排位冲刺活动",
+          "description": "排位赛奖励加成",
+          "icon": "rank_event"
+        }
+      ],
+      "participation_reward": [
+        {
+          "reward_id": "event_gold",
+          "reward_type": "gold",
+          "quantity": 80
+        },
+        {
+          "reward_id": "event_item",
+          "reward_type": "item",
+          "item_id": "event_ticket",
+          "quantity": 1
+        }
+      ],
+      "win_bonus_reward": [
+        {
+          "reward_id": "event_bonus_gold",
+          "reward_type": "gold",
+          "quantity": 150
+        },
+        {
+          "reward_id": "event_bonus_diamond",
+          "reward_type": "diamond",
+          "quantity": 30
+        }
+      ]
+    },
+    {
+      "title": "皮肤设计投票",
+      "description": "选择下一个推出的皮肤系列",
+      "voting_type": "skin_design",
+      "auto_create": false,
+      "duration_days": 7,
+      "min_vip_level": 0,
+      "tags": ["皮肤", "外观"],
+      "options": [
+        {
+          "title": "春节限定系列",
+          "description": "喜庆的春节主题皮肤",
+          "icon": "spring_festival"
+        },
+        {
+          "title": "星空幻想系列",
+          "description": "宇宙星空主题皮肤",
+          "icon": "starry_sky"
+        },
+        {
+          "title": "古风雅韵系列",
+          "description": "古典国风主题皮肤",
+          "icon": "ancient_style"
+        },
+        {
+          "title": "未来科技系列",
+          "description": "科幻未来主题皮肤",
+          "icon": "future_tech"
+        }
+      ],
+      "participation_reward": [
+        {
+          "reward_id": "skin_gold",
+          "reward_type": "gold",
+          "quantity": 100
+        },
+        {
+          "reward_id": "skin_fragment",
+          "reward_type": "hero_fragment",
+          "quantity": 15
+        }
+      ],
+      "win_bonus_reward": [
+        {
+          "reward_id": "skin_bonus_gold",
+          "reward_type": "gold",
+          "quantity": 300
+        },
+        {
+          "reward_id": "skin_bonus_diamond",
+          "reward_type": "diamond",
+          "quantity": 50
+        },
+        {
+          "reward_id": "skin_bonus_skin",
+          "reward_type": "skin",
+          "item_id": "voting_skin_box",
+          "quantity": 1
+        }
+      ]
+    }
+  ],
+  "settings": {
+    "max_active_polls": 5,
+    "default_duration_days": 7,
+    "min_options": 2,
+    "max_options": 6,
+    "vip_vote_weights": {
+      "0": 1,
+      "1": 2,
+      "2": 3,
+      "3": 4,
+      "4": 5,
+      "5": 7,
+      "6": 10
+    },
+    "default_participation_reward": [
+      {
+        "reward_type": "gold",
+        "quantity": 50
+      }
+    ],
+    "default_win_bonus_reward": [
+      {
+        "reward_type": "gold",
+        "quantity": 100
+      },
+      {
+        "reward_type": "hero_fragment",
+        "quantity": 10
+      }
+    ]
+  }
+}
