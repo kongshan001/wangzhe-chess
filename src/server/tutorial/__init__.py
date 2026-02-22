@@ -14,6 +14,7 @@ from .models import (
     TutorialReward,
     Tutorial,
     PlayerTutorialProgress,
+    TutorialHighlight,
 )
 from .manager import (
     TutorialManager,
@@ -28,6 +29,7 @@ __all__ = [
     "TutorialReward",
     "Tutorial",
     "PlayerTutorialProgress",
+    "TutorialHighlight",
     # 管理器
     "TutorialManager",
     "get_tutorial_manager",

@@ -7,6 +7,7 @@
 - checkin: 签到相关模型
 - synergypedia: 羁绊图鉴模型
 - daily_task: 每日任务相关模型
+- custom_room: 自定义房间相关模型
 """
 
 from .friend import (
@@ -40,6 +41,12 @@ from .daily_task import (
     PlayerDailyStatsDB,
 )
 
+from .custom_room import (
+    CustomRoomDB,
+    CustomRoomPlayerDB,
+    CustomRoomStatsDB,
+)
+
 __all__ = [
     # 好友模型
     "FriendDB",
@@ -62,4 +69,8 @@ __all__ = [
     "DailyTaskDB",
     "TaskProgressDB",
     "PlayerDailyStatsDB",
+    # 自定义房间模型
+    "CustomRoomDB",
+    "CustomRoomPlayerDB",
+    "CustomRoomStatsDB",
 ]

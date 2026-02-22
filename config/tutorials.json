@@ -1,0 +1,738 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-02-22T11:31:00",
+  "tutorials": [
+    {
+      "tutorial_id": "tutorial_basic",
+      "tutorial_type": "basic_operation",
+      "name": "新手入门",
+      "description": "学习王者之奕的基础操作，包括购买英雄、出售英雄和刷新商店",
+      "steps": [
+        {
+          "step_id": "basic_1",
+          "order": 1,
+          "title": "欢迎来到王者之奕！",
+          "description": "这是一款策略对战游戏，让我们开始学习基础操作吧！",
+          "detail": "在王者之奕中，你需要组建强大的阵容，与其他玩家进行策略对决。首先让我们了解游戏界面。",
+          "action": "click",
+          "action_target": "btn_start_tutorial",
+          "highlights": [
+            {
+              "target": "game_board",
+              "shape": "rect",
+              "animation": "pulse",
+              "tip_text": "这是你的战斗区域",
+              "tip_position": "bottom"
+            }
+          ],
+          "timeout": 30,
+          "complete_text": "很好！你已经了解了游戏的基本布局。"
+        },
+        {
+          "step_id": "basic_2",
+          "order": 2,
+          "title": "认识商店",
+          "description": "点击底部的商店区域，查看可购买的英雄",
+          "detail": "商店每回合会自动刷新5个英雄。你可以花费金币购买喜欢的英雄来组建阵容。",
+          "action": "click",
+          "action_target": "shop_panel",
+          "highlights": [
+            {
+              "target": "shop_panel",
+              "shape": "rect",
+              "animation": "glow",
+              "tip_text": "点击这里查看商店",
+              "tip_position": "top",
+              "block_others": true
+            }
+          ],
+          "timeout": 30,
+          "complete_text": "太棒了！现在你能看到商店中的英雄了。"
+        },
+        {
+          "step_id": "basic_3",
+          "order": 3,
+          "title": "购买第一个英雄",
+          "description": "购买一个1费英雄开始你的冒险",
+          "detail": "点击英雄卡片即可购买。1费英雄价格最便宜（1金币），适合开局时积累。购买3个相同英雄可以合成更高星级！",
+          "action": "buy_hero",
+          "action_target": "shop_hero_slot_0",
+          "action_params": {
+            "cost_limit": 1,
+            "tip": "点击任意一个1金币的英雄"
+          },
+          "highlights": [
+            {
+              "target": "shop_hero_slot_0",
+              "shape": "rect",
+              "animation": "bounce",
+              "tip_text": "点击购买这个1金币英雄",
+              "tip_position": "top"
+            }
+          ],
+          "timeout": 60,
+          "complete_text": "恭喜！你成功购买了第一个英雄！"
+        },
+        {
+          "step_id": "basic_4",
+          "order": 4,
+          "title": "将英雄放置到战场",
+          "description": "把英雄从备战席拖放到战场上",
+          "detail": "购买的英雄会先出现在备战席。你需要将他们拖放到战场才能参与战斗。每个英雄都有自己的羁绊属性，合理搭配会获得强力加成！",
+          "action": "place_hero",
+          "action_target": "bench_slot_0",
+          "action_params": {
+            "target_area": "board"
+          },
+          "highlights": [
+            {
+              "target": "bench_slot_0",
+              "shape": "rect",
+              "animation": "pulse",
+              "tip_text": "拖动英雄到战场",
+              "tip_position": "top"
+            },
+            {
+              "target": "board_area",
+              "shape": "rect",
+              "animation": "glow",
+              "tip_text": "放置在这里",
+              "tip_position": "bottom",
+              "block_others": false
+            }
+          ],
+          "timeout": 60,
+          "complete_text": "完美！你的英雄已经就位，准备好战斗了！"
+        },
+        {
+          "step_id": "basic_5",
+          "order": 5,
+          "title": "刷新商店",
+          "description": "使用2金币刷新商店，寻找新的英雄",
+          "detail": "如果商店中没有你想要的英雄，可以花费2金币刷新商店，重新抽取5个英雄。新手期建议优先购买能合成2星的英雄。",
+          "action": "refresh_shop",
+          "action_target": "btn_refresh_shop",
+          "highlights": [
+            {
+              "target": "btn_refresh_shop",
+              "shape": "rect",
+              "animation": "bounce",
+              "tip_text": "点击刷新商店（2金币）",
+              "tip_position": "left"
+            }
+          ],
+          "timeout": 60,
+          "skip_text": "暂时跳过",
+          "complete_text": "很好！商店已经刷新，现在有新的英雄可以选择了。"
+        },
+        {
+          "step_id": "basic_6",
+          "order": 6,
+          "title": "出售英雄",
+          "description": "学习如何出售不需要的英雄",
+          "detail": "如果英雄不符合你的阵容策略，可以将他出售换取金币。拖动英雄到出售区域即可。1星英雄按原价出售，2星/3星英雄出售价格更优。",
+          "action": "sell_hero",
+          "action_target": "sell_area",
+          "action_params": {
+            "require_sell": false
+          },
+          "highlights": [
+            {
+              "target": "sell_area",
+              "shape": "rect",
+              "animation": "glow",
+              "tip_text": "拖动英雄到这里出售",
+              "tip_position": "top"
+            }
+          ],
+          "timeout": 60,
+          "skip_text": "暂时跳过",
+          "complete_text": "你已经掌握了出售英雄的技巧！"
+        },
+        {
+          "step_id": "basic_7",
+          "order": 7,
+          "title": "完成基础训练！",
+          "description": "恭喜你完成了基础操作的学习！",
+          "detail": "现在你已经掌握了：购买英雄、放置英雄、刷新商店、出售英雄。继续学习羁绊概念，让你更强大！",
+          "action": "confirm",
+          "action_target": "btn_complete_tutorial",
+          "highlights": [
+            {
+              "target": "reward_panel",
+              "shape": "rect",
+              "animation": "glow",
+              "tip_text": "领取你的奖励吧！",
+              "tip_position": "bottom"
+            }
+          ],
+          "timeout": 0,
+          "complete_text": "🎉 太棒了！你已经完成了基础操作训练！"
+        }
+      ],
+      "completion_reward": {
+        "gold": 500,
+        "exp": 500,
+        "heroes": [
+          {"hero_id": "random_1star", "star": 1, "count": 1}
+        ],
+        "custom_description": "500金币 + 500经验 + 随机1星英雄"
+      },
+      "prerequisites": [],
+      "required": true,
+      "recommended_level": 1,
+      "estimated_time": 5,
+      "icon": "tutorial_basic",
+      "intro_text": "欢迎来到王者之奕！让我们开始学习基础操作吧！",
+      "complete_text": "恭喜完成基础训练！你已经迈出了成为高手的第一步！",
+      "sort_order": 1,
+      "enabled": true
+    },
+    {
+      "tutorial_id": "tutorial_synergy",
+      "tutorial_type": "synergy_concept",
+      "name": "羁绊之道",
+      "description": "学习羁绊系统，了解如何通过英雄组合获得强力加成",
+      "steps": [
+        {
+          "step_id": "synergy_1",
+          "order": 1,
+          "title": "什么是羁绊？",
+          "description": "了解羁绊系统的基本概念",
+          "detail": "羁绊是英雄之间的特殊联系。当场上同时存在特定种族或职业的英雄时，会激活羁绊效果，为这些英雄提供强力加成！",
+          "action": "click",
+          "action_target": "btn_next",
+          "highlights": [
+            {
+              "target": "synergy_info_panel",
+              "shape": "rect",
+              "animation": "pulse",
+              "tip_text": "点击了解羁绊系统",
+              "tip_position": "right"
+            }
+          ],
+          "timeout": 30,
+          "complete_text": "羁绊是阵容强大的关键！"
+        },
+        {
+          "step_id": "synergy_2",
+          "order": 2,
+          "title": "查看羁绊面板",
+          "description": "打开羁绊面板查看当前激活的羁绊",
+          "detail": "游戏界面会显示当前激活的羁绊图标。点击可以查看详细的羁绊效果和激活条件。",
+          "action": "view_synergy",
+          "action_target": "synergy_panel",
+          "highlights": [
+            {
+              "target": "synergy_icon_container",
+              "shape": "rect",
+              "animation": "bounce",
+              "tip_text": "点击查看羁绊详情",
+              "tip_position": "bottom"
+            }
+          ],
+          "timeout": 30,
+          "complete_text": "你能看到所有羁绊的效果和激活条件！"
+        },
+        {
+          "step_id": "synergy_3",
+          "order": 3,
+          "title": "种族羁绊",
+          "description": "了解种族羁绊的特点",
+          "detail": "英雄有各自的种族，如：战士、法师、刺客等。当场上存在足够数量的同一种族英雄时，会激活种族羁绊。比如3个战士英雄可以激活战士羁绊。",
+          "action": "click",
+          "action_target": "synergy_race_tab",
+          "highlights": [
+            {
+              "target": "synergy_race_tab",
+              "shape": "rect",
+              "animation": "glow",
+              "tip_text": "点击查看种族羁绊",
+              "tip_position": "bottom"
+            }
+          ],
+          "timeout": 30,
+          "complete_text": "种族羁绊可以为同族英雄提供加成！"
+        },
+        {
+          "step_id": "synergy_4",
+          "order": 4,
+          "title": "职业羁绊",
+          "description": "了解职业羁绊的特点",
+          "detail": "英雄还有职业属性，如：坦克、射手、辅助等。职业羁绊通常影响英雄的战斗方式，比如射手增加攻击速度，坦克增加生命值。",
+          "action": "click",
+          "action_target": "synergy_class_tab",
+          "highlights": [
+            {
+              "target": "synergy_class_tab",
+              "shape": "rect",
+              "animation": "glow",
+              "tip_text": "点击查看职业羁绊",
+              "tip_position": "bottom"
+            }
+          ],
+          "timeout": 30,
+          "complete_text": "职业羁绊可以强化英雄的战斗能力！"
+        },
+        {
+          "step_id": "synergy_5",
+          "order": 5,
+          "title": "羁绊等级",
+          "description": "了解羁绊的层级系统",
+          "detail": "大多数羁绊有多个层级（2/4/6 或 3/5/7 等）。场上同类英雄越多，羁绊效果越强！合理规划英雄数量以激活更高层级的羁绊。",
+          "action": "click",
+          "action_target": "btn_next",
+          "highlights": [
+            {
+              "target": "synergy_tier_example",
+              "shape": "rect",
+              "animation": "pulse",
+              "tip_text": "羁绊有多个层级",
+              "tip_position": "right"
+            }
+          ],
+          "timeout": 30,
+          "complete_text": "层级越高，羁绊效果越强！"
+        },
+        {
+          "step_id": "synergy_6",
+          "order": 6,
+          "title": "羁绊之道完成！",
+          "description": "恭喜你掌握了羁绊系统！",
+          "detail": "记住：优秀的阵容需要合理搭配羁绊。在羁绊图鉴中可以查看所有羁绊的详细信息，帮助你规划最佳阵容！",
+          "action": "confirm",
+          "action_target": "btn_complete_tutorial",
+          "highlights": [
+            {
+              "target": "reward_panel",
+              "shape": "rect",
+              "animation": "glow",
+              "tip_text": "领取奖励",
+              "tip_position": "bottom"
+            }
+          ],
+          "timeout": 0,
+          "complete_text": "🎉 你已经理解了羁绊系统，阵容搭配会更强大！"
+        }
+      ],
+      "completion_reward": {
+        "gold": 300,
+        "exp": 300,
+        "heroes": [
+          {"hero_id": "random_2star", "star": 2, "count": 1}
+        ],
+        "custom_description": "300金币 + 300经验 + 随机2星英雄"
+      },
+      "prerequisites": ["tutorial_basic"],
+      "required": false,
+      "recommended_level": 2,
+      "estimated_time": 4,
+      "icon": "tutorial_synergy",
+      "intro_text": "羁绊是王者之奕的核心机制，让我们一起学习如何利用羁绊打造强力阵容！",
+      "complete_text": "羁绊大师，你已经掌握了阵容搭配的核心技巧！",
+      "sort_order": 2,
+      "enabled": true
+    },
+    {
+      "tutorial_id": "tutorial_economy",
+      "tutorial_type": "economy_management",
+      "name": "经济之道",
+      "description": "学习金币管理技巧，掌握经济运营的奥秘",
+      "steps": [
+        {
+          "step_id": "economy_1",
+          "order": 1,
+          "title": "金币的重要性",
+          "description": "了解金币在游戏中的作用",
+          "detail": "金币是游戏中最重要的资源！你需要金币购买英雄、刷新商店、购买经验。合理管理金币是获胜的关键！",
+          "action": "click",
+          "action_target": "btn_next",
+          "highlights": [
+            {
+              "target": "gold_display",
+              "shape": "rect",
+              "animation": "pulse",
+              "tip_text": "这是你的当前金币",
+              "tip_position": "bottom"
+            }
+          ],
+          "timeout": 30,
+          "complete_text": "金币管理是成为高手的必修课！"
+        },
+        {
+          "step_id": "economy_2",
+          "order": 2,
+          "title": "金币来源",
+          "description": "了解如何获取金币",
+          "detail": "每回合你会获得：基础5金币 + 利息（每10金币+1，最多+5）+ 连胜/连败奖励（最多+3）。利息是最重要的金币来源！",
+          "action": "click",
+          "action_target": "btn_next",
+          "highlights": [
+            {
+              "target": "income_info",
+              "shape": "rect",
+              "animation": "glow",
+              "tip_text": "查看金币收入详情",
+              "tip_position": "left"
+            }
+          ],
+          "timeout": 30,
+          "complete_text": "每回合的金币收入由多个部分组成！"
+        },
+        {
+          "step_id": "economy_3",
+          "order": 3,
+          "title": "利息机制",
+          "description": "学习如何获得最大利息",
+          "detail": "存10金币=+1利息，存20金币=+2利息，以此类推，最高+5利息（50金币）。前期存钱吃利息是快速积累财富的秘诀！",
+          "action": "click",
+          "action_target": "btn_next",
+          "highlights": [
+            {
+              "target": "interest_display",
+              "shape": "rect",
+              "animation": "bounce",
+              "tip_text": "当前利息收益",
+              "tip_position": "bottom"
+            }
+          ],
+          "timeout": 30,
+          "complete_text": "存钱吃利息，财富滚滚来！"
+        },
+        {
+          "step_id": "economy_4",
+          "order": 4,
+          "title": "连胜与连败",
+          "description": "了解连胜/连败奖励机制",
+          "detail": "连胜和连败都会获得额外金币奖励。连胜最多+3金币，连败最多+2金币。有时故意连败积累经济也是一种策略！",
+          "action": "click",
+          "action_target": "btn_next",
+          "highlights": [
+            {
+              "target": "streak_display",
+              "shape": "rect",
+              "animation": "pulse",
+              "tip_text": "连胜/连败奖励",
+              "tip_position": "bottom"
+            }
+          ],
+          "timeout": 30,
+          "complete_text": "灵活运用连胜连败机制！"
+        },
+        {
+          "step_id": "economy_5",
+          "order": 5,
+          "title": "经济节奏",
+          "description": "学习经济运营的节奏",
+          "detail": "前期（1-3回合）：存钱吃利息。中期（4-6回合）：根据血量决定是否花钱。后期（7回合后）：全力D牌或升人口。根据局势灵活调整！",
+          "action": "click",
+          "action_target": "btn_next",
+          "highlights": [
+            {
+              "target": "round_display",
+              "shape": "rect",
+              "animation": "glow",
+              "tip_text": "当前回合数",
+              "tip_position": "bottom"
+            }
+          ],
+          "timeout": 30,
+          "complete_text": "掌握经济节奏，运筹帷幄！"
+        },
+        {
+          "step_id": "economy_6",
+          "order": 6,
+          "title": "经济之道完成！",
+          "description": "恭喜你掌握了经济管理技巧！",
+          "detail": "记住：50金币是你的目标，存够50金币可以获得最大利息！前期存钱，中期发力，后期决胜！",
+          "action": "confirm",
+          "action_target": "btn_complete_tutorial",
+          "highlights": [
+            {
+              "target": "reward_panel",
+              "shape": "rect",
+              "animation": "glow",
+              "tip_text": "领取奖励",
+              "tip_position": "bottom"
+            }
+          ],
+          "timeout": 0,
+          "complete_text": "🎉 你已经是经济管理大师了！"
+        }
+      ],
+      "completion_reward": {
+        "gold": 1000,
+        "exp": 500,
+        "custom_description": "1000金币 + 500经验"
+      },
+      "prerequisites": ["tutorial_basic"],
+      "required": false,
+      "recommended_level": 2,
+      "estimated_time": 4,
+      "icon": "tutorial_economy",
+      "intro_text": "金币是游戏的命脉，学会管理金币，你就能掌控全局！",
+      "complete_text": "经济大师，你已经掌握了财富的秘密！",
+      "sort_order": 3,
+      "enabled": true
+    },
+    {
+      "tutorial_id": "tutorial_positioning",
+      "tutorial_type": "positioning",
+      "name": "站位之术",
+      "description": "学习英雄站位技巧，提升战斗胜率",
+      "steps": [
+        {
+          "step_id": "position_1",
+          "order": 1,
+          "title": "站位的重要性",
+          "description": "了解为什么站位很重要",
+          "detail": "好的站位可以让英雄发挥最大战斗力！坦克在前吸收伤害，射手在后排安全输出，刺客寻找机会切入敌方后排。",
+          "action": "click",
+          "action_target": "btn_next",
+          "highlights": [
+            {
+              "target": "board_grid",
+              "shape": "rect",
+              "animation": "pulse",
+              "tip_text": "战场格子",
+              "tip_position": "top"
+            }
+          ],
+          "timeout": 30,
+          "complete_text": "站位决定胜负！"
+        },
+        {
+          "step_id": "position_2",
+          "order": 2,
+          "title": "前排与后排",
+          "description": "学习基本的站位布局",
+          "detail": "前两排放置坦克和战士，后两排放置射手和法师。核心输出英雄要放在最安全的位置！",
+          "action": "click",
+          "action_target": "btn_next",
+          "highlights": [
+            {
+              "target": "front_row_area",
+              "shape": "rect",
+              "animation": "glow",
+              "tip_text": "前排位置",
+              "tip_position": "top"
+            },
+            {
+              "target": "back_row_area",
+              "shape": "rect",
+              "animation": "glow",
+              "tip_text": "后排位置",
+              "tip_position": "bottom",
+              "block_others": false
+            }
+          ],
+          "timeout": 30,
+          "complete_text": "前排抗伤，后排输出！"
+        },
+        {
+          "step_id": "position_3",
+          "order": 3,
+          "title": "保护核心英雄",
+          "description": "学习如何保护重要英雄",
+          "detail": "你的主C（核心输出）是最重要的英雄！将他放在中间或角落，周围用其他英雄包围保护，防止被刺客切入。",
+          "action": "click",
+          "action_target": "btn_next",
+          "highlights": [
+            {
+              "target": "corner_position",
+              "shape": "rect",
+              "animation": "bounce",
+              "tip_text": "角落是安全位置",
+              "tip_position": "left"
+            }
+          ],
+          "timeout": 30,
+          "complete_text": "保护好核心，胜利就在眼前！"
+        },
+        {
+          "step_id": "position_4",
+          "order": 4,
+          "title": "针对对手站位",
+          "description": "学习如何针对对手调整站位",
+          "detail": "点击其他玩家的头像可以查看他们的站位。如果对手有刺客，可以将输出放中间。如果对手AOE伤害多，可以分散站位。",
+          "action": "view_info",
+          "action_target": "opponent_list",
+          "highlights": [
+            {
+              "target": "opponent_list",
+              "shape": "rect",
+              "animation": "glow",
+              "tip_text": "点击查看对手站位",
+              "tip_position": "right"
+            }
+          ],
+          "timeout": 30,
+          "complete_text": "知己知彼，百战不殆！"
+        },
+        {
+          "step_id": "position_5",
+          "order": 5,
+          "title": "站位之术完成！",
+          "description": "恭喜你掌握了站位技巧！",
+          "detail": "记住：随时观察对手站位，及时调整自己的布局。灵活的站位调整往往能逆转战局！",
+          "action": "confirm",
+          "action_target": "btn_complete_tutorial",
+          "highlights": [
+            {
+              "target": "reward_panel",
+              "shape": "rect",
+              "animation": "glow",
+              "tip_text": "领取奖励",
+              "tip_position": "bottom"
+            }
+          ],
+          "timeout": 0,
+          "complete_text": "🎉 你已经掌握了站位的艺术！"
+        }
+      ],
+      "completion_reward": {
+        "gold": 400,
+        "exp": 400,
+        "equipments": [
+          {"equipment_id": "random_basic", "count": 1}
+        ],
+        "custom_description": "400金币 + 400经验 + 随机基础装备"
+      },
+      "prerequisites": ["tutorial_synergy"],
+      "required": false,
+      "recommended_level": 3,
+      "estimated_time": 4,
+      "icon": "tutorial_position",
+      "intro_text": "好的站位可以让你的阵容战斗力翻倍！让我们学习站位技巧。",
+      "complete_text": "站位大师，你的战斗布局已经无懈可击！",
+      "sort_order": 4,
+      "enabled": true
+    },
+    {
+      "tutorial_id": "tutorial_equipment",
+      "tutorial_type": "equipment_crafting",
+      "name": "装备之道",
+      "description": "学习装备系统，打造神装英雄",
+      "steps": [
+        {
+          "step_id": "equip_1",
+          "order": 1,
+          "title": "装备系统介绍",
+          "description": "了解装备系统的基础",
+          "detail": "装备可以大幅提升英雄的战斗力！每个英雄最多装备3件装备。基础装备可以合成更强大的成装！",
+          "action": "click",
+          "action_target": "btn_next",
+          "highlights": [
+            {
+              "target": "equipment_panel",
+              "shape": "rect",
+              "animation": "pulse",
+              "tip_text": "装备面板",
+              "tip_position": "bottom"
+            }
+          ],
+          "timeout": 30,
+          "complete_text": "装备让你的英雄更强大！"
+        },
+        {
+          "step_id": "equip_2",
+          "order": 2,
+          "title": "获取装备",
+          "description": "了解如何获取装备",
+          "detail": "装备主要通过打野怪获得。每几回合会遇到野怪，击败后可能掉落基础装备。越强的野怪掉落越好的装备！",
+          "action": "click",
+          "action_target": "btn_next",
+          "highlights": [
+            {
+              "target": "pve_round_indicator",
+              "shape": "rect",
+              "animation": "glow",
+              "tip_text": "野怪回合",
+              "tip_position": "bottom"
+            }
+          ],
+          "timeout": 30,
+          "complete_text": "打野怪获取装备！"
+        },
+        {
+          "step_id": "equip_3",
+          "order": 3,
+          "title": "装备合成",
+          "description": "学习如何合成装备",
+          "detail": "两个基础装备可以合成一个成装！比如：暴风大剑+反曲之弓=鬼索的狂暴之刃。合成后的装备属性更强大！",
+          "action": "click",
+          "action_target": "btn_next",
+          "highlights": [
+            {
+              "target": "crafting_recipe_panel",
+              "shape": "rect",
+              "animation": "bounce",
+              "tip_text": "查看合成配方",
+              "tip_position": "left"
+            }
+          ],
+          "timeout": 30,
+          "complete_text": "合成让装备更强大！"
+        },
+        {
+          "step_id": "equip_4",
+          "order": 4,
+          "title": "装备搭配",
+          "description": "学习如何为英雄选择装备",
+          "detail": "不同英雄适合不同装备！射手适合攻速和暴击，法师适合法强和回蓝，坦克适合护甲和生命值。根据英雄定位选择装备！",
+          "action": "click",
+          "action_target": "btn_next",
+          "highlights": [
+            {
+              "target": "hero_equipment_slots",
+              "shape": "rect",
+              "animation": "glow",
+              "tip_text": "英雄装备槽",
+              "tip_position": "bottom"
+            }
+          ],
+          "timeout": 30,
+          "complete_text": "合理搭配装备，战力飙升！"
+        },
+        {
+          "step_id": "equip_5",
+          "order": 5,
+          "title": "装备之道完成！",
+          "description": "恭喜你掌握了装备系统！",
+          "detail": "记住：核心英雄优先配装！好的装备可以扭转战局。多查看装备配方，规划合成路线！",
+          "action": "confirm",
+          "action_target": "btn_complete_tutorial",
+          "highlights": [
+            {
+              "target": "reward_panel",
+              "shape": "rect",
+              "animation": "glow",
+              "tip_text": "领取奖励",
+              "tip_position": "bottom"
+            }
+          ],
+          "timeout": 0,
+          "complete_text": "🎉 你已经成为装备大师！"
+        }
+      ],
+      "completion_reward": {
+        "gold": 600,
+        "exp": 600,
+        "equipments": [
+          {"equipment_id": "bf_sword", "count": 1},
+          {"equipment_id": "recurve_bow", "count": 1}
+        ],
+        "custom_description": "600金币 + 600经验 + 暴风大剑 + 反曲之弓"
+      },
+      "prerequisites": ["tutorial_positioning"],
+      "required": false,
+      "recommended_level": 4,
+      "estimated_time": 4,
+      "icon": "tutorial_equipment",
+      "intro_text": "装备是提升战力的重要途径，让我们一起学习装备系统！",
+      "complete_text": "装备大师，你的英雄将因你的智慧而无敌！",
+      "sort_order": 5,
+      "enabled": true
+    }
+  ]
+}
