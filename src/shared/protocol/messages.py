@@ -384,6 +384,30 @@ class MessageType(str, Enum):
     CONSUMABLE_ADDED = "consumable_added"             # 道具获得通知
     CONSUMABLE_EFFECT_APPLIED = "consumable_effect_applied"  # 道具效果生效
     
+    # ========== 交易系统 ==========
+    # 客户端 -> 服务器
+    SEND_TRADE_REQUEST = "send_trade_request"         # 发送交易请求
+    ACCEPT_TRADE_REQUEST = "accept_trade_request"     # 接受交易请求
+    REJECT_TRADE_REQUEST = "reject_trade_request"     # 拒绝交易请求
+    CANCEL_TRADE = "cancel_trade"                     # 取消交易
+    CONFIRM_TRADE = "confirm_trade"                   # 确认交易
+    EXECUTE_TRADE = "execute_trade"                   # 执行交易
+    GET_TRADE_HISTORY = "get_trade_history"           # 获取交易历史
+    GET_PENDING_TRADES = "get_pending_trades"         # 获取待处理交易
+    GET_TRADE_STATUS = "get_trade_status"             # 获取交易状态
+    
+    # 服务器 -> 客户端
+    TRADE_REQUEST_SENT = "trade_request_sent"         # 交易请求已发送
+    TRADE_REQUEST_ACCEPTED = "trade_request_accepted" # 交易请求已接受
+    TRADE_REQUEST_REJECTED = "trade_request_rejected" # 交易请求已拒绝
+    TRADE_CANCELLED = "trade_cancelled"               # 交易已取消
+    TRADE_CONFIRMED = "trade_confirmed"               # 交易已确认
+    TRADE_EXECUTED = "trade_executed"                 # 交易已执行
+    TRADE_HISTORY = "trade_history"                   # 交易历史响应
+    PENDING_TRADES = "pending_trades"                 # 待处理交易响应
+    TRADE_STATUS = "trade_status"                     # 交易状态响应
+    TRADE_RECEIVED = "trade_received"                 # 收到交易请求通知
+    
     # ========== 错误消息 ==========
     ERROR = "error"                   # 错误消息
 

@@ -79,6 +79,19 @@ from .consumable import (
     ConsumablePurchaseLogDB,
 )
 
+from .trading import (
+    TradeDB,
+    TradeItemDB,
+    TradeHistoryDB,
+)
+
+from .ai_coach import (
+    AICoachDB,
+    CoachAnalysisDB,
+    PlayerLearningDB,
+    LineupRecommendationDB,
+)
+
 __all__ = [
     # 好友模型
     "FriendDB",
@@ -125,4 +138,13 @@ __all__ = [
     "ConsumableEffectDB",
     "ConsumableUsageDB",
     "ConsumablePurchaseLogDB",
+    # 交易模型
+    "TradeDB",
+    "TradeItemDB",
+    "TradeHistoryDB",
+    # AI教练模型
+    "AICoachDB",
+    "CoachAnalysisDB",
+    "PlayerLearningDB",
+    "LineupRecommendationDB",
 ]
