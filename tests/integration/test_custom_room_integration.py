@@ -295,16 +295,20 @@ class TestRoomStateIntegration:
             settings=settings,
         )
         
-        # 加入第二个玩家并设置准备
-        player2 = await room_manager.join_room(
+        # 加入第二个玩家
+        await room_manager.join_room(
             player_id="player_002",
             player_name="玩家2",
             room_id=room.room_id,
         )
         
-        # 设置准备
+        # 获取更新后的房间并设置准备
+        room = room_manager.get_room(room.room_id)
         room.set_player_ready("player_001", True)
         room.set_player_ready("player_002", True)
+        
+        # 验证可以开始
+        assert room.can_start is True
         
         # 开始游戏
         result = await room_manager.start_game(room.room_id, "player_001")
