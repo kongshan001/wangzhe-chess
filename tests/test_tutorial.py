@@ -296,9 +296,10 @@ class TestTutorialManager(unittest.TestCase):
         self.assertEqual(result["progress"]["current_step"], 1)
         self.assertIsNotNone(result["progress"]["started_at"])
         
-        # 重复开始应该失败
+        # 重复开始应该返回当前进度（已经开始但未完成）
         result2 = self.manager.start_tutorial("player_001", "tutorial_basic")
-        self.assertIsNone(result2)
+        self.assertIsNotNone(result2)
+        self.assertEqual(result2["progress"]["current_step"], 1)
     
     def test_prerequisites(self):
         """测试前置条件"""
