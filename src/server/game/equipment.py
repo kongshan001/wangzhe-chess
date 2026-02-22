@@ -6,10 +6,96 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
+from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from shared.models import Hero
+
+
+# ============================================================================
+# 装备稀有度枚举
+# ============================================================================
+
+class Rarity(Enum):
+    """装备稀有度"""
+    COMMON = "common"       # 普通 - 白色
+    RARE = "rare"           # 稀有 - 绿色
+    EPIC = "epic"           # 史诗 - 紫色
+    LEGENDARY = "legendary" # 传说 - 橙色
+    
+    @classmethod
+    def from_string(cls, value: str) -> Rarity:
+        """从字符串创建稀有度"""
+        try:
+            return cls(value.lower())
+        except ValueError:
+            return cls.COMMON
+    
+    def get_color_code(self) -> str:
+        """获取稀有度对应的颜色代码"""
+        colors = {
+            Rarity.COMMON: "#FFFFFF",
+            Rarity.RARE: "#1EFF00",
+            Rarity.EPIC: "#A335EE",
+            Rarity.LEGENDARY: "#FF8000",
+        }
+        return colors.get(self, "#FFFFFF")
+
+
+# ============================================================================
+# 特殊效果类型枚举
+# ============================================================================
+
+class SpecialEffectType(Enum):
+    """装备特殊效果类型"""
+    BURN = "burn"           # 灼烧
+    FREEZE = "freeze"       # 减速
+    LIFESTEAL = "lifesteal" # 吸血
+    CRIT = "crit"           # 暴击
+    SHIELD = "shield"       # 护盾
+    REFLECT = "reflect"     # 反伤
+    PIERCE = "pierce"       # 穿透
+    HEAL = "heal"           # 回复
+    
+    @classmethod
+    def from_string(cls, value: str) -> SpecialEffectType:
+        """从字符串创建效果类型"""
+        try:
+            return cls(value.lower())
+        except ValueError:
+            return None
+
+
+@dataclass
+class SpecialEffect:
+    """装备特殊效果"""
+    effect_type: SpecialEffectType
+    value: float = 0.0
+    duration: float = 0.0
+    trigger_chance: float = 1.0
+    
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "effect_type": self.effect_type.value if self.effect_type else None,
+            "value": self.value,
+            "duration": self.duration,
+            "trigger_chance": self.trigger_chance,
+        }
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> Optional[SpecialEffect]:
+        if not data or not data.get("effect_type"):
+            return None
+        effect_type = SpecialEffectType.from_string(data.get("effect_type", ""))
+        if effect_type is None:
+            return None
+        return cls(
+            effect_type=effect_type,
+            value=data.get("value", 0.0),
+            duration=data.get("duration", 0.0),
+            trigger_chance=data.get("trigger_chance", 1.0),
+        )
 
 
 # ============================================================================
@@ -43,6 +129,16 @@ class EquipmentStats:
             hp=data.get("hp", 0),
             attack_speed=data.get("attack_speed", 0.0),
         )
+    
+    def __add__(self, other: EquipmentStats) -> EquipmentStats:
+        """合并两个属性"""
+        return EquipmentStats(
+            attack=self.attack + other.attack,
+            armor=self.armor + other.armor,
+            spell_power=self.spell_power + other.spell_power,
+            hp=self.hp + other.hp,
+            attack_speed=self.attack_speed + other.attack_speed,
+        )
 
 
 @dataclass
@@ -52,7 +148,9 @@ class Equipment:
     name: str
     tier: int
     stats: EquipmentStats
+    rarity: Rarity = Rarity.COMMON
     recipe: List[str] = field(default_factory=list)
+    special_effects: List[SpecialEffect] = field(default_factory=list)
     description: str = ""
     
     def to_dict(self) -> Dict[str, Any]:
@@ -60,19 +158,34 @@ class Equipment:
             "equipment_id": self.equipment_id,
             "name": self.name,
             "tier": self.tier,
+            "rarity": self.rarity.value,
             "stats": self.stats.to_dict(),
             "recipe": self.recipe.copy(),
+            "special_effects": [e.to_dict() for e in self.special_effects if e],
             "description": self.description,
         }
     
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> Equipment:
+        # 解析稀有度
+        rarity_str = data.get("rarity", "common")
+        rarity = Rarity.from_string(rarity_str)
+        
+        # 解析特殊效果
+        effects = []
+        for effect_data in data.get("special_effects", []):
+            effect = SpecialEffect.from_dict(effect_data)
+            if effect:
+                effects.append(effect)
+        
         return cls(
-            equipment_id=data["equipment_id"],
+            equipment_id=data["equipment_id"] if "equipment_id" in data else data.get("id", ""),
             name=data["name"],
             tier=data["tier"],
+            rarity=rarity,
             stats=EquipmentStats.from_dict(data.get("stats", {})),
             recipe=data.get("recipe", []),
+            special_effects=effects,
             description=data.get("description", ""),
         )
 

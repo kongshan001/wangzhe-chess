@@ -1,0 +1,160 @@
+{
+  "version": "1.0",
+  "recipes": [
+    {
+      "recipe_id": "recipe_sword_sword",
+      "result_id": "eq_011",
+      "materials": [
+        {"equipment_id": "eq_006", "quantity": 2}
+      ],
+      "gold_cost": 50,
+      "success_rate": 1.0,
+      "description": "两把暴风大剑合成破军"
+    },
+    {
+      "recipe_id": "recipe_sword_armor",
+      "result_id": "eq_012",
+      "materials": [
+        {"equipment_id": "eq_006", "quantity": 1},
+        {"equipment_id": "eq_007", "quantity": 1}
+      ],
+      "gold_cost": 50,
+      "success_rate": 1.0,
+      "description": "暴风大剑+锁子甲合成冰痕之握"
+    },
+    {
+      "recipe_id": "recipe_staff_staff",
+      "result_id": "eq_013",
+      "materials": [
+        {"equipment_id": "eq_008", "quantity": 2}
+      ],
+      "gold_cost": 50,
+      "success_rate": 1.0,
+      "description": "两根大棒合成博学者之怒"
+    },
+    {
+      "recipe_id": "recipe_staff_cloak",
+      "result_id": "eq_014",
+      "materials": [
+        {"equipment_id": "eq_008", "quantity": 1},
+        {"equipment_id": "eq_007", "quantity": 1}
+      ],
+      "gold_cost": 50,
+      "success_rate": 1.0,
+      "description": "大棒+锁子甲合成痛苦面具"
+    },
+    {
+      "recipe_id": "recipe_armor_armor",
+      "result_id": "eq_015",
+      "materials": [
+        {"equipment_id": "eq_007", "quantity": 2}
+      ],
+      "gold_cost": 50,
+      "success_rate": 1.0,
+      "description": "两件锁子甲合成不祥征兆"
+    },
+    {
+      "recipe_id": "recipe_belt_belt",
+      "result_id": "eq_016",
+      "materials": [
+        {"equipment_id": "eq_009", "quantity": 2}
+      ],
+      "gold_cost": 50,
+      "success_rate": 1.0,
+      "description": "两条巨人腰带合成狂徒铠甲"
+    },
+    {
+      "recipe_id": "recipe_bow_bow",
+      "result_id": "eq_017",
+      "materials": [
+        {"equipment_id": "eq_010", "quantity": 2}
+      ],
+      "gold_cost": 50,
+      "success_rate": 1.0,
+      "description": "两把反曲之弓合成电刀"
+    },
+    {
+      "recipe_id": "recipe_sword_bow",
+      "result_id": "eq_018",
+      "materials": [
+        {"equipment_id": "eq_006", "quantity": 1},
+        {"equipment_id": "eq_010", "quantity": 1}
+      ],
+      "gold_cost": 50,
+      "success_rate": 1.0,
+      "description": "暴风大剑+反曲之弓合成无尽战刃"
+    },
+    {
+      "recipe_id": "recipe_staff_belt",
+      "result_id": "eq_019",
+      "materials": [
+        {"equipment_id": "eq_008", "quantity": 1},
+        {"equipment_id": "eq_009", "quantity": 1}
+      ],
+      "gold_cost": 50,
+      "success_rate": 1.0,
+      "description": "大棒+巨人腰带头合成时光之杖"
+    },
+    {
+      "recipe_id": "recipe_armor_belt",
+      "result_id": "eq_020",
+      "materials": [
+        {"equipment_id": "eq_007", "quantity": 1},
+        {"equipment_id": "eq_009", "quantity": 1}
+      ],
+      "gold_cost": 50,
+      "success_rate": 1.0,
+      "description": "锁子甲+巨人腰带合成复活甲"
+    },
+    {
+      "recipe_id": "recipe_basic_sword",
+      "result_id": "eq_006",
+      "materials": [
+        {"equipment_id": "eq_001", "quantity": 2}
+      ],
+      "gold_cost": 20,
+      "success_rate": 1.0,
+      "description": "两把铁剑合成暴风大剑"
+    },
+    {
+      "recipe_id": "recipe_basic_armor",
+      "result_id": "eq_007",
+      "materials": [
+        {"equipment_id": "eq_002", "quantity": 2}
+      ],
+      "gold_cost": 20,
+      "success_rate": 1.0,
+      "description": "两件布甲合成锁子甲"
+    },
+    {
+      "recipe_id": "recipe_basic_staff",
+      "result_id": "eq_008",
+      "materials": [
+        {"equipment_id": "eq_003", "quantity": 2}
+      ],
+      "gold_cost": 20,
+      "success_rate": 1.0,
+      "description": "两颗蓝宝石合成大棒"
+    },
+    {
+      "recipe_id": "recipe_basic_hp",
+      "result_id": "eq_009",
+      "materials": [
+        {"equipment_id": "eq_004", "quantity": 2}
+      ],
+      "gold_cost": 20,
+      "success_rate": 1.0,
+      "description": "两颗红宝石合成巨人腰带"
+    },
+    {
+      "recipe_id": "recipe_basic_bow",
+      "result_id": "eq_010",
+      "materials": [
+        {"equipment_id": "eq_005", "quantity": 2}
+      ],
+      "gold_cost": 20,
+      "success_rate": 1.0,
+      "description": "两把短弓合成反曲之弓"
+    }
+  ]
+}

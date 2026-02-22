@@ -6,6 +6,7 @@
 - synergy: 羁绊系统
 - economy: 经济系统
 - battle: 战斗模拟
+- crafting: 装备合成系统
 """
 
 from .economy import (
@@ -30,6 +31,18 @@ from .synergy import (
     create_synergy_manager,
     get_all_synergy_names,
 )
+from .crafting import (
+    CraftingManager,
+    CraftingRecipe,
+    CraftingMaterial,
+    CraftingResult,
+    CraftingHistoryEntry,
+    PlayerInventory,
+    Rarity,
+    SpecialEffect,
+    SpecialEffectType,
+    create_crafting_manager,
+)
 
 # 导出常用类
 __all__ = [
@@ -52,4 +65,15 @@ __all__ = [
     "get_level_table",
     "get_income_table",
     "get_streak_bonus_table",
+    # 装备合成系统
+    "CraftingManager",
+    "CraftingRecipe",
+    "CraftingMaterial",
+    "CraftingResult",
+    "CraftingHistoryEntry",
+    "PlayerInventory",
+    "Rarity",
+    "SpecialEffect",
+    "SpecialEffectType",
+    "create_crafting_manager",
 ]

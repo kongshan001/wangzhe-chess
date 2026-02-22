@@ -1,85 +1,223 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "equipment": [
     {
       "id": "eq_001",
       "name": "铁剑",
       "tier": 1,
+      "rarity": "common",
       "stats": {"attack": 15},
       "recipe": [],
+      "special_effects": [],
       "description": "基础攻击装备"
     },
     {
       "id": "eq_002",
       "name": "布甲",
       "tier": 1,
+      "rarity": "common",
       "stats": {"armor": 15},
       "recipe": [],
+      "special_effects": [],
       "description": "基础防御装备"
     },
     {
       "id": "eq_003",
       "name": "蓝宝石",
       "tier": 1,
+      "rarity": "common",
       "stats": {"spell_power": 20},
       "recipe": [],
+      "special_effects": [],
       "description": "基础法术装备"
     },
     {
       "id": "eq_004",
       "name": "红宝石",
       "tier": 1,
+      "rarity": "common",
       "stats": {"hp": 150},
       "recipe": [],
+      "special_effects": [],
       "description": "基础生命装备"
     },
     {
       "id": "eq_005",
       "name": "短弓",
       "tier": 1,
+      "rarity": "common",
       "stats": {"attack_speed": 0.1},
       "recipe": [],
+      "special_effects": [],
       "description": "基础攻速装备"
     },
     {
       "id": "eq_006",
       "name": "暴风大剑",
       "tier": 2,
+      "rarity": "rare",
       "stats": {"attack": 40},
       "recipe": ["eq_001", "eq_001"],
+      "special_effects": [],
       "description": "进阶攻击装备"
     },
     {
       "id": "eq_007",
       "name": "锁子甲",
       "tier": 2,
+      "rarity": "rare",
       "stats": {"armor": 40},
       "recipe": ["eq_002", "eq_002"],
+      "special_effects": [],
       "description": "进阶防御装备"
     },
     {
       "id": "eq_008",
       "name": "大棒",
       "tier": 2,
+      "rarity": "rare",
       "stats": {"spell_power": 50},
       "recipe": ["eq_003", "eq_003"],
+      "special_effects": [],
       "description": "进阶法术装备"
     },
     {
       "id": "eq_009",
       "name": "巨人腰带",
       "tier": 2,
+      "rarity": "rare",
       "stats": {"hp": 400},
       "recipe": ["eq_004", "eq_004"],
+      "special_effects": [],
       "description": "进阶生命装备"
     },
     {
       "id": "eq_010",
       "name": "反曲之弓",
       "tier": 2,
+      "rarity": "rare",
       "stats": {"attack_speed": 0.25},
       "recipe": ["eq_005", "eq_005"],
+      "special_effects": [],
       "description": "进阶攻速装备"
+    },
+    {
+      "id": "eq_011",
+      "name": "破军",
+      "tier": 3,
+      "rarity": "epic",
+      "stats": {"attack": 80},
+      "recipe": ["eq_006", "eq_006"],
+      "special_effects": [
+        {"effect_type": "pierce", "value": 0.15, "trigger_chance": 1.0}
+      ],
+      "description": "强力攻击装备，增加15%护甲穿透"
+    },
+    {
+      "id": "eq_012",
+      "name": "冰痕之握",
+      "tier": 3,
+      "rarity": "epic",
+      "stats": {"attack": 40, "armor": 40},
+      "recipe": ["eq_006", "eq_007"],
+      "special_effects": [
+        {"effect_type": "freeze", "value": 0.2, "duration": 2.0, "trigger_chance": 0.3}
+      ],
+      "description": "攻击时有30%概率降低目标20%攻速，持续2秒"
+    },
+    {
+      "id": "eq_013",
+      "name": "博学者之怒",
+      "tier": 3,
+      "rarity": "epic",
+      "stats": {"spell_power": 100},
+      "recipe": ["eq_008", "eq_008"],
+      "special_effects": [],
+      "description": "强力法术装备，大幅提升法术伤害"
+    },
+    {
+      "id": "eq_014",
+      "name": "痛苦面具",
+      "tier": 3,
+      "rarity": "epic",
+      "stats": {"spell_power": 50, "armor": 30},
+      "recipe": ["eq_008", "eq_007"],
+      "special_effects": [
+        {"effect_type": "burn", "value": 20, "duration": 3.0, "trigger_chance": 0.25}
+      ],
+      "description": "攻击时有25%概率灼烧敌人，每秒造成20点伤害，持续3秒"
+    },
+    {
+      "id": "eq_015",
+      "name": "不祥征兆",
+      "tier": 3,
+      "rarity": "epic",
+      "stats": {"armor": 100},
+      "recipe": ["eq_007", "eq_007"],
+      "special_effects": [
+        {"effect_type": "freeze", "value": 0.15, "duration": 1.5, "trigger_chance": 0.2}
+      ],
+      "description": "受到攻击时有20%概率降低攻击者15%攻速"
+    },
+    {
+      "id": "eq_016",
+      "name": "狂徒铠甲",
+      "tier": 3,
+      "rarity": "epic",
+      "stats": {"hp": 800},
+      "recipe": ["eq_009", "eq_009"],
+      "special_effects": [
+        {"effect_type": "heal", "value": 10, "trigger_chance": 1.0}
+      ],
+      "description": "每秒回复10点生命值"
+    },
+    {
+      "id": "eq_017",
+      "name": "电刀",
+      "tier": 3,
+      "rarity": "epic",
+      "stats": {"attack_speed": 0.5, "attack": 20},
+      "recipe": ["eq_010", "eq_010"],
+      "special_effects": [
+        {"effect_type": "crit", "value": 0.25, "trigger_chance": 1.0}
+      ],
+      "description": "攻击速度大幅提升，增加25%暴击率"
+    },
+    {
+      "id": "eq_018",
+      "name": "无尽战刃",
+      "tier": 3,
+      "rarity": "epic",
+      "stats": {"attack": 60, "attack_speed": 0.15},
+      "recipe": ["eq_006", "eq_010"],
+      "special_effects": [
+        {"effect_type": "crit", "value": 0.4, "trigger_chance": 1.0}
+      ],
+      "description": "暴击装备，增加40%暴击率"
+    },
+    {
+      "id": "eq_019",
+      "name": "时光之杖",
+      "tier": 3,
+      "rarity": "epic",
+      "stats": {"spell_power": 60, "hp": 300},
+      "recipe": ["eq_008", "eq_009"],
+      "special_effects": [
+        {"effect_type": "heal", "value": 5, "trigger_chance": 1.0}
+      ],
+      "description": "法坦装备，提供法术和生命值，每秒回复5点生命"
+    },
+    {
+      "id": "eq_020",
+      "name": "复活甲",
+      "tier": 3,
+      "rarity": "legendary",
+      "stats": {"armor": 50, "hp": 400},
+      "recipe": ["eq_007", "eq_009"],
+      "special_effects": [
+        {"effect_type": "shield", "value": 500, "trigger_chance": 1.0}
+      ],
+      "description": "死亡时获得500点护盾，每局触发一次"
     }
   ]
 }
