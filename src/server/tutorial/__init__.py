@@ -1,0 +1,34 @@
+"""
+王者之奕 - 新手引导模块
+
+本模块提供新手引导系统功能：
+- 引导步骤配置
+- 引导进度管理
+- 引导奖励发放
+"""
+
+from .models import (
+    TutorialType,
+    TutorialStep,
+    TutorialStepAction,
+    TutorialReward,
+    Tutorial,
+    PlayerTutorialProgress,
+)
+from .manager import (
+    TutorialManager,
+    get_tutorial_manager,
+)
+
+__all__ = [
+    # 数据类
+    "TutorialType",
+    "TutorialStep",
+    "TutorialStepAction",
+    "TutorialReward",
+    "Tutorial",
+    "PlayerTutorialProgress",
+    # 管理器
+    "TutorialManager",
+    "get_tutorial_manager",
+]
