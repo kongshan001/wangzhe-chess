@@ -230,6 +230,22 @@ class MessageType(str, Enum):
     CHECKIN_REWARDS = "checkin_rewards"         # 签到奖励配置
     SUPPLEMENT_SUCCESS = "supplement_success"   # 补签成功
     
+    # ========== 羁绊图鉴系统 ==========
+    # 客户端 -> 服务器
+    GET_SYNERGY_PEDIA = "get_synergy_pedia"           # 获取羁绊图鉴
+    SYNERGY_PEDIA_INFO = "synergy_pedia_info"         # 获取单个羁绊详情
+    SIMULATE_SYNERGY = "simulate_synergy"             # 羁绊模拟器
+    GET_SYNERGY_RECOMMENDATIONS = "get_synergy_recommendations"  # 获取阵容推荐
+    GET_SYNERGY_ACHIEVEMENTS = "get_synergy_achievements"  # 获取羁绊成就
+    
+    # 服务器 -> 客户端
+    SYNERGY_PEDIA_LIST = "synergy_pedia_list"         # 羁绊图鉴列表
+    SYNERGY_PEDIA_DETAIL = "synergy_pedia_detail"     # 羁绊详情
+    SYNERGY_SIMULATION_RESULT = "synergy_simulation_result"  # 模拟结果
+    SYNERGY_RECOMMENDATIONS_RESULT = "synergy_recommendations_result"  # 推荐结果
+    SYNERGY_ACHIEVEMENTS_RESULT = "synergy_achievements_result"  # 成就列表
+    SYNERGY_ACHIEVEMENT_UNLOCKED = "synergy_achievement_unlocked"  # 成就解锁通知
+    
     # ========== 错误消息 ==========
     ERROR = "error"                   # 错误消息
 
@@ -2411,6 +2427,191 @@ class CheckinRewardsMessage(BaseMessage):
 
 
 # ============================================================================
+# 羁绊图鉴系统消息
+# ============================================================================
+
+class GetSynergypediaMessage(BaseMessage):
+    """获取羁绊图鉴请求"""
+    
+    type: MessageType = MessageType.GET_SYNERGY_PEDIA
+
+
+class SynergyPediaEntryData(BaseModel):
+    """羁绊图鉴条目数据"""
+    
+    name: str = Field(..., description="羁绊名称")
+    synergy_type: str = Field(..., description="羁绊类型")
+    description: str = Field(..., description="羁绊描述")
+    levels: list[dict[str, Any]] = Field(default_factory=list, description="羁绊等级")
+    related_heroes: list[str] = Field(default_factory=list, description="关联英雄")
+    icon: str = Field(default="", description="羁绊图标")
+    tips: str = Field(default="", description="使用技巧")
+    progress: Optional[dict[str, Any]] = Field(default=None, description="玩家进度")
+
+
+class SynergyPediaListMessage(BaseMessage):
+    """
+    羁绊图鉴列表响应
+    
+    Attributes:
+        races: 种族羁绊列表
+        professions: 职业羁绊列表
+        total_count: 总羁绊数量
+    """
+    
+    type: MessageType = MessageType.SYNERGY_PEDIA_LIST
+    races: list[SynergyPediaEntryData] = Field(default_factory=list, description="种族羁绊")
+    professions: list[SynergyPediaEntryData] = Field(default_factory=list, description="职业羁绊")
+    total_count: int = Field(default=0, description="总羁绊数量")
+
+
+class SynergypediaInfoMessage(BaseMessage):
+    """
+    获取单个羁绊详情请求
+    
+    Attributes:
+        synergy_name: 羁绊名称
+    """
+    
+    type: MessageType = MessageType.SYNERGY_PEDIA_INFO
+    synergy_name: str = Field(..., description="羁绊名称")
+
+
+class SynergyPediaDetailMessage(BaseMessage):
+    """
+    羁绊详情响应
+    
+    Attributes:
+        entry: 羁绊详情
+        progress: 玩家进度
+        recommended_lineups: 相关推荐阵容
+    """
+    
+    type: MessageType = MessageType.SYNERGY_PEDIA_DETAIL
+    entry: SynergyPediaEntryData = Field(..., description="羁绊详情")
+    progress: Optional[dict[str, Any]] = Field(default=None, description="玩家进度")
+    recommended_lineups: list[dict[str, Any]] = Field(default_factory=list, description="推荐阵容")
+
+
+class SimulateSynergyMessage(BaseMessage):
+    """
+    羁绊模拟器请求
+    
+    Attributes:
+        hero_ids: 选中的英雄ID列表
+    """
+    
+    type: MessageType = MessageType.SIMULATE_SYNERGY
+    hero_ids: list[str] = Field(..., description="英雄ID列表")
+
+
+class SynergySimulationResultMessage(BaseMessage):
+    """
+    模拟结果响应
+    
+    Attributes:
+        selected_heroes: 选中的英雄
+        active_synergies: 激活的羁绊
+        inactive_synergies: 未激活的羁绊
+        synergy_progress: 羁绊进度
+        recommendations: 推荐补充英雄
+        total_bonuses: 总属性加成
+    """
+    
+    type: MessageType = MessageType.SYNERGY_SIMULATION_RESULT
+    selected_heroes: list[str] = Field(default_factory=list, description="选中的英雄")
+    active_synergies: list[dict[str, Any]] = Field(default_factory=list, description="激活的羁绊")
+    inactive_synergies: list[dict[str, Any]] = Field(default_factory=list, description="未激活的羁绊")
+    synergy_progress: dict[str, dict[str, Any]] = Field(default_factory=dict, description="羁绊进度")
+    recommendations: list[dict[str, Any]] = Field(default_factory=list, description="推荐补充英雄")
+    total_bonuses: dict[str, float] = Field(default_factory=dict, description="总属性加成")
+
+
+class GetSynergyRecommendationsMessage(BaseMessage):
+    """
+    获取阵容推荐请求
+    
+    Attributes:
+        synergy_name: 羁绊名称（可选，用于筛选）
+        limit: 返回数量限制
+    """
+    
+    type: MessageType = MessageType.GET_SYNERGY_RECOMMENDATIONS
+    synergy_name: Optional[str] = Field(default=None, description="羁绊名称")
+    limit: int = Field(default=10, description="返回数量限制")
+
+
+class SynergyRecommendationsResultMessage(BaseMessage):
+    """
+    推荐结果响应
+    
+    Attributes:
+        recommendations: 推荐阵容列表
+        total_count: 总数量
+    """
+    
+    type: MessageType = MessageType.SYNERGY_RECOMMENDATIONS_RESULT
+    recommendations: list[dict[str, Any]] = Field(default_factory=list, description="推荐阵容")
+    total_count: int = Field(default=0, description="总数量")
+
+
+class GetSynergyAchievementsMessage(BaseMessage):
+    """
+    获取羁绊成就请求
+    
+    Attributes:
+        synergy_name: 羁绊名称（可选，不提供则返回所有）
+    """
+    
+    type: MessageType = MessageType.GET_SYNERGY_ACHIEVEMENTS
+    synergy_name: Optional[str] = Field(default=None, description="羁绊名称")
+
+
+class SynergyAchievementData(BaseModel):
+    """羁绊成就数据"""
+    
+    achievement_id: str = Field(..., description="成就ID")
+    name: str = Field(..., description="成就名称")
+    description: str = Field(..., description="成就描述")
+    synergy_name: str = Field(..., description="羁绊名称")
+    requirement_type: str = Field(..., description="需求类型")
+    requirement_value: int = Field(..., description="需求值")
+    reward: dict[str, Any] = Field(default_factory=dict, description="奖励")
+    is_unlocked: bool = Field(default=False, description="是否已解锁")
+    progress: int = Field(default=0, description="当前进度")
+
+
+class SynergyAchievementsResultMessage(BaseMessage):
+    """
+    成就列表响应
+    
+    Attributes:
+        achievements: 成就列表
+        total_count: 总数量
+        unlocked_count: 已解锁数量
+    """
+    
+    type: MessageType = MessageType.SYNERGY_ACHIEVEMENTS_RESULT
+    achievements: list[SynergyAchievementData] = Field(default_factory=list, description="成就列表")
+    total_count: int = Field(default=0, description="总数量")
+    unlocked_count: int = Field(default=0, description="已解锁数量")
+
+
+class SynergyAchievementUnlockedMessage(BaseMessage):
+    """
+    成就解锁通知
+    
+    Attributes:
+        achievement: 解锁的成就
+        rewards: 获得的奖励
+    """
+    
+    type: MessageType = MessageType.SYNERGY_ACHIEVEMENT_UNLOCKED
+    achievement: SynergyAchievementData = Field(..., description="解锁的成就")
+    rewards: dict[str, Any] = Field(default_factory=dict, description="获得的奖励")
+
+
+# ============================================================================
 # 消息类型映射（用于反序列化）
 # ============================================================================
 
@@ -2581,6 +2782,19 @@ MESSAGE_CLASS_MAP: dict[MessageType, type[BaseMessage]] = {
     MessageType.CHECKIN_RECORDS: CheckinRecordsMessage,
     MessageType.GET_CHECKIN_REWARDS: GetCheckinRewardsMessage,
     MessageType.CHECKIN_REWARDS: CheckinRewardsMessage,
+    
+    # 羁绊图鉴系统
+    MessageType.GET_SYNERGY_PEDIA: GetSynergypediaMessage,
+    MessageType.SYNERGY_PEDIA_LIST: SynergyPediaListMessage,
+    MessageType.SYNERGY_PEDIA_INFO: SynergypediaInfoMessage,
+    MessageType.SYNERGY_PEDIA_DETAIL: SynergyPediaDetailMessage,
+    MessageType.SIMULATE_SYNERGY: SimulateSynergyMessage,
+    MessageType.SYNERGY_SIMULATION_RESULT: SynergySimulationResultMessage,
+    MessageType.GET_SYNERGY_RECOMMENDATIONS: GetSynergyRecommendationsMessage,
+    MessageType.SYNERGY_RECOMMENDATIONS_RESULT: SynergyRecommendationsResultMessage,
+    MessageType.GET_SYNERGY_ACHIEVEMENTS: GetSynergyAchievementsMessage,
+    MessageType.SYNERGY_ACHIEVEMENTS_RESULT: SynergyAchievementsResultMessage,
+    MessageType.SYNERGY_ACHIEVEMENT_UNLOCKED: SynergyAchievementUnlockedMessage,
     
     # 错误
     MessageType.ERROR: ErrorMessage,
