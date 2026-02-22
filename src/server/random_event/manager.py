@@ -802,7 +802,7 @@ class RandomEventManager:
             result["details"]["cost_target"] = effect.target
             result["details"]["discount_amount"] = effect.value
             
-            # 添加到活跃事件
+            # 添加到活跃事件（duration=1表示当前回合有效，所以remaining_duration=duration-1）
             active_event = ActiveEvent(
                 event=RandomEvent(
                     event_id=f"discount_{effect.target}",
@@ -813,7 +813,7 @@ class RandomEventManager:
                     effects=[effect],
                 ),
                 start_round=round_number,
-                remaining_duration=effect.duration,
+                remaining_duration=max(0, effect.duration - 1),
                 affected_players=player_ids,
             )
             self.active_events[room_id].append(active_event)
@@ -833,7 +833,7 @@ class RandomEventManager:
                     effects=[effect],
                 ),
                 start_round=round_number,
-                remaining_duration=effect.duration,
+                remaining_duration=max(0, effect.duration - 1),
                 affected_players=player_ids,
             )
             self.active_events[room_id].append(active_event)
@@ -858,7 +858,7 @@ class RandomEventManager:
                     effects=[effect],
                 ),
                 start_round=round_number,
-                remaining_duration=effect.duration,
+                remaining_duration=max(0, effect.duration - 1),
                 affected_players=player_ids,
             )
             self.active_events[room_id].append(active_event)
@@ -879,7 +879,7 @@ class RandomEventManager:
                     effects=[effect],
                 ),
                 start_round=round_number,
-                remaining_duration=effect.duration,
+                remaining_duration=max(0, effect.duration - 1),
                 affected_players=player_ids,
             )
             self.active_events[room_id].append(active_event)

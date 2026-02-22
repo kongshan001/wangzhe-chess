@@ -26,6 +26,10 @@ from typing import Any, Callable, Dict, List, Optional, Set
 import structlog
 
 from config.settings import settings
+from src.server.random_event import (
+    RandomEventManager,
+    get_random_event_manager,
+)
 
 
 logger = structlog.get_logger()
@@ -702,6 +706,13 @@ class GameRoom:
         """
         await self._set_state(RoomState.PREPARING)
         
+        # 推进活跃事件回合（处理持续事件）
+        event_manager = get_random_event_manager()
+        event_manager.advance_round(self.room_id)
+        
+        # 检查并触发随机事件
+        await self._check_random_events()
+        
         # 分发金币
         for player in self.get_alive_players():
             # 基础金币 + 利息 + 连胜/连败奖励
@@ -728,6 +739,99 @@ class GameRoom:
         
         # 等待准备阶段结束
         await asyncio.sleep(self.buy_phase_duration)
+    
+    async def _check_random_events(self) -> None:
+        """
+        检查并触发随机事件
+        
+        在每回合开始时检查是否有随机事件触发
+        """
+        event_manager = get_random_event_manager()
+        
+        # 获取存活玩家信息
+        alive_players = self.get_alive_players()
+        players_data = [{"player_id": p.player_id, "gold": p.gold} for p in alive_players]
+        
+        # 检查事件触发
+        triggered_events = event_manager.check_events(
+            room_id=self.room_id,
+            round_number=self.current_round,
+            context={"player_count": len(alive_players)},
+        )
+        
+        # 执行触发的事件
+        for event in triggered_events:
+            result = event_manager.execute_event(
+                room_id=self.room_id,
+                event=event,
+                round_number=self.current_round,
+                players=players_data,
+                context={"player_count": len(alive_players)},
+            )
+            
+            # 应用事件效果到玩家
+            await self._apply_event_effects(event, result, alive_players)
+            
+            logger.info(
+                "随机事件触发",
+                room_id=self.room_id,
+                event_id=event.event_id,
+                event_name=event.name,
+                round=self.current_round,
+                affected_count=len(result.get("affected_players", [])),
+            )
+    
+    async def _apply_event_effects(
+        self,
+        event,
+        result: Dict[str, Any],
+        players: List["PlayerInRoom"],
+    ) -> None:
+        """
+        应用事件效果到玩家
+        
+        Args:
+            event: 事件对象
+            result: 执行结果
+            players: 玩家列表
+        """
+        for effect_result in result.get("effects", []):
+            effect_type = effect_result.get("effect_type")
+            
+            # 金币效果
+            if effect_type == "give_gold_all":
+                gold = effect_result.get("details", {}).get("gold_given", 0)
+                for player in players:
+                    player.add_gold(gold)
+                    logger.debug(
+                        "事件金币奖励",
+                        player_id=player.player_id,
+                        gold=gold,
+                        event_id=event.event_id,
+                    )
+            
+            # 经验效果
+            elif effect_type == "give_exp_all":
+                exp = effect_result.get("details", {}).get("exp_given", 0)
+                for player in players:
+                    player.add_exp(exp)
+                    logger.debug(
+                        "事件经验奖励",
+                        player_id=player.player_id,
+                        exp=exp,
+                        event_id=event.event_id,
+                    )
+            
+            # 升级效果
+            elif effect_type == "free_level_up":
+                for player in players:
+                    player.level += 1
+                    logger.debug(
+                        "事件免费升级",
+                        player_id=player.player_id,
+                        new_level=player.level,
+                        event_id=event.event_id,
+                    )
     
     async def _battle_phase(self) -> None:
         """

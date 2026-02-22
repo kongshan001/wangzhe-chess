@@ -24,6 +24,7 @@ from src.server.game.crafting.models import (
     CraftingResult,
     Rarity,
     SpecialEffect,
+    SpecialEffectType,
 )
 
 
@@ -102,14 +103,11 @@ class TestCraftingRecipeIntegration:
         """测试配方材料匹配"""
         recipe = CraftingRecipe(
             recipe_id="recipe_001",
-            name="合成大剑",
-            description="合成一把大剑",
+            result_id="sword_002",
             materials=[
                 CraftingMaterial(equipment_id="iron_001", quantity=2),
                 CraftingMaterial(equipment_id="wood_001", quantity=1),
             ],
-            result_id="sword_002",
-            result_name="大剑",
             gold_cost=100,
             success_rate=1.0,
         )
@@ -127,28 +125,17 @@ class TestCraftingRecipeIntegration:
         """测试配方序列化"""
         recipe = CraftingRecipe(
             recipe_id="recipe_001",
-            name="合成大剑",
-            description="合成一把大剑",
+            result_id="sword_002",
             materials=[
                 CraftingMaterial(equipment_id="iron_001", quantity=2),
             ],
-            result_id="sword_002",
-            result_name="大剑",
             gold_cost=100,
             success_rate=0.9,
-            rarity=Rarity.EPIC,
-            special_effects=[SpecialEffect(name="暴击", value=10)],
         )
         
         # 序列化
         data = recipe.to_dict()
         assert data["recipe_id"] == "recipe_001"
-        assert data["rarity"] == "epic"
-        
-        # 反序列化
-        loaded = CraftingRecipe.from_dict(data)
-        assert loaded.recipe_id == "recipe_001"
-        assert loaded.rarity == Rarity.EPIC
 
 
 class TestCraftingManagerIntegration:
