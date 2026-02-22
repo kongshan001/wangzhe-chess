@@ -4465,6 +4465,280 @@ class EmoteUnlockedMessage(BaseMessage):
 
 
 # ============================================================================
+# 道具系统消息
+# ============================================================================
+
+class ConsumableData(BaseModel):
+    """
+    道具数据
+    
+    Attributes:
+        consumable_id: 道具ID
+        name: 道具名称
+        description: 道具描述
+        consumable_type: 道具类型
+        rarity: 道具稀有度
+        effects: 效果列表
+        price: 价格
+        max_stack: 最大堆叠数
+        icon: 图标路径
+        auto_use: 是否自动使用
+    """
+    
+    consumable_id: str = Field(..., description="道具ID")
+    name: str = Field(..., description="道具名称")
+    description: str = Field(default="", description="道具描述")
+    consumable_type: str = Field(..., description="道具类型")
+    rarity: str = Field(default="common", description="道具稀有度")
+    effects: list[dict] = Field(default_factory=list, description="效果列表")
+    price: Optional[dict] = Field(default=None, description="价格")
+    max_stack: int = Field(default=99, description="最大堆叠数")
+    icon: str = Field(default="", description="图标路径")
+    auto_use: bool = Field(default=False, description="是否自动使用")
+
+
+class PlayerConsumableData(BaseModel):
+    """
+    玩家道具数据
+    
+    Attributes:
+        consumable_id: 道具ID
+        quantity: 数量
+        acquired_at: 获得时间
+        acquire_type: 获得方式
+        expire_at: 过期时间
+    """
+    
+    consumable_id: str = Field(..., description="道具ID")
+    quantity: int = Field(..., description="数量")
+    acquired_at: str = Field(..., description="获得时间")
+    acquire_type: str = Field(default="buy", description="获得方式")
+    expire_at: Optional[str] = Field(default=None, description="过期时间")
+
+
+class ConsumableUsageData(BaseModel):
+    """
+    道具使用记录数据
+    
+    Attributes:
+        consumable_id: 道具ID
+        used_at: 使用时间
+        quantity: 使用数量
+        context: 使用场景
+        context_id: 场景ID
+        effect_applied: 效果是否生效
+    """
+    
+    consumable_id: str = Field(..., description="道具ID")
+    used_at: str = Field(..., description="使用时间")
+    quantity: int = Field(default=1, description="使用数量")
+    context: str = Field(default="match", description="使用场景")
+    context_id: Optional[str] = Field(default=None, description="场景ID")
+    effect_applied: bool = Field(default=True, description="效果是否生效")
+
+
+class ConsumableEffectData(BaseModel):
+    """
+    道具效果数据
+    
+    Attributes:
+        consumable_id: 道具ID
+        effect_type: 效果类型
+        value: 效果数值
+        activated_at: 激活时间
+        remaining_rounds: 剩余回合数
+    """
+    
+    consumable_id: str = Field(..., description="道具ID")
+    effect_type: str = Field(..., description="效果类型")
+    value: float = Field(..., description="效果数值")
+    activated_at: str = Field(..., description="激活时间")
+    remaining_rounds: int = Field(default=-1, description="剩余回合数")
+
+
+class GetConsumablesMessage(BaseMessage):
+    """
+    获取道具列表请求
+    """
+    
+    type: MessageType = MessageType.GET_CONSUMABLES
+
+
+class ConsumablesListMessage(BaseMessage):
+    """
+    道具列表响应
+    
+    Attributes:
+        consumables: 道具列表
+        total_count: 总数量
+    """
+    
+    type: MessageType = MessageType.CONSUMABLES_LIST
+    consumables: list[ConsumableData] = Field(default_factory=list, description="道具列表")
+    total_count: int = Field(default=0, description="总数量")
+
+
+class GetPlayerConsumablesMessage(BaseMessage):
+    """
+    获取玩家道具请求
+    """
+    
+    type: MessageType = MessageType.GET_PLAYER_CONSUMABLES
+
+
+class PlayerConsumablesListMessage(BaseMessage):
+    """
+    玩家道具列表响应
+    
+    Attributes:
+        consumables: 玩家道具列表
+        active_effects: 激活的效果列表
+        total_count: 总数量
+    """
+    
+    type: MessageType = MessageType.PLAYER_CONSUMABLES_LIST
+    consumables: list[PlayerConsumableData] = Field(default_factory=list, description="道具列表")
+    active_effects: list[ConsumableEffectData] = Field(default_factory=list, description="激活效果")
+    total_count: int = Field(default=0, description="总数量")
+
+
+class UseConsumableMessage(BaseMessage):
+    """
+    使用道具请求
+    
+    Attributes:
+        consumable_id: 道具ID
+        quantity: 使用数量
+        context: 使用场景
+        context_id: 场景ID
+    """
+    
+    type: MessageType = MessageType.USE_CONSUMABLE
+    consumable_id: str = Field(..., description="道具ID")
+    quantity: int = Field(default=1, ge=1, description="使用数量")
+    context: str = Field(default="match", description="使用场景")
+    context_id: Optional[str] = Field(default=None, description="场景ID")
+
+
+class ConsumableUsedMessage(BaseMessage):
+    """
+    道具已使用响应
+    
+    Attributes:
+        consumable_id: 道具ID
+        quantity: 使用数量
+        remaining: 剩余数量
+        effect: 激活的效果（如果有）
+    """
+    
+    type: MessageType = MessageType.CONSUMABLE_USED
+    consumable_id: str = Field(..., description="道具ID")
+    quantity: int = Field(..., description="使用数量")
+    remaining: int = Field(default=0, description="剩余数量")
+    effect: Optional[ConsumableEffectData] = Field(default=None, description="激活效果")
+
+
+class BuyConsumableMessage(BaseMessage):
+    """
+    购买道具请求
+    
+    Attributes:
+        consumable_id: 道具ID
+        quantity: 购买数量
+        use_currency: 使用的货币类型
+    """
+    
+    type: MessageType = MessageType.BUY_CONSUMABLE
+    consumable_id: str = Field(..., description="道具ID")
+    quantity: int = Field(default=1, ge=1, description="购买数量")
+    use_currency: str = Field(default="auto", description="货币类型")
+
+
+class ConsumableBoughtMessage(BaseMessage):
+    """
+    道具已购买响应
+    
+    Attributes:
+        consumable_id: 道具ID
+        quantity: 购买数量
+        total_quantity: 总数量
+        currency: 消耗的货币类型
+        cost: 花费
+    """
+    
+    type: MessageType = MessageType.CONSUMABLE_BOUGHT
+    consumable_id: str = Field(..., description="道具ID")
+    quantity: int = Field(..., description="购买数量")
+    total_quantity: int = Field(..., description="总数量")
+    currency: str = Field(..., description="货币类型")
+    cost: int = Field(..., description="花费")
+
+
+class GetConsumableHistoryMessage(BaseMessage):
+    """
+    获取道具使用历史请求
+    
+    Attributes:
+        limit: 返回数量限制
+    """
+    
+    type: MessageType = MessageType.GET_CONSUMABLE_HISTORY
+    limit: int = Field(default=50, ge=1, le=100, description="返回数量限制")
+
+
+class ConsumableHistoryMessage(BaseMessage):
+    """
+    道具使用历史响应
+    
+    Attributes:
+        history: 历史记录列表
+        total_count: 总数量
+    """
+    
+    type: MessageType = MessageType.CONSUMABLE_HISTORY
+    history: list[ConsumableUsageData] = Field(default_factory=list, description="历史记录")
+    total_count: int = Field(default=0, description="总数量")
+
+
+class ConsumableAddedMessage(BaseMessage):
+    """
+    道具获得通知
+    
+    Attributes:
+        consumable_id: 道具ID
+        name: 道具名称
+        quantity: 获得数量
+        acquire_type: 获得方式
+    """
+    
+    type: MessageType = MessageType.CONSUMABLE_ADDED
+    consumable_id: str = Field(..., description="道具ID")
+    name: str = Field(default="", description="道具名称")
+    quantity: int = Field(..., description="获得数量")
+    acquire_type: str = Field(default="reward", description="获得方式")
+
+
+class ConsumableEffectAppliedMessage(BaseMessage):
+    """
+    道具效果生效通知
+    
+    Attributes:
+        consumable_id: 道具ID
+        effect_type: 效果类型
+        value: 效果数值
+        duration_type: 持续类型
+        duration_value: 持续值
+    """
+    
+    type: MessageType = MessageType.CONSUMABLE_EFFECT_APPLIED
+    consumable_id: str = Field(..., description="道具ID")
+    effect_type: str = Field(..., description="效果类型")
+    value: float = Field(..., description="效果数值")
+    duration_type: str = Field(default="instant", description="持续类型")
+    duration_value: int = Field(default=1, description="持续值")
+
+
+# ============================================================================
 # 消息类型映射（用于反序列化）
 # ============================================================================
 
@@ -4687,6 +4961,25 @@ MESSAGE_CLASS_MAP: dict[MessageType, type[BaseMessage]] = {
     MessageType.SKIN_UNLOCKED: SkinUnlockedMessage,
     MessageType.SKIN_FAVORITE_SET: SkinFavoriteSetMessage,
     
+    # 英雄碎片系统
+    MessageType.GET_SHARD_BACKPACK: GetShardBackpackMessage,
+    MessageType.SHARD_BACKPACK: ShardBackpackMessage,
+    MessageType.COMPOSE_HERO: ComposeHeroMessage,
+    MessageType.HERO_COMPOSED: HeroComposedMessage,
+    MessageType.DECOMPOSE_HERO: DecomposeHeroMessage,
+    MessageType.HERO_DECOMPOSED: HeroDecomposedMessage,
+    MessageType.BATCH_COMPOSE: BatchComposeMessage,
+    MessageType.BATCH_COMPOSE_RESULT: BatchComposeResultMessage,
+    MessageType.BATCH_DECOMPOSE: BatchDecomposeMessage,
+    MessageType.BATCH_DECOMPOSE_RESULT: BatchDecomposeResultMessage,
+    MessageType.ONE_KEY_COMPOSE: OneKeyComposeMessage,
+    MessageType.GET_COMPOSE_REQUIREMENTS: GetComposeRequirementsMessage,
+    MessageType.COMPOSE_REQUIREMENTS: ComposeRequirementsMessage,
+    MessageType.GET_DECOMPOSE_REWARDS: GetDecomposeRewardsMessage,
+    MessageType.DECOMPOSE_REWARDS: DecomposeRewardsMessage,
+    MessageType.SHARD_UPDATED: ShardUpdatedMessage,
+    MessageType.CAN_COMPOSE_NOTIFY: CanComposeNotifyMessage,
+    
     # 回放系统
     MessageType.SAVE_REPLAY: SaveReplayMessage,
     MessageType.REPLAY_SAVED: ReplaySavedMessage,
@@ -4716,6 +5009,32 @@ MESSAGE_CLASS_MAP: dict[MessageType, type[BaseMessage]] = {
     MessageType.GET_EMOTE_HISTORY: GetEmoteHistoryMessage,
     MessageType.EMOTE_HISTORY: EmoteHistoryMessage,
     MessageType.EMOTE_UNLOCKED: EmoteUnlockedMessage,
+    
+    # 投票系统
+    MessageType.GET_VOTING_LIST: GetVotingListMessage,
+    MessageType.VOTING_LIST: VotingListMessage,
+    MessageType.GET_VOTING_DETAILS: GetVotingDetailsMessage,
+    MessageType.VOTING_DETAILS: VotingDetailsMessage,
+    MessageType.VOTE: VoteMessage,
+    MessageType.VOTE_CASTED: VoteCastedMessage,
+    MessageType.GET_VOTING_RESULTS: GetVotingResultsMessage,
+    MessageType.VOTING_RESULTS: VotingResultsMessage,
+    MessageType.CLAIM_VOTING_REWARDS: ClaimVotingRewardsMessage,
+    MessageType.VOTING_REWARDS_CLAIMED: VotingRewardsClaimedMessage,
+    
+    # 道具系统
+    MessageType.GET_CONSUMABLES: GetConsumablesMessage,
+    MessageType.CONSUMABLES_LIST: ConsumablesListMessage,
+    MessageType.GET_PLAYER_CONSUMABLES: GetPlayerConsumablesMessage,
+    MessageType.PLAYER_CONSUMABLES_LIST: PlayerConsumablesListMessage,
+    MessageType.USE_CONSUMABLE: UseConsumableMessage,
+    MessageType.CONSUMABLE_USED: ConsumableUsedMessage,
+    MessageType.BUY_CONSUMABLE: BuyConsumableMessage,
+    MessageType.CONSUMABLE_BOUGHT: ConsumableBoughtMessage,
+    MessageType.GET_CONSUMABLE_HISTORY: GetConsumableHistoryMessage,
+    MessageType.CONSUMABLE_HISTORY: ConsumableHistoryMessage,
+    MessageType.CONSUMABLE_ADDED: ConsumableAddedMessage,
+    MessageType.CONSUMABLE_EFFECT_APPLIED: ConsumableEffectAppliedMessage,
     
     # 错误
     MessageType.ERROR: ErrorMessage,
