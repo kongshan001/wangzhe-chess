@@ -65,6 +65,11 @@ class LineupSlot:
     equipment: List[EquipmentAssignment] = field(default_factory=list)
     star_level: int = 1
     
+    @property
+    def total_equipment_count(self) -> int:
+        """获取装备总数"""
+        return len(self.equipment)
+    
     def to_dict(self) -> Dict[str, Any]:
         """转换为字典"""
         return {

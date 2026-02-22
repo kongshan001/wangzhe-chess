@@ -95,7 +95,7 @@ class TestCustomRoomIntegration:
         )
         
         # 验证房间已满
-        room = room_manager.get_room(room.room_id)
+        room = await room_manager.get_room(room.room_id)
         assert room.is_full is True
 
     @pytest.mark.asyncio
@@ -112,7 +112,7 @@ class TestCustomRoomIntegration:
             room_id=room.room_id,
         )
         
-        room = room_manager.get_room(room.room_id)
+        room = await room_manager.get_room(room.room_id)
         assert room.player_count == 2
 
 
@@ -276,7 +276,7 @@ class TestRoomStateIntegration:
             room_id=room.room_id,
         )
         
-        room = room_manager.get_room(room.room_id)
+        room = await room_manager.get_room(room.room_id)
         
         # 设置准备后才能开始
         room.set_player_ready("player_001", True)

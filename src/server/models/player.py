@@ -20,6 +20,7 @@ from typing import Any, Optional, List
 from sqlalchemy import (
     Boolean,
     DateTime,
+    Float,
     ForeignKey,
     Index,
     Integer,

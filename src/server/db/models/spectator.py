@@ -26,7 +26,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.mysql import JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .base import Base, IdMixin, TimestampMixin
+from src.server.models.base import Base, IdMixin, TimestampMixin
 
 
 class SpectatorDB(Base, IdMixin, TimestampMixin):
