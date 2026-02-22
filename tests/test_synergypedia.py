@@ -351,9 +351,9 @@ class TestSynergypediaManager:
         # 应该包含种族和职业羁绊
         assert len(entries) > 0
         
-        # 检查是否有种族和职业
-        has_race = any(e.synergy_type == SynergyType.RACE for e in entries)
-        has_class = any(e.synergy_type == SynergyType.CLASS for e in entries)
+        # 检查是否有种族和职业（使用值比较）
+        has_race = any(e.synergy_type.value == "race" for e in entries)
+        has_class = any(e.synergy_type.value == "class" for e in entries)
         assert has_race
         assert has_class
     
@@ -363,7 +363,7 @@ class TestSynergypediaManager:
         
         assert entry is not None
         assert entry.name == "战士"
-        assert entry.synergy_type == SynergyType.CLASS
+        assert entry.synergy_type.value == "class"
     
     def test_get_synergy_info_not_found(self, manager):
         """测试获取不存在的羁绊"""
@@ -375,8 +375,8 @@ class TestSynergypediaManager:
         races = manager.get_synergies_by_type(SynergyType.RACE)
         classes = manager.get_synergies_by_type(SynergyType.CLASS)
         
-        assert all(e.synergy_type == SynergyType.RACE for e in races)
-        assert all(e.synergy_type == SynergyType.CLASS for e in classes)
+        assert all(e.synergy_type.value == "race" for e in races)
+        assert all(e.synergy_type.value == "class" for e in classes)
     
     def test_get_recommended_lineups(self, manager):
         """测试获取推荐阵容"""

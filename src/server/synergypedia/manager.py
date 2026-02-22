@@ -172,7 +172,16 @@ class SynergypediaManager:
                     heroes.append(hero_id)
         
         # 按费用排序（高费用在前）
-        heroes.sort(key=lambda h: self._hero_configs.get(h, {}).cost if isinstance(self._hero_configs.get(h), dict) else 0, reverse=True)
+        def get_cost(hero_id):
+            config = self._hero_configs.get(hero_id)
+            if config:
+                if hasattr(config, 'cost'):
+                    return config.cost
+                elif isinstance(config, dict):
+                    return config.get('cost', 0)
+            return 0
+        
+        heroes.sort(key=get_cost, reverse=True)
         
         return heroes
     
