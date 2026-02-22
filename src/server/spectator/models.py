@@ -184,6 +184,9 @@ class SpectatorData:
     # 允许观战的玩家ID列表（用于好友观战）
     allowed_spectators: List[str] = field(default_factory=list)
     
+    # 额外元数据（存储玩家信息、精选标记等）
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    
     def to_dict(self) -> Dict[str, Any]:
         """转换为字典"""
         return {

@@ -3057,6 +3057,282 @@ class SpectateEndedMessage(BaseMessage):
 
 
 # ============================================================================
+# 皮肤系统数据模型
+# ============================================================================
+
+class SkinData(BaseModel):
+    """皮肤数据"""
+    
+    skin_id: str = Field(..., description="皮肤ID")
+    hero_id: str = Field(..., description="英雄ID")
+    name: str = Field(..., description="皮肤名称")
+    description: str = Field(default="", description="皮肤描述")
+    rarity: str = Field(..., description="稀有度")
+    rarity_name: str = Field(default="", description="稀有度名称")
+    skin_type: str = Field(default="shop", description="皮肤类型")
+    price: Optional[dict[str, Any]] = Field(default=None, description="价格")
+    stat_bonuses: list[dict[str, Any]] = Field(default_factory=list, description="属性加成")
+    effects: list[dict[str, Any]] = Field(default_factory=list, description="特效列表")
+    preview_image: str = Field(default="", description="预览图")
+    is_available: bool = Field(default=True, description="是否可获取")
+    is_owned: bool = Field(default=False, description="是否已拥有")
+    is_equipped: bool = Field(default=False, description="是否已装备")
+    is_favorite: bool = Field(default=False, description="是否收藏")
+
+
+class PlayerSkinData(BaseModel):
+    """玩家拥有的皮肤数据"""
+    
+    skin_id: str = Field(..., description="皮肤ID")
+    hero_id: str = Field(..., description="英雄ID")
+    hero_name: str = Field(default="", description="英雄名称")
+    skin_name: str = Field(default="", description="皮肤名称")
+    rarity: str = Field(default="normal", description="稀有度")
+    is_equipped: bool = Field(default=False, description="是否已装备")
+    is_favorite: bool = Field(default=False, description="是否收藏")
+    acquired_at: Optional[str] = Field(default=None, description="获得时间")
+    acquire_type: str = Field(default="buy", description="获得方式")
+
+
+# ============================================================================
+# 皮肤系统消息
+# ============================================================================
+
+class GetSkinsMessage(BaseMessage):
+    """
+    获取皮肤列表请求
+    
+    Attributes:
+        rarity_filter: 稀有度筛选（可选）
+        page: 页码
+        page_size: 每页大小
+    """
+    
+    type: MessageType = MessageType.GET_SKINS
+    rarity_filter: Optional[str] = Field(default=None, description="稀有度筛选")
+    page: int = Field(default=1, ge=1, description="页码")
+    page_size: int = Field(default=20, ge=1, le=100, description="每页大小")
+
+
+class GetHeroSkinsMessage(BaseMessage):
+    """
+    获取英雄皮肤列表请求
+    
+    Attributes:
+        hero_id: 英雄ID
+    """
+    
+    type: MessageType = MessageType.GET_HERO_SKINS
+    hero_id: str = Field(..., description="英雄ID")
+
+
+class GetOwnedSkinsMessage(BaseMessage):
+    """
+    获取已拥有皮肤请求
+    
+    Attributes:
+        hero_id: 英雄ID（可选，不传则返回所有）
+    """
+    
+    type: MessageType = MessageType.GET_OWNED_SKINS
+    hero_id: Optional[str] = Field(default=None, description="英雄ID")
+
+
+class EquipSkinMessage(BaseMessage):
+    """
+    装备皮肤请求
+    
+    Attributes:
+        skin_id: 皮肤ID
+    """
+    
+    type: MessageType = MessageType.EQUIP_SKIN
+    skin_id: str = Field(..., description="皮肤ID")
+
+
+class UnequipSkinMessage(BaseMessage):
+    """
+    卸下皮肤请求
+    
+    Attributes:
+        hero_id: 英雄ID
+    """
+    
+    type: MessageType = MessageType.UNEQUIP_SKIN
+    hero_id: str = Field(..., description="英雄ID")
+
+
+class BuySkinMessage(BaseMessage):
+    """
+    购买皮肤请求
+    
+    Attributes:
+        skin_id: 皮肤ID
+        currency: 货币类型（gold/diamond/auto）
+    """
+    
+    type: MessageType = MessageType.BUY_SKIN
+    skin_id: str = Field(..., description="皮肤ID")
+    currency: str = Field(default="auto", description="货币类型")
+
+
+class SetFavoriteSkinMessage(BaseMessage):
+    """
+    设置收藏皮肤请求
+    
+    Attributes:
+        skin_id: 皮肤ID
+        is_favorite: 是否收藏
+    """
+    
+    type: MessageType = MessageType.SET_FAVORITE_SKIN
+    skin_id: str = Field(..., description="皮肤ID")
+    is_favorite: bool = Field(default=True, description="是否收藏")
+
+
+# 皮肤系统响应消息
+
+class SkinsListMessage(BaseMessage):
+    """
+    皮肤列表响应
+    
+    Attributes:
+        skins: 皮肤列表
+        total_count: 总数量
+        page: 当前页码
+        page_size: 每页大小
+        total_pages: 总页数
+    """
+    
+    type: MessageType = MessageType.SKINS_LIST
+    skins: list[SkinData] = Field(default_factory=list, description="皮肤列表")
+    total_count: int = Field(default=0, description="总数量")
+    page: int = Field(default=1, description="当前页码")
+    page_size: int = Field(default=20, description="每页大小")
+    total_pages: int = Field(default=0, description="总页数")
+
+
+class HeroSkinsListMessage(BaseMessage):
+    """
+    英雄皮肤列表响应
+    
+    Attributes:
+        hero_id: 英雄ID
+        hero_name: 英雄名称
+        skins: 皮肤列表
+        equipped_skin_id: 当前装备的皮肤ID
+    """
+    
+    type: MessageType = MessageType.HERO_SKINS_LIST
+    hero_id: str = Field(..., description="英雄ID")
+    hero_name: str = Field(default="", description="英雄名称")
+    skins: list[SkinData] = Field(default_factory=list, description="皮肤列表")
+    equipped_skin_id: Optional[str] = Field(default=None, description="当前装备的皮肤ID")
+
+
+class OwnedSkinsListMessage(BaseMessage):
+    """
+    已拥有皮肤列表响应
+    
+    Attributes:
+        skins: 皮肤列表
+        total_count: 总数量
+    """
+    
+    type: MessageType = MessageType.OWNED_SKINS_LIST
+    skins: list[PlayerSkinData] = Field(default_factory=list, description="皮肤列表")
+    total_count: int = Field(default=0, description="总数量")
+
+
+class SkinEquippedMessage(BaseMessage):
+    """
+    皮肤已装备响应
+    
+    Attributes:
+        skin_id: 皮肤ID
+        hero_id: 英雄ID
+        skin_name: 皮肤名称
+        stat_bonuses: 属性加成说明
+        effects: 特效说明
+    """
+    
+    type: MessageType = MessageType.SKIN_EQUIPPED
+    skin_id: str = Field(..., description="皮肤ID")
+    hero_id: str = Field(..., description="英雄ID")
+    skin_name: str = Field(..., description="皮肤名称")
+    stat_bonuses: str = Field(default="", description="属性加成说明")
+    effects: str = Field(default="", description="特效说明")
+
+
+class SkinUnequippedMessage(BaseMessage):
+    """
+    皮肤已卸下响应
+    
+    Attributes:
+        hero_id: 英雄ID
+        previous_skin_id: 之前装备的皮肤ID
+    """
+    
+    type: MessageType = MessageType.SKIN_UNEQUIPPED
+    hero_id: str = Field(..., description="英雄ID")
+    previous_skin_id: Optional[str] = Field(default=None, description="之前装备的皮肤ID")
+
+
+class SkinBoughtMessage(BaseMessage):
+    """
+    皮肤已购买响应
+    
+    Attributes:
+        skin_id: 皮肤ID
+        hero_id: 英雄ID
+        skin_name: 皮肤名称
+        currency: 消耗货币类型
+        cost: 消耗数量
+        remaining_balance: 剩余余额
+    """
+    
+    type: MessageType = MessageType.SKIN_BOUGHT
+    skin_id: str = Field(..., description="皮肤ID")
+    hero_id: str = Field(..., description="英雄ID")
+    skin_name: str = Field(..., description="皮肤名称")
+    currency: str = Field(..., description="消耗货币类型")
+    cost: int = Field(..., description="消耗数量")
+    remaining_balance: int = Field(..., description="剩余余额")
+
+
+class SkinUnlockedMessage(BaseMessage):
+    """
+    皮肤已解锁响应（奖励/成就/活动）
+    
+    Attributes:
+        skin_id: 皮肤ID
+        hero_id: 英雄ID
+        skin_name: 皮肤名称
+        unlock_type: 解锁类型
+    """
+    
+    type: MessageType = MessageType.SKIN_UNLOCKED
+    skin_id: str = Field(..., description="皮肤ID")
+    hero_id: str = Field(..., description="英雄ID")
+    skin_name: str = Field(..., description="皮肤名称")
+    unlock_type: str = Field(default="reward", description="解锁类型")
+
+
+class SkinFavoriteSetMessage(BaseMessage):
+    """
+    收藏设置成功响应
+    
+    Attributes:
+        skin_id: 皮肤ID
+        is_favorite: 是否收藏
+    """
+    
+    type: MessageType = MessageType.SKIN_FAVORITE_SET
+    skin_id: str = Field(..., description="皮肤ID")
+    is_favorite: bool = Field(..., description="是否收藏")
+
+
+# ============================================================================
 # 消息类型映射（用于反序列化）
 # ============================================================================
 
@@ -3254,6 +3530,30 @@ MESSAGE_CLASS_MAP: dict[MessageType, type[BaseMessage]] = {
     MessageType.SPECTATE_CHAT: SpectateChatMessage,
     MessageType.SPECTATE_CHAT_RECEIVED: SpectateChatReceivedMessage,
     MessageType.SPECTATE_ENDED: SpectateEndedMessage,
+    
+    # 随机事件系统
+    MessageType.GET_EVENT_HISTORY: GetEventHistoryMessage,
+    MessageType.EVENT_HISTORY: EventHistoryMessage,
+    MessageType.GET_ACTIVE_EVENTS: GetActiveEventsMessage,
+    MessageType.ACTIVE_EVENTS: ActiveEventsMessage,
+    MessageType.RANDOM_EVENT_TRIGGERED: RandomEventTriggeredMessage,
+    
+    # 皮肤系统
+    MessageType.GET_SKINS: GetSkinsMessage,
+    MessageType.GET_HERO_SKINS: GetHeroSkinsMessage,
+    MessageType.GET_OWNED_SKINS: GetOwnedSkinsMessage,
+    MessageType.EQUIP_SKIN: EquipSkinMessage,
+    MessageType.UNEQUIP_SKIN: UnequipSkinMessage,
+    MessageType.BUY_SKIN: BuySkinMessage,
+    MessageType.SET_FAVORITE_SKIN: SetFavoriteSkinMessage,
+    MessageType.SKINS_LIST: SkinsListMessage,
+    MessageType.HERO_SKINS_LIST: HeroSkinsListMessage,
+    MessageType.OWNED_SKINS_LIST: OwnedSkinsListMessage,
+    MessageType.SKIN_EQUIPPED: SkinEquippedMessage,
+    MessageType.SKIN_UNEQUIPPED: SkinUnequippedMessage,
+    MessageType.SKIN_BOUGHT: SkinBoughtMessage,
+    MessageType.SKIN_UNLOCKED: SkinUnlockedMessage,
+    MessageType.SKIN_FAVORITE_SET: SkinFavoriteSetMessage,
     
     # 错误
     MessageType.ERROR: ErrorMessage,
