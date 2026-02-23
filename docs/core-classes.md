@@ -617,7 +617,7 @@ async def handle_shop_refresh(session: Session, message: ShopRefreshMessage):
 └────────┬────────┘
          │
          │ 管理
-         ▼
+          ▼
 ┌─────────────────┐     ┌─────────────────┐
 │ SessionManager  │────<│     Session     │
 └─────────────────┘     └─────────────────┘
@@ -641,8 +641,175 @@ async def handle_shop_refresh(session: Session, message: ShopRefreshMessage):
 │  ┌─────────────┐ ┌─────────────┐ ┌────────────┐ │
 │  │SharedHeroPool│ │SynergyMgr  │ │EconomyMgr  │ │
 │  └─────────────┘ └─────────────┘ └────────────┘ │
-│  ┌─────────────┐ ┌─────────────┐               │
-│  │ ShopManager │ │ BattleSim   │               │
-│  └─────────────┘ └─────────────┘               │
+│  ┌─────────────┐ ┌─────────────┐ ┌────────────┐ │
+│  │ ShopManager │ │ BattleSim   │ │EquipService│ │
+│  └─────────────┘ └─────────────┘ └────────────┘ │
 └─────────────────────────────────────────────────┘
 ```
+
+
+---
+
+## 装备系统
+
+### EquipmentInstance
+
+**位置**: `src/server/game/equipment.py`
+
+**职责**: 装备实例，代表玩家背包中或英雄身上的一个具体装备。
+
+**属性**:
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| instance_id | str | 装备实例唯一ID |
+| equipment_id | str | 装备配置ID（指向Equipment） |
+| equipped_to | str \| None | 装备给哪个英雄（hero_instance_id） |
+| acquired_at | int | 获取时间戳 |
+
+**主要方法**:
+| 方法 | 说明 |
+|------|------|
+| `is_equipped()` | 检查装备是否已被穿戴 |
+| `to_dict()` | 序列化为字典 |
+| `from_dict(data)` | 从字典反序列化 |
+
+---
+
+### EquipmentStats
+
+**位置**: `src/server/game/equipment.py`
+
+**职责**: 装备属性数据类。
+
+**属性**:
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| attack | int | 攻击力加成 |
+| armor | int | 护甲加成 |
+| spell_power | int | 法术强度加成 |
+| hp | int | 生命值加成 |
+| attack_speed | float | 攻击速度加成 |
+
+**主要方法**:
+| 方法 | 说明 |
+|------|------|
+| `__add__(other)` | 合并两个属性 |
+| `to_dict()` | 序列化为字典 |
+| `from_dict(data)` | 从字典反序列化 |
+
+---
+
+### EquipmentService
+
+**位置**: `src/server/game/equipment.py`
+
+**职责**: 装备业务服务，提供装备穿戴、卸下、合成等核心功能。
+
+**属性**:
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| equipment_manager | EquipmentManager | 装备管理器引用 |
+| _instance_counter | int | 实例ID计数器 |
+
+**主要方法**:
+| 方法 | 说明 |
+|------|------|
+| `equip_item(bag, heroes, eq_id, hero_id)` | 装备穿戴 |
+| `unequip_item(bag, heroes, eq_id)` | 装备卸下 |
+| `craft_equipment(bag, eq_ids)` | 装备合成 |
+| `add_equipment_to_bag(bag, eq_id)` | 添加装备到背包 |
+| `get_equipment_stats_for_hero(hero, bag)` | 获取英雄装备属性总和 |
+| `recalculate_hero_stats(hero)` | 重新计算英雄属性 |
+
+---
+
+### EquipResult
+
+**位置**: `src/server/game/equipment.py`
+
+**职责**: 装备穿戴结果。
+
+**属性**:
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| success | bool | 是否成功 |
+| error_code | int | 错误码 |
+| error_message | str | 错误消息 |
+| hero | Hero \| None | 更新后的英雄 |
+| equipment_instance | EquipmentInstance \| None | 装备实例 |
+
+---
+
+### UnequipResult
+
+**位置**: `src/server/game/equipment.py`
+
+**职责**: 装备卸下结果。
+
+**属性**:
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| success | bool | 是否成功 |
+| error_code | int | 错误码 |
+| error_message | str | 错误消息 |
+| hero | Hero \| None | 更新后的英雄 |
+| equipment_instance | EquipmentInstance \| None | 装备实例 |
+
+---
+
+### CraftResult
+
+**位置**: `src/server/game/equipment.py`
+
+**职责**: 装备合成结果。
+
+**属性**:
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| success | bool | 是否成功 |
+| error_code | int | 错误码 |
+| error_message | str | 错误消息 |
+| consumed_ids | list[str] | 消耗的装备ID列表 |
+| new_equipment | EquipmentInstance \| None | 新获得的装备 |
+
+---
+
+### EquipmentErrorCode
+
+**位置**: `src/server/game/equipment.py`
+
+**职责**: 装备操作错误码常量。
+
+**错误码**:
+| 错误码 | 名称 | 说明 |
+|--------|------|------|
+| 0 | SUCCESS | 成功 |
+| 2001 | EQUIPMENT_NOT_FOUND | 装备不存在 |
+| 2002 | EQUIPMENT_ALREADY_EQUIPPED | 装备已被穿戴 |
+| 2003 | HERO_EQUIPMENT_FULL | 英雄装备槽已满 |
+| 2004 | INVALID_RECIPE | 无效的合成配方 |
+| 2005 | HERO_NOT_FOUND | 英雄不存在 |
+| 2006 | INSUFFICIENT_EQUIPMENT | 装备数量不足 |
+| 2007 | EQUIPMENT_NOT_EQUIPPED | 装备未被穿戴 |
+| 2008 | PERMISSION_DENIED | 权限不足 |
+
+---
+
+### EquipmentWSHandler
+
+**位置**: `src/server/ws/equipment_ws.py`
+
+**职责**: 装备系统 WebSocket 处理器。
+
+**属性**:
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| equipment_service | EquipmentService | 装备服务实例 |
+
+**主要方法**:
+| 方法 | 说明 |
+|------|------|
+| `handle_equip_item(session, message, player_data)` | 处理穿戴请求 |
+| `handle_unequip_item(session, message, player_data)` | 处理卸下请求 |
+| `handle_craft_equipment(session, message, player_data)` | 处理合成请求 |
+| `handle_get_equipment_bag(session, message, player_data)` | 处理获取背包请求 |

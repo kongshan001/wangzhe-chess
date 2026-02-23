@@ -162,6 +162,17 @@ WebSocket 实时通信：
 - 帧同步支持
 - 技能释放
 
+#### 4.5 装备系统 (equipment.py)
+- **EquipmentManager**: 装备配置管理
+- **EquipmentService**: 装备业务服务
+  - 装备穿戴（最多3件）
+  - 装备卸下
+  - 装备合成
+- **EquipmentInstance**: 装备实例数据类
+- **EquipmentStats**: 装备属性数据类
+- 与英雄系统集成
+- WebSocket 处理器支持
+
 ### 5. 房间模块 (room/)
 
 #### 5.1 GameRoom (game_room.py)
