@@ -1,0 +1,50 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "agent": {
+    "build": {
+      "model": "anthropic/claude-sonnet-4-20250514"
+    },
+    "orchestrator": {
+      "mode": "primary",
+      "model": "anthropic/claude-sonnet-4-20250514",
+      "description": "主控协调器，自动拆解目标并调度各角色执行",
+      "permission": {
+        "edit": "allow",
+        "bash": "allow",
+        "task": {
+          "*": "allow"
+        }
+      }
+    },
+    "planner": {
+      "mode": "subagent",
+      "model": "anthropic/claude-sonnet-4-20250514",
+      "description": "游戏策划，分析需求并编写功能规格文档"
+    },
+    "developer": {
+      "mode": "subagent",
+      "model": "anthropic/claude-sonnet-4-20250514",
+      "description": "开发工程师，实现功能代码"
+    },
+    "code-reviewer": {
+      "mode": "subagent",
+      "model": "anthropic/claude-sonnet-4-20250514",
+      "description": "代码审核，检查代码质量和最佳实践"
+    },
+    "qa": {
+      "mode": "subagent",
+      "model": "anthropic/claude-sonnet-4-20250514",
+      "description": "QA测试工程师，确保测试覆盖率100%"
+    },
+    "doc-writer": {
+      "mode": "subagent",
+      "model": "anthropic/claude-sonnet-4-20250514",
+      "description": "文档工程师，编写和更新项目文档"
+    }
+  },
+  "permission": {
+    "skill": {
+      "*": "allow"
+    }
+  }
+}
