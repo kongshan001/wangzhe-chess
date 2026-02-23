@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import structlog
 
 from config.settings import settings
-from src.server.db.database import init_db, close_db
+from src.server.db.database import init_db, close_db, DatabaseConfig
 
 
 logger = structlog.get_logger()
@@ -21,16 +21,28 @@ logger = structlog.get_logger()
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """应用生命周期管理"""
-    # 启动时
     logger.info("Starting WangZhe Chess server...", version="0.1.0")
-    await init_db()
-    logger.info("Database initialized")
-    
+    try:
+        db_config = DatabaseConfig(
+            database_url=settings.database.url,
+            pool_size=settings.database.POOL_SIZE,
+            max_overflow=settings.database.MAX_OVERFLOW,
+            pool_timeout=settings.database.POOL_TIMEOUT,
+            pool_recycle=settings.database.POOL_RECYCLE,
+            echo=settings.database.ECHO,
+        )
+        await init_db(db_config)
+        logger.info("Database initialized")
+    except Exception as e:
+        logger.warning(f"Database connection failed: {e}. Running without database.")
+
     yield
-    
-    # 关闭时
+
     logger.info("Shutting down server...")
-    await close_db()
+    try:
+        await close_db()
+    except Exception:
+        pass
     logger.info("Server stopped")
 
 
@@ -43,18 +55,20 @@ app = FastAPI(
 )
 
 # CORS 配置
+cors_config = settings.get_cors_config()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=cors_config["allow_origins"],
+    allow_credentials=cors_config["allow_credentials"],
+    allow_methods=cors_config["allow_methods"],
+    allow_headers=cors_config["allow_headers"],
 )
 
 
 # ============================================================================
 # HTTP 路由
 # ============================================================================
+
 
 @app.get("/")
 async def root() -> dict:
@@ -86,7 +100,7 @@ ws_handler = WebSocketHandler()
 async def websocket_endpoint(websocket: WebSocket, player_id: str) -> None:
     """
     WebSocket 连接端点
-    
+
     Args:
         websocket: WebSocket 连接
         player_id: 玩家ID
@@ -112,12 +126,13 @@ async def websocket_endpoint(websocket: WebSocket, player_id: str) -> None:
 def main() -> None:
     """启动服务器"""
     import uvicorn
+
     uvicorn.run(
         "src.server.main:app",
-        host=settings.HOST,
-        port=settings.PORT,
+        host=settings.server.HOST,
+        port=settings.server.PORT,
         reload=settings.DEBUG,
-        log_config=None,  # 使用 structlog
+        log_config=None,
     )
 
 
