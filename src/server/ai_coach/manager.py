@@ -445,7 +445,7 @@ class AICoachManager:
         front_row_count = 0
         back_row_count = 0
 
-        for pos_str, hero in board.items():
+        for pos_str, _hero in board.items():
             if isinstance(pos_str, str):
                 # 假设位置格式为 "row_col"
                 parts = pos_str.split("_")

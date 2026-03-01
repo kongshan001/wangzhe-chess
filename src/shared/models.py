@@ -200,7 +200,7 @@ class HeroTemplate:
             "base_attack": self.base_attack,
             "base_defense": self.base_defense,
             "attack_speed": self.attack_speed,
-            "skill": self.skill.to_dict() if self.skill else None,
+            "skill": self.skillevel.to_dict() if self.skill else None,
         }
 
     @classmethod
@@ -442,7 +442,7 @@ class Hero:
             "attack": self.attack,
             "defense": self.defense,
             "attack_speed": self.attack_speed,
-            "skill": self.skill.to_dict() if self.skill else None,
+            "skill": self.skillevel.to_dict() if self.skill else None,
             "position": self.position.to_dict() if self.position else None,
             "mana": self.mana,
             "state": self.state.value,
@@ -1117,7 +1117,7 @@ class Synergy:
         return {
             "name": self.name,
             "synergy_type": self.synergy_type.value,
-            "levels": [l.to_dict() for l in self.levels],
+            "levels": [level.to_dict() for l in self.levels],
             "description": self.description,
         }
 
@@ -1125,7 +1125,7 @@ class Synergy:
     def from_dict(cls, data: dict[str, Any]) -> Synergy:
         """从字典反序列化"""
         levels_data = data.get("levels", [])
-        levels = [SynergyLevel.from_dict(l) for l in levels_data]
+        levels = [SynergyLevel.from_dict(level) for l in levels_data]
 
         return cls(
             name=data["name"],
@@ -1162,7 +1162,7 @@ class ActiveSynergy:
             "synergy_name": self.synergy_name,
             "synergy_type": self.synergy_type.value,
             "count": self.count,
-            "active_level": self.active_level.to_dict() if self.active_level else None,
+            "active_level": self.active_levelevel.to_dict() if self.active_level else None,
         }
 
 
