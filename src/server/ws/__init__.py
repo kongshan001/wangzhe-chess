@@ -2,35 +2,47 @@
 王者之奕 - WebSocket 处理器初始化
 
 本模块负责注册所有 WebSocket 消息处理器。
-注意：部分处理器模块存在导入路径问题，暂时跳过。
 """
 
-from src.server.ws.handler import WebSocketHandler
-
-
-def register_all_handlers(ws_handler: WebSocketHandler) -> None:
+def register_all_handlers() -> None:
     """
     注册所有 WebSocket 消息处理器
-    
-    Args:
-        ws_handler: 主 WebSocket 处理器实例
+    注意: 此函数需要在 ws_handler 创建后调用
     """
-    # 已注册的处理器
+    from src.server.ws.handler import ws_handler
+    
     registered = []
+    failed = []
     
-    # 尝试注册各模块
-    # 注意：部分模块存在导入路径问题
+    # 要注册的模块列表
+    modules = [
+        'consumable_ws',
+        'emote_ws', 
+        'leaderboard_ws',
+        'lineup_ws',
+        'spectator_ws',
+        'voting_ws',
+    ]
     
-    # 1. 阵容处理器 (lineup_ws) - 可能有类似问题，先跳过
-    # from src.server.ws import lineup_ws
+    import importlib
     
-    # 2. 观战处理器 (spectator_ws) - 可能有类似问题，先跳过
-    # from src.server.ws import spectator_ws
+    for mod_name in modules:
+        try:
+            # 动态导入模块
+            importlib.import_module(f'src.server.ws.{mod_name}')
+            registered.append(mod_name)
+            print(f"✅ 注册 {mod_name}")
+        except NameError as e:
+            if 'ws_handler' in str(e):
+                # ws_handler 尚未定义，跳过此模块
+                print(f"⚠️ 跳过 {mod_name}: ws_handler 未定义")
+            else:
+                failed.append((mod_name, str(e)))
+                print(f"❌ 注册 {mod_name} 失败: {e}")
+        except Exception as e:
+            failed.append((mod_name, str(e)))
+            print(f"❌ 注册 {mod_name} 失败: {e}")
     
-    # 3. 投票处理器 (voting_ws) - 可能有类似问题，先跳过
-    # from src.server.ws import voting_ws
-    
-    # 注册商店刷新处理器（内置于 handler.py）
-    # 这已经通过 @handler.on_message 装饰器在 handler.py 中注册了
-    
-    print(f"✅ WebSocket 处理器初始化完成 (已注册: {len(registered)} 个模块)")
+    print(f"\n📊 注册完成: {len(registered)}/{len(modules)}")
+    if failed:
+        print(f"⚠️ 失败模块: {[f[0] for f in failed]}")

@@ -16,6 +16,8 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Any, Optional
 
+from ..ws.handler import ws_handler
+
 from ..consumable import (
     ConsumableManager,
     ConsumableEffect,
@@ -422,3 +424,24 @@ def get_consumable_ws_handler(config_path: Optional[str] = None) -> ConsumableWS
     if _consumable_ws_handler is None:
         _consumable_ws_handler = ConsumableWSHandler(config_path)
     return _consumable_ws_handler
+
+
+# ============================================================================
+# 消息处理器注册
+# ============================================================================
+
+# 创建处理器实例
+_consumable_handler_instance = ConsumableWSHandler()
+
+# 注册消息处理器
+@ws_handler.on_message(MessageType.GET_CONSUMABLES)
+async def handle_get_consumables(session, message):
+    return await _consumable_handler_instance.handle_get_consumables(session, message)
+
+@ws_handler.on_message(MessageType.GET_PLAYER_CONSUMABLES)
+async def handle_get_player_consumables(session, message):
+    return await _consumable_handler_instance.handle_get_player_consumables(session, message)
+
+@ws_handler.on_message(MessageType.BUY_CONSUMABLE)
+async def handle_buy_consumable(session, message):
+    return await _consumable_handler_instance.handle_buy_consumable(session, message)

@@ -16,6 +16,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Any, Optional
 
+from ..ws.handler import ws_handler
 from ..emote import (
     EmoteManager,
     get_emote_manager,
@@ -42,6 +43,7 @@ from ...shared.protocol import (
     SetEmoteHotkeyMessage,
 )
 
+from ..ws.handler import ws_handler
 if TYPE_CHECKING:
     from ..ws.handler import Session, WebSocketHandler
 

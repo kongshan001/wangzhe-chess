@@ -7,7 +7,7 @@
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 import structlog
 
@@ -90,25 +90,31 @@ async def health_check() -> dict:
 # WebSocket 路由
 # ============================================================================
 
-from fastapi import WebSocket, WebSocketDisconnect
-from src.server.ws.handler import WebSocketHandler
-from src.server.ws import register_all_handlers
+from src.server.ws.handler import ws_handler
+from src.shared.protocol import MessageType
 
-ws_handler = WebSocketHandler()
 
-# 注册所有 WebSocket 消息处理器
-register_all_handlers(ws_handler)
+def register_handlers():
+    """注册所有消息处理器"""
+    from src.server.ws.consumable_ws import ConsumableWSHandler
+    
+    handler = ConsumableWSHandler()
+    
+    # 注册 consumable 处理器 (使用MessageType枚举)
+    ws_handler._handlers[MessageType.GET_CONSUMABLES] = handler.handle_get_consumables
+    ws_handler._handlers[MessageType.GET_PLAYER_CONSUMABLES] = handler.handle_get_player_consumables
+    ws_handler._handlers[MessageType.BUY_CONSUMABLE] = handler.handle_buy_consumable
+    
+    print(f"✅ 已注册 3 个消息处理器, 当前共 {len(ws_handler._handlers)} 个")
+
+
+# 注册处理器
+register_handlers()
 
 
 @app.websocket("/ws/{player_id}")
 async def websocket_endpoint(websocket: WebSocket, player_id: str) -> None:
-    """
-    WebSocket 连接端点
-
-    Args:
-        websocket: WebSocket 连接
-        player_id: 玩家ID (用于日志，实际认证在消息中)
-    """
+    """WebSocket 连接端点"""
     await ws_handler.handle_connection(websocket)
 
 

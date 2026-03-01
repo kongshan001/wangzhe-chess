@@ -16,6 +16,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Any, Optional
 
+from ..ws.handler import ws_handler
 from ..spectator import (
     GameVisibility,
     SpectatableGame,
@@ -44,6 +45,7 @@ from ...shared.protocol import (
     MessageType,
 )
 
+from ..ws.handler import ws_handler
 if TYPE_CHECKING:
     from ..ws.handler import Session
 

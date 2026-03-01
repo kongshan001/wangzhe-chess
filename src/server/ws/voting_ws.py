@@ -19,8 +19,8 @@ from __future__ import annotations
 import structlog
 from typing import TYPE_CHECKING, Any, Optional
 
-from src.shared.protocol import MessageType
-from src.shared.protocol.messages import (
+from ...shared.protocol import MessageType
+from ...shared.protocol import (
     BaseMessage,
     GetVotingListMessage,
     VotingListMessage,

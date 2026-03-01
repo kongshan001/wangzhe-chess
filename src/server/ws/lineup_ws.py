@@ -19,6 +19,7 @@ from typing import TYPE_CHECKING, Any, Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from ..ws.handler import ws_handler
 from ..lineup import (
     LineupManager,
     LineupPreset,
@@ -48,6 +49,7 @@ from ...shared.protocol import (
     MessageType,
 )
 
+from ..ws.handler import ws_handler
 if TYPE_CHECKING:
     from ..ws.handler import Session
 
