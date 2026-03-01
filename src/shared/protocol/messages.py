@@ -12,7 +12,7 @@
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
@@ -22,7 +22,7 @@ from pydantic import BaseModel, Field
 # ============================================================================
 
 
-class MessageType(str, Enum):
+class MessageType(StrEnum):
     """消息类型枚举"""
 
     # ========== 连接相关 ==========

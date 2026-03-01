@@ -18,11 +18,11 @@ from __future__ import annotations
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
-class CustomRoomState(str, Enum):
+class CustomRoomState(StrEnum):
     """
     自定义房间状态枚举
 
@@ -38,7 +38,7 @@ class CustomRoomState(str, Enum):
     FINISHED = "finished"
 
 
-class RoomPlayerState(str, Enum):
+class RoomPlayerState(StrEnum):
     """
     房间内玩家状态
 
@@ -56,7 +56,7 @@ class RoomPlayerState(str, Enum):
     ELIMINATED = "eliminated"
 
 
-class SpecialRuleType(str, Enum):
+class SpecialRuleType(StrEnum):
     """
     特殊规则类型枚举
 

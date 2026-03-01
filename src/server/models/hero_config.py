@@ -14,7 +14,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from enum import Enum as PyEnum
+from enum import StrEnum
 from typing import Any
 
 from sqlalchemy import (
@@ -34,7 +34,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import Base, IdMixin, TimestampMixin
 
 
-class HeroStatus(str, PyEnum):
+class HeroStatus(StrEnum):
     """英雄状态枚举"""
 
     ACTIVE = "active"  # 可用
@@ -43,7 +43,7 @@ class HeroStatus(str, PyEnum):
     REMOVED = "removed"  # 已移除
 
 
-class SynergyType(str, PyEnum):
+class SynergyType(StrEnum):
     """羁绊类型枚举"""
 
     RACE = "race"  # 种族

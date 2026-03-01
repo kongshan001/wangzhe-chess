@@ -831,7 +831,7 @@ class BattleSimulator:
         """
         enemies = self._get_enemy_units(caster)
         allies = self.units_a if caster.team == 0 else self.units_b
-        alive_allies = [u for u in allies if u.is_alive()]
+        [u for u in allies if u.is_alive()]
 
         target_type = skill.target_type
 

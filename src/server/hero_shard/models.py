@@ -14,11 +14,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 
-class ShardSource(str, Enum):
+class ShardSource(StrEnum):
     """碎片来源枚举"""
 
     MATCH_REWARD = "match_reward"  # 对局奖励

@@ -21,7 +21,7 @@ import uuid
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 import structlog
@@ -34,7 +34,7 @@ from src.server.random_event import (
 logger = structlog.get_logger()
 
 
-class RoomState(str, Enum):
+class RoomState(StrEnum):
     """
     房间状态枚举
 
@@ -53,7 +53,7 @@ class RoomState(str, Enum):
     FINISHED = "finished"  # 游戏结束
 
 
-class PlayerState(str, Enum):
+class PlayerState(StrEnum):
     """
     玩家状态枚举
 
@@ -993,7 +993,7 @@ class GameRoom:
         await self._set_state(RoomState.FINISHED)
 
         # 计算排名
-        alive_players = self.get_alive_players()
+        self.get_alive_players()
         all_players = list(self.players.values())
 
         # 按存活状态和血量排序

@@ -13,11 +13,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
-class ConsumableType(str, Enum):
+class ConsumableType(StrEnum):
     """道具类型枚举"""
 
     RANK_PROTECT = "rank_protect"  # 段位保护卡
@@ -48,7 +48,7 @@ class ConsumableType(str, Enum):
         return descriptions.get(ctype, "未知效果")
 
 
-class ConsumableEffect(str, Enum):
+class ConsumableEffect(StrEnum):
     """道具效果类型枚举"""
 
     RANK_PROTECT = "rank_protect"  # 段位保护：输掉对局不扣星
@@ -68,7 +68,7 @@ class ConsumableEffect(str, Enum):
         return effect_values.get(effect, 1.0)
 
 
-class ConsumableRarity(str, Enum):
+class ConsumableRarity(StrEnum):
     """道具稀有度枚举"""
 
     COMMON = "common"  # 普通

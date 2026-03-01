@@ -16,11 +16,11 @@ import hashlib
 import time
 import uuid
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 
-class ReplayStatus(str, Enum):
+class ReplayStatus(StrEnum):
     """回放状态枚举"""
 
     IDLE = "idle"  # 空闲

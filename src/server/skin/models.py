@@ -15,11 +15,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
-class SkinRarity(str, Enum):
+class SkinRarity(StrEnum):
     """皮肤稀有度枚举"""
 
     NORMAL = "normal"  # 普通皮肤：纯视觉变化
@@ -61,7 +61,7 @@ class SkinRarity(str, Enum):
         return colors.get(rarity, "#FFFFFF")
 
 
-class SkinType(str, Enum):
+class SkinType(StrEnum):
     """皮肤类型枚举"""
 
     SHOP = "shop"  # 商店购买
@@ -71,7 +71,7 @@ class SkinType(str, Enum):
     DEFAULT = "default"  # 默认皮肤
 
 
-class SkinEffectType(str, Enum):
+class SkinEffectType(StrEnum):
     """皮肤特效类型枚举"""
 
     MODEL = "model"  # 模型变化

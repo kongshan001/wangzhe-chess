@@ -90,7 +90,7 @@ class TradingManager:
         # 检查每日交易限制
         sender_history = self._get_or_create_history(sender_id)
         if not sender_history.can_trade_today():
-            remaining = sender_history.remaining_daily_trades()
+            sender_history.remaining_daily_trades()
             return None, "今日交易次数已达上限，请明天再来"
 
         # 预先增加每日计数（防止超限）

@@ -15,11 +15,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
-class LeaderboardType(str, Enum):
+class LeaderboardType(StrEnum):
     """排行榜类型枚举"""
 
     TIER = "tier"  # 段位排行（按段位积分）
@@ -41,7 +41,7 @@ class LeaderboardType(str, Enum):
         return names[self]
 
 
-class LeaderboardPeriod(str, Enum):
+class LeaderboardPeriod(StrEnum):
     """排行榜周期枚举"""
 
     WEEKLY = "weekly"  # 周榜

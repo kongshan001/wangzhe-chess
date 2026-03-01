@@ -15,11 +15,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
-class FriendRelation(str, Enum):
+class FriendRelation(StrEnum):
     """好友关系类型枚举"""
 
     FRIEND = "friend"  # 正常好友
@@ -27,7 +27,7 @@ class FriendRelation(str, Enum):
     BLOCKED_BY = "blocked_by"  # 被对方拉黑
 
 
-class FriendStatus(str, Enum):
+class FriendStatus(StrEnum):
     """好友在线状态枚举"""
 
     ONLINE = "online"  # 在线
@@ -37,7 +37,7 @@ class FriendStatus(str, Enum):
     IN_ROOM = "in_room"  # 房间中（等待开始）
 
 
-class FriendRequestStatus(str, Enum):
+class FriendRequestStatus(StrEnum):
     """好友请求状态枚举"""
 
     PENDING = "pending"  # 等待处理

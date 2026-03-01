@@ -598,10 +598,10 @@ class SynergyManager:
         bonuses = self.get_synergy_bonuses(list(hero_copies.values()), alive_only=False)
 
         # 统计每个英雄所属的羁绊
-        counts = self.count_heroes_by_synergy(list(hero_copies.values()))
+        self.count_heroes_by_synergy(list(hero_copies.values()))
 
         # 应用加成
-        for hero_id, hero in hero_copies.items():
+        for _hero_id, hero in hero_copies.items():
             hero_bonuses: dict[str, float] = {}
 
             # 收集该英雄所属羁绊的加成

@@ -14,11 +14,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
-class TutorialType(str, Enum):
+class TutorialType(StrEnum):
     """
     引导类型枚举
 
@@ -43,7 +43,7 @@ class TutorialType(str, Enum):
         return names.get(self, self.value)
 
 
-class TutorialStepAction(str, Enum):
+class TutorialStepAction(StrEnum):
     """
     引导步骤动作类型枚举
 

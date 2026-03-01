@@ -13,11 +13,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
-class EventType(str, Enum):
+class EventType(StrEnum):
     """
     事件类型枚举
 
@@ -66,7 +66,7 @@ class EventType(str, Enum):
         return names.get(self, self.value)
 
 
-class EventEffectType(str, Enum):
+class EventEffectType(StrEnum):
     """
     事件效果类型枚举
 
@@ -99,7 +99,7 @@ class EventEffectType(str, Enum):
     RANDOM_REWARD = "random_reward"  # 随机奖励
 
 
-class EventRarity(str, Enum):
+class EventRarity(StrEnum):
     """
     事件稀有度枚举
     """

@@ -16,11 +16,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
-class VotingType(str, Enum):
+class VotingType(StrEnum):
     """投票类型枚举"""
 
     NEW_HERO = "new_hero"  # 新英雄投票
@@ -30,7 +30,7 @@ class VotingType(str, Enum):
     CUSTOM = "custom"  # 自定义投票
 
 
-class VotingStatus(str, Enum):
+class VotingStatus(StrEnum):
     """投票状态枚举"""
 
     DRAFT = "draft"  # 草稿
@@ -39,7 +39,7 @@ class VotingStatus(str, Enum):
     CANCELLED = "cancelled"  # 已取消
 
 
-class RewardType(str, Enum):
+class RewardType(StrEnum):
     """奖励类型枚举"""
 
     GOLD = "gold"  # 金币

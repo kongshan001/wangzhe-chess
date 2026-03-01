@@ -337,7 +337,7 @@ async def get_player(
     summary="更新玩家信息",
     description="""
     更新指定玩家的信息。
-    
+
     可更新的字段：
     - nickname: 昵称（2-20个字符）
     - avatar: 头像URL
@@ -412,7 +412,7 @@ async def update_player(
     summary="获取玩家统计",
     description="""
     获取指定玩家的游戏统计数据。
-    
+
     包括：
     - 对局统计（场次、胜率等）
     - 战斗统计（伤害、击杀等）
@@ -477,7 +477,7 @@ async def get_player_stats(
     summary="获取玩家段位",
     description="""
     获取指定玩家的段位信息。
-    
+
     包括：
     - 当前段位和积分
     - 历史最高段位
@@ -539,7 +539,7 @@ async def get_player_rank(
     summary="获取玩家背包",
     description="""
     获取指定玩家的背包物品列表。
-    
+
     支持按物品类型筛选。
     """,
     responses={
@@ -604,7 +604,7 @@ async def get_player_inventory(
     summary="搜索玩家",
     description="""
     搜索玩家列表。
-    
+
     支持通过昵称或用户名搜索。
     返回匹配的玩家列表（简化信息）。
     """,

@@ -164,7 +164,7 @@ class LineupManager:
         Returns:
             更新后的预设，不存在返回None
         """
-        model = self._get_model()
+        self._get_model()
 
         # 获取现有预设
         db_preset = await self._get_db_preset(preset_id, player_id)
@@ -337,7 +337,7 @@ class LineupManager:
             应用预设后的棋盘状态建议
         """
         # 获取预设中的英雄位置
-        hero_positions = preset.get_heroes_at_positions()
+        preset.get_heroes_at_positions()
 
         # 构建棋盘状态
         board = {

@@ -15,11 +15,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
-class EmoteCategory(str, Enum):
+class EmoteCategory(StrEnum):
     """
     表情分类枚举
 
@@ -36,7 +36,7 @@ class EmoteCategory(str, Enum):
     SPECIAL = "special"  # 特殊表情
 
 
-class EmoteType(str, Enum):
+class EmoteType(StrEnum):
     """
     表情类型枚举
 

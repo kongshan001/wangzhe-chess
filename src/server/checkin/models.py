@@ -14,11 +14,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import date, datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
-class RewardType(str, Enum):
+class RewardType(StrEnum):
     """奖励类型枚举"""
 
     GOLD = "gold"  # 金币

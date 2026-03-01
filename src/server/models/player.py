@@ -14,7 +14,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from enum import Enum as PyEnum
+from enum import StrEnum
 from typing import Any
 
 from sqlalchemy import (
@@ -34,7 +34,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import Base, IdMixin, TimestampMixin
 
 
-class RankTier(str, PyEnum):
+class RankTier(StrEnum):
     """段位枚举"""
 
     BRONZE = "bronze"  # 青铜

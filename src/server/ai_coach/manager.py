@@ -326,7 +326,7 @@ class AICoachManager:
         """计算阵容评分"""
         heroes = game_state.get("heroes", [])
         level = game_state.get("level", 1)
-        round_num = game_state.get("round_num", 1)
+        game_state.get("round_num", 1)
 
         if not heroes:
             return 30.0
@@ -347,7 +347,7 @@ class AICoachManager:
         # 羁绊完整性加成
         synergies = game_state.get("synergies", {})
         synergy_score = 0.0
-        for synergy_name, count in synergies.items():
+        for _synergy_name, count in synergies.items():
             if count >= 4:
                 synergy_score += 10
             elif count >= 2:
@@ -403,7 +403,7 @@ class AICoachManager:
         strong_count = 0
         total_count = sum(synergies.values())
 
-        for synergy_name, count in synergies.items():
+        for _synergy_name, count in synergies.items():
             if count >= 2:
                 active_count += 1
             if count >= 4:
@@ -1265,7 +1265,6 @@ class AICoachManager:
         factors["level"] = min(1.0, level / expected_level)
 
         # 计算综合胜率
-        base_win_rate = 0.125  # 8人游戏，基础胜率1/8
 
         # 各因素权重
         weights = {

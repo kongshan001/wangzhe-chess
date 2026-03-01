@@ -14,11 +14,11 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
-class SpectatorStatus(str, Enum):
+class SpectatorStatus(StrEnum):
     """观战状态枚举"""
 
     WATCHING = "watching"  # 观战中
@@ -26,7 +26,7 @@ class SpectatorStatus(str, Enum):
     ENDED = "ended"  # 已结束
 
 
-class GameVisibility(str, Enum):
+class GameVisibility(StrEnum):
     """对局可见性枚举"""
 
     PUBLIC = "public"  # 公开观战

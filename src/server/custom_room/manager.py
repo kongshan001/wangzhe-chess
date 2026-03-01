@@ -897,7 +897,7 @@ class CustomRoomManager:
             清理的房间数量
         """
         cleaned = 0
-        now = time.time()
+        time.time()
 
         async with self._lock:
             rooms_to_remove = []

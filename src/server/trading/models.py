@@ -15,11 +15,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
-class TradeStatus(str, Enum):
+class TradeStatus(StrEnum):
     """交易状态枚举"""
 
     PENDING = "pending"  # 等待对方响应
@@ -34,7 +34,7 @@ class TradeStatus(str, Enum):
     EXPIRED = "expired"  # 交易过期
 
 
-class TradeItemType(str, Enum):
+class TradeItemType(StrEnum):
     """交易物品类型枚举"""
 
     HERO_SHARD = "hero_shard"  # 英雄碎片

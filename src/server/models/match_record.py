@@ -11,7 +11,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from sqlalchemy import (
@@ -27,7 +27,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import Base, IdMixin
 
 
-class MatchStatus(str, Enum):
+class MatchStatus(StrEnum):
     """对局状态枚举"""
 
     WAITING = "waiting"  # 等待玩家

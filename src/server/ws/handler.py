@@ -466,7 +466,6 @@ class WebSocketHandler:
             会话对象，失败返回 None
         """
         player_id = message.player_id
-        token = message.token
 
         # TODO: 验证 token
         # if not await self._verify_token(player_id, token):
@@ -615,11 +614,11 @@ class WebSocketHandler:
             result = handler(session, message)
             if asyncio.iscoroutine(result):
                 result = await result
-            
+
             # 如果handler返回了消息，发送给客户端
             if result is not None:
                 await self._send_message(session.websocket, result)
-                
+
         except Exception as e:
             logger.exception(
                 "消息处理失败",
@@ -668,7 +667,7 @@ class WebSocketHandler:
             try:
                 await asyncio.sleep(HeartbeatConfig.INTERVAL)
 
-                now = time.time() * 1000
+                time.time() * 1000
                 sessions_to_remove: list[str] = []
 
                 for session in self.session_manager.get_all_sessions():

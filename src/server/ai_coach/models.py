@@ -18,11 +18,11 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
-class SuggestionType(str, Enum):
+class SuggestionType(StrEnum):
     """建议类型枚举"""
 
     LINEUP = "lineup"  # 阵容建议
@@ -35,7 +35,7 @@ class SuggestionType(str, Enum):
     SYNERGY = "synergy"  # 羁绊建议
 
 
-class Priority(str, Enum):
+class Priority(StrEnum):
     """建议优先级"""
 
     LOW = "low"  # 低优先级
@@ -44,7 +44,7 @@ class Priority(str, Enum):
     CRITICAL = "critical"  # 关键/紧急
 
 
-class AnalysisType(str, Enum):
+class AnalysisType(StrEnum):
     """分析类型"""
 
     EARLY_GAME = "early_game"  # 前期（1-10回合）
