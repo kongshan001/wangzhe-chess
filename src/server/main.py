@@ -92,8 +92,12 @@ async def health_check() -> dict:
 
 from fastapi import WebSocket, WebSocketDisconnect
 from src.server.ws.handler import WebSocketHandler
+from src.server.ws import register_all_handlers
 
 ws_handler = WebSocketHandler()
+
+# 注册所有 WebSocket 消息处理器
+register_all_handlers(ws_handler)
 
 
 @app.websocket("/ws/{player_id}")

@@ -13,14 +13,14 @@ from __future__ import annotations
 import time
 from typing import TYPE_CHECKING, Any
 
-from server.game.equipment import (
+from src.server.game.equipment import (
     CraftResult,
     EquipmentErrorCode,
     EquipResult,
     UnequipResult,
     create_equipment_service,
 )
-from shared.protocol.messages import (
+from ...shared.protocol.messages import (
     BaseMessage,
     CraftEquipmentMessage,
     EquipItemMessage,
