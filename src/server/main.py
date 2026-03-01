@@ -103,15 +103,9 @@ async def websocket_endpoint(websocket: WebSocket, player_id: str) -> None:
 
     Args:
         websocket: WebSocket 连接
-        player_id: 玩家ID
+        player_id: 玩家ID (用于日志，实际认证在消息中)
     """
-    await ws_handler.connect(websocket, player_id)
-    try:
-        while True:
-            data = await websocket.receive_json()
-            await ws_handler.handle_message(player_id, data)
-    except WebSocketDisconnect:
-        await ws_handler.disconnect(player_id)
+    await ws_handler.handle_connection(websocket)
 
 
 # ============================================================================

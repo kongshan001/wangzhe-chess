@@ -391,6 +391,9 @@ class WebSocketHandler:
         session: Optional[Session] = None
         
         try:
+            # 接受 WebSocket 连接
+            await websocket.accept()
+            
             # 等待连接消息
             data = await websocket.receive_text()
             
