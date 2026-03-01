@@ -13,14 +13,8 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
-from ..leaderboard import (
-    LeaderboardManager,
-    LeaderboardType,
-    LeaderboardPeriod,
-    get_leaderboard_manager,
-)
 from ...shared.protocol import (
     BaseMessage,
     ClaimLeaderboardRewardMessage,
@@ -36,7 +30,12 @@ from ...shared.protocol import (
     LeaderboardRewardData,
     PlayerRankInfoData,
     PlayerRankInfoMessage,
-    MessageType,
+)
+from ..leaderboard import (
+    LeaderboardManager,
+    LeaderboardPeriod,
+    LeaderboardType,
+    get_leaderboard_manager,
 )
 
 if TYPE_CHECKING:
@@ -48,58 +47,58 @@ logger = logging.getLogger(__name__)
 class LeaderboardWSHandler:
     """
     排行榜 WebSocket 处理器
-    
+
     处理所有排行榜相关的 WebSocket 消息。
-    
+
     使用方式:
         handler = LeaderboardWSHandler()
-        
+
         @ws_handler.on_message(MessageType.GET_LEADERBOARD)
         async def handle_get_leaderboard(session, message):
             return await leaderboard_handler.handle_get_leaderboard(session, message)
     """
-    
+
     def __init__(self) -> None:
         """初始化处理器"""
-        self._manager: Optional[LeaderboardManager] = None
-    
+        self._manager: LeaderboardManager | None = None
+
     @property
     def manager(self) -> LeaderboardManager:
         """获取排行榜管理器"""
         if self._manager is None:
             self._manager = get_leaderboard_manager()
         return self._manager
-    
+
     async def handle_get_leaderboard(
         self,
-        session: "Session",
+        session: Session,
         message: GetLeaderboardMessage,
-    ) -> Optional[BaseMessage]:
+    ) -> BaseMessage | None:
         """
         处理获取排行榜请求
-        
+
         Args:
             session: WebSocket 会话
             message: 获取排行榜消息
-            
+
         Returns:
             响应消息
         """
         player_id = session.player_id
-        
+
         try:
             # 解析排行榜类型
             try:
                 lb_type = LeaderboardType(message.leaderboard_type)
             except ValueError:
                 lb_type = LeaderboardType.TIER
-            
+
             # 解析排行榜周期
             try:
                 period = LeaderboardPeriod(message.period)
             except ValueError:
                 period = LeaderboardPeriod.WEEKLY
-            
+
             # 获取排行榜数据
             leaderboard_data = self.manager.get_leaderboard(
                 leaderboard_type=lb_type,
@@ -107,7 +106,7 @@ class LeaderboardWSHandler:
                 page=message.page,
                 page_size=message.page_size,
             )
-            
+
             # 转换为消息格式
             entries = [
                 LeaderboardEntryData(
@@ -123,7 +122,7 @@ class LeaderboardWSHandler:
                 )
                 for entry in leaderboard_data.entries
             ]
-            
+
             logger.info(
                 "获取排行榜",
                 player_id=player_id,
@@ -132,7 +131,7 @@ class LeaderboardWSHandler:
                 page=message.page,
                 count=len(entries),
             )
-            
+
             return LeaderboardDataMessage(
                 leaderboard_type=leaderboard_data.leaderboard_type.value,
                 leaderboard_type_name=leaderboard_data.leaderboard_type.display_name,
@@ -142,13 +141,22 @@ class LeaderboardWSHandler:
                 total_count=leaderboard_data.total_count,
                 page=leaderboard_data.page,
                 page_size=leaderboard_data.page_size,
-                total_pages=(leaderboard_data.total_count + leaderboard_data.page_size - 1) // leaderboard_data.page_size if leaderboard_data.page_size > 0 else 0,
-                updated_at=leaderboard_data.updated_at.isoformat() if leaderboard_data.updated_at else None,
-                period_start=leaderboard_data.period_start.isoformat() if leaderboard_data.period_start else None,
-                period_end=leaderboard_data.period_end.isoformat() if leaderboard_data.period_end else None,
+                total_pages=(leaderboard_data.total_count + leaderboard_data.page_size - 1)
+                // leaderboard_data.page_size
+                if leaderboard_data.page_size > 0
+                else 0,
+                updated_at=leaderboard_data.updated_at.isoformat()
+                if leaderboard_data.updated_at
+                else None,
+                period_start=leaderboard_data.period_start.isoformat()
+                if leaderboard_data.period_start
+                else None,
+                period_end=leaderboard_data.period_end.isoformat()
+                if leaderboard_data.period_end
+                else None,
                 seq=message.seq,
             )
-        
+
         except Exception as e:
             logger.exception(
                 "获取排行榜异常",
@@ -161,27 +169,27 @@ class LeaderboardWSHandler:
                 details={"error": str(e)},
                 seq=message.seq,
             )
-    
+
     async def handle_get_player_rank(
         self,
-        session: "Session",
+        session: Session,
         message: GetPlayerRankMessage,
-    ) -> Optional[BaseMessage]:
+    ) -> BaseMessage | None:
         """
         处理获取玩家排名请求
-        
+
         Args:
             session: WebSocket 会话
             message: 获取玩家排名消息
-            
+
         Returns:
             响应消息
         """
         player_id = session.player_id
-        
+
         try:
             ranks = []
-            
+
             if message.leaderboard_type and message.period:
                 # 获取指定类型和周期的排名
                 try:
@@ -193,27 +201,27 @@ class LeaderboardWSHandler:
                         message="无效的排行榜类型或周期",
                         seq=message.seq,
                     )
-                
+
                 rank_info = self.manager.get_player_rank(player_id, lb_type, period)
                 ranks.append(self._rank_info_to_data(rank_info))
-            
+
             else:
                 # 获取所有排名
                 all_ranks = self.manager.get_player_all_ranks(player_id)
                 for rank_info in all_ranks.values():
                     ranks.append(self._rank_info_to_data(rank_info))
-            
+
             logger.info(
                 "获取玩家排名",
                 player_id=player_id,
                 count=len(ranks),
             )
-            
+
             return PlayerRankInfoMessage(
                 ranks=ranks,
                 seq=message.seq,
             )
-        
+
         except Exception as e:
             logger.exception(
                 "获取玩家排名异常",
@@ -226,28 +234,28 @@ class LeaderboardWSHandler:
                 details={"error": str(e)},
                 seq=message.seq,
             )
-    
+
     async def handle_leaderboard_list(
         self,
-        session: "Session",
+        session: Session,
         message: LeaderboardListMessage,
-    ) -> Optional[BaseMessage]:
+    ) -> BaseMessage | None:
         """
         处理获取排行榜列表请求
-        
+
         Args:
             session: WebSocket 会话
             message: 获取排行榜列表消息
-            
+
         Returns:
             响应消息
         """
         player_id = session.player_id
-        
+
         try:
             # 获取排行榜列表
             list_data = self.manager.get_leaderboard_list()
-            
+
             # 转换为消息格式
             leaderboards = [
                 LeaderboardOverviewData(
@@ -261,13 +269,13 @@ class LeaderboardWSHandler:
                 )
                 for lb in list_data.get("leaderboards", [])
             ]
-            
+
             logger.info(
                 "获取排行榜列表",
                 player_id=player_id,
                 count=len(leaderboards),
             )
-            
+
             return LeaderboardListResultMessage(
                 leaderboards=leaderboards,
                 page=list_data.get("page", 1),
@@ -275,7 +283,7 @@ class LeaderboardWSHandler:
                 total_count=list_data.get("total_count", 0),
                 seq=message.seq,
             )
-        
+
         except Exception as e:
             logger.exception(
                 "获取排行榜列表异常",
@@ -288,24 +296,24 @@ class LeaderboardWSHandler:
                 details={"error": str(e)},
                 seq=message.seq,
             )
-    
+
     async def handle_claim_reward(
         self,
-        session: "Session",
+        session: Session,
         message: ClaimLeaderboardRewardMessage,
-    ) -> Optional[BaseMessage]:
+    ) -> BaseMessage | None:
         """
         处理领取排行榜奖励请求
-        
+
         Args:
             session: WebSocket 会话
             message: 领取奖励消息
-            
+
         Returns:
             响应消息
         """
         player_id = session.player_id
-        
+
         try:
             # 解析排行榜类型
             try:
@@ -316,7 +324,7 @@ class LeaderboardWSHandler:
                     message="无效的排行榜类型",
                     seq=message.seq,
                 )
-            
+
             # 解析排行榜周期
             try:
                 period = LeaderboardPeriod(message.period)
@@ -326,10 +334,10 @@ class LeaderboardWSHandler:
                     message="无效的排行榜周期",
                     seq=message.seq,
                 )
-            
+
             # 领取奖励
             reward = self.manager.claim_reward(player_id, lb_type, period)
-            
+
             if reward is None:
                 # 检查是否已领取
                 rank_info = self.manager.get_player_rank(player_id, lb_type, period)
@@ -351,10 +359,10 @@ class LeaderboardWSHandler:
                         message="当前排名无奖励",
                         seq=message.seq,
                     )
-            
+
             # 获取玩家排名
             rank_info = self.manager.get_player_rank(player_id, lb_type, period)
-            
+
             logger.info(
                 "领取排行榜奖励",
                 player_id=player_id,
@@ -364,7 +372,7 @@ class LeaderboardWSHandler:
                 gold=reward.gold,
                 exp=reward.exp,
             )
-            
+
             return LeaderboardRewardClaimedMessage(
                 leaderboard_type=lb_type.value,
                 period=period.value,
@@ -378,7 +386,7 @@ class LeaderboardWSHandler:
                 ),
                 seq=message.seq,
             )
-        
+
         except Exception as e:
             logger.exception(
                 "领取排行榜奖励异常",
@@ -391,11 +399,11 @@ class LeaderboardWSHandler:
                 details={"error": str(e)},
                 seq=message.seq,
             )
-    
+
     # ========================================================================
     # 辅助方法
     # ========================================================================
-    
+
     def _rank_info_to_data(self, rank_info: Any) -> PlayerRankInfoData:
         """将排名信息转换为消息数据"""
         return PlayerRankInfoData(
@@ -414,7 +422,7 @@ class LeaderboardWSHandler:
             best_rank=rank_info.best_rank,
             is_ranked=rank_info.is_ranked,
         )
-    
+
     def update_player_stats(
         self,
         player_id: str,
@@ -428,13 +436,13 @@ class LeaderboardWSHandler:
         first_place_count: int,
         max_damage: int,
         total_gold: int,
-        extra_data: Optional[dict] = None,
+        extra_data: dict | None = None,
     ) -> None:
         """
         更新玩家排行榜统计
-        
+
         在对局结束时调用以更新排行榜数据。
-        
+
         Args:
             player_id: 玩家ID
             nickname: 玩家昵称

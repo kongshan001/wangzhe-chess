@@ -9,6 +9,18 @@
 - crafting: 装备合成系统
 """
 
+from .crafting import (
+    CraftingHistoryEntry,
+    CraftingManager,
+    CraftingMaterial,
+    CraftingRecipe,
+    CraftingResult,
+    PlayerInventory,
+    Rarity,
+    SpecialEffect,
+    SpecialEffectType,
+    create_crafting_manager,
+)
 from .economy import (
     EconomyManager,
     EconomyState,
@@ -30,18 +42,6 @@ from .synergy import (
     SynergyManager,
     create_synergy_manager,
     get_all_synergy_names,
-)
-from .crafting import (
-    CraftingManager,
-    CraftingRecipe,
-    CraftingMaterial,
-    CraftingResult,
-    CraftingHistoryEntry,
-    PlayerInventory,
-    Rarity,
-    SpecialEffect,
-    SpecialEffectType,
-    create_crafting_manager,
 )
 
 # 导出常用类

@@ -9,16 +9,16 @@
 - 表情历史记录
 """
 
-from .models import (
-    EmoteCategory,
-    Emote,
-    PlayerEmote,
-    EmoteHistory,
-    EmoteData,
-)
 from .manager import (
     EmoteManager,
     get_emote_manager,
+)
+from .models import (
+    Emote,
+    EmoteCategory,
+    EmoteData,
+    EmoteHistory,
+    PlayerEmote,
 )
 
 __all__ = [
@@ -28,7 +28,6 @@ __all__ = [
     "PlayerEmote",
     "EmoteHistory",
     "EmoteData",
-    
     # 管理器
     "EmoteManager",
     "get_emote_manager",

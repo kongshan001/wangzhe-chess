@@ -8,18 +8,18 @@
 - 预设数量限制
 """
 
-import pytest
-import pytest_asyncio
 from datetime import datetime
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 from src.server.lineup import (
+    MAX_PRESETS_PER_PLAYER,
+    EquipmentAssignment,
     LineupManager,
     LineupPreset,
     LineupSlot,
     TargetSynergy,
-    EquipmentAssignment,
-    MAX_PRESETS_PER_PLAYER,
 )
 
 
@@ -83,7 +83,7 @@ class TestLineupPresetIntegration:
             target_synergies=sample_synergies,
             notes="前期用战士过渡",
         )
-        
+
         assert preset.preset_id == "preset_001"
         assert preset.player_id == "player_001"
         assert preset.name == "战士坦克流"
@@ -98,7 +98,7 @@ class TestLineupPresetIntegration:
             name="测试预设",
             slots=sample_slots,
         )
-        
+
         hero_ids = preset.hero_ids
         assert len(hero_ids) == 3
         assert "hero_warrior_001" in hero_ids
@@ -113,9 +113,9 @@ class TestLineupPresetIntegration:
             name="测试预设",
             slots=sample_slots,
         )
-        
+
         positions = preset.get_heroes_at_positions()
-        
+
         assert len(positions) == 3
         # 验证位置信息
         for pos_data in positions:
@@ -134,12 +134,12 @@ class TestLineupPresetIntegration:
             target_synergies=sample_synergies,
             notes="备注",
         )
-        
+
         # 序列化
         data = preset.to_dict()
         assert data["preset_id"] == "preset_001"
         assert len(data["slots"]) == 3
-        
+
         # 反序列化
         loaded = LineupPreset.from_dict(data)
         assert loaded.preset_id == "preset_001"
@@ -157,7 +157,7 @@ class TestLineupPresetIntegration:
             ],
             star_level=2,
         )
-        
+
         assert len(slot.equipment) == 2
         assert slot.total_equipment_count == 2
 
@@ -201,9 +201,9 @@ class TestLineupManagerIntegration:
         """测试保存预设成功"""
         # 设置模拟返回
         mock_session.scalar = AsyncMock(return_value=0)  # 预设数量为0
-        
+
         manager = LineupManager(mock_session)
-        
+
         # 保存预设
         preset = await manager.save_preset(
             player_id="player_001",
@@ -211,12 +211,12 @@ class TestLineupManagerIntegration:
             slots=sample_slots,
             description="测试描述",
         )
-        
+
         assert preset is not None
         assert preset.player_id == "player_001"
         assert preset.name == "测试预设"
         assert len(preset.slots) == 2
-        
+
         # 验证会话操作
         mock_session.add.assert_called_once()
         mock_session.flush.assert_called_once()
@@ -226,9 +226,9 @@ class TestLineupManagerIntegration:
         """测试保存预设超过限制"""
         # 设置模拟返回已达到上限
         mock_session.scalar = AsyncMock(return_value=MAX_PRESETS_PER_PLAYER)
-        
+
         manager = LineupManager(mock_session)
-        
+
         # 尝试保存应该抛出异常
         with pytest.raises(ValueError) as exc_info:
             await manager.save_preset(
@@ -236,7 +236,7 @@ class TestLineupManagerIntegration:
                 name="测试预设",
                 slots=sample_slots,
             )
-        
+
         assert "超过" in str(exc_info.value) or "限制" in str(exc_info.value)
 
     @pytest.mark.asyncio
@@ -254,15 +254,15 @@ class TestLineupManagerIntegration:
         mock_db_preset.created_at = datetime.now()
         mock_db_preset.updated_at = datetime.now()
         mock_db_preset.version = 1
-        
+
         mock_result = MagicMock()
         mock_result.all.return_value = [mock_db_preset]
         mock_session.scalars.return_value = mock_result
-        
+
         manager = LineupManager(mock_session)
-        
+
         presets = await manager.get_player_presets("player_001")
-        
+
         assert len(presets) == 1
         assert presets[0].name == "测试预设"
 
@@ -272,14 +272,14 @@ class TestLineupManagerIntegration:
         mock_result = MagicMock()
         mock_result.rowcount = 1
         mock_session.execute.return_value = mock_result
-        
+
         manager = LineupManager(mock_session)
-        
+
         result = await manager.delete_preset(
             preset_id="preset_001",
             player_id="player_001",
         )
-        
+
         assert result is True
 
     @pytest.mark.asyncio
@@ -288,14 +288,14 @@ class TestLineupManagerIntegration:
         mock_result = MagicMock()
         mock_result.rowcount = 0
         mock_session.execute.return_value = mock_result
-        
+
         manager = LineupManager(mock_session)
-        
+
         result = await manager.delete_preset(
             preset_id="nonexistent",
             player_id="player_001",
         )
-        
+
         assert result is False
 
 
@@ -336,7 +336,7 @@ class TestPresetToGameIntegration:
         """测试应用预设到空棋盘"""
         # 使用 LineupPreset 的方法（假设有）
         # 这里模拟 apply_preset_to_board 的逻辑
-        
+
         board = {
             "preset_id": sample_preset.preset_id,
             "preset_name": sample_preset.name,
@@ -344,23 +344,27 @@ class TestPresetToGameIntegration:
             "heroes_to_buy": [],
             "target_synergies": [],
         }
-        
+
         for slot in sample_preset.slots:
-            board["slots"].append({
-                "hero_id": slot.hero_id,
-                "row": slot.row,
-                "col": slot.col,
-                "equipment": [eq.equipment_id for eq in slot.equipment],
-                "star_level": slot.star_level,
-            })
-        
+            board["slots"].append(
+                {
+                    "hero_id": slot.hero_id,
+                    "row": slot.row,
+                    "col": slot.col,
+                    "equipment": [eq.equipment_id for eq in slot.equipment],
+                    "star_level": slot.star_level,
+                }
+            )
+
         for synergy in sample_preset.target_synergies:
-            board["target_synergies"].append({
-                "synergy_id": synergy.synergy_id,
-                "target_count": synergy.target_count,
-                "priority": synergy.priority,
-            })
-        
+            board["target_synergies"].append(
+                {
+                    "synergy_id": synergy.synergy_id,
+                    "target_count": synergy.target_count,
+                    "priority": synergy.priority,
+                }
+            )
+
         assert len(board["slots"]) == 2
         assert board["preset_name"] == "战士阵容"
 
@@ -371,12 +375,12 @@ class TestPresetToGameIntegration:
                 {"hero_id": "warrior_001", "star_level": 1},  # 已有但星级不够
             ]
         }
-        
+
         # 计算需要购买的英雄
         current_heroes = {"warrior_001"}
         preset_heroes = set(sample_preset.hero_ids)
         heroes_to_buy = preset_heroes - current_heroes
-        
+
         assert "warrior_002" in heroes_to_buy
         assert "warrior_001" not in heroes_to_buy
 
@@ -389,7 +393,7 @@ class TestPresetToGameIntegration:
             slots=[],
             version=1,
         )
-        
+
         # 更新预设后版本应该增加
         preset.version += 1
         assert preset.version == 2
@@ -418,10 +422,10 @@ class TestPresetSharingIntegration:
                 TargetSynergy(synergy_id="warrior", target_count=4, priority=1),
             ],
         )
-        
+
         # 导出为字典
         export_data = preset.to_dict()
-        
+
         # 验证导出数据完整性
         assert "preset_id" in export_data
         assert "name" in export_data
@@ -455,9 +459,9 @@ class TestPresetSharingIntegration:
             "notes": "",
             "version": 1,
         }
-        
+
         preset = LineupPreset.from_dict(import_data)
-        
+
         assert preset.name == "导入的阵容"
         assert len(preset.slots) == 1
         assert len(preset.target_synergies) == 1
@@ -472,7 +476,7 @@ class TestPresetEquipmentIntegration:
             equipment_id="legendary_sword",
             slot=1,
         )
-        
+
         assert equipment.equipment_id == "legendary_sword"
         assert equipment.slot == 1
 
@@ -489,7 +493,7 @@ class TestPresetEquipmentIntegration:
             ],
             star_level=3,
         )
-        
+
         assert len(slot.equipment) == 3
         assert slot.total_equipment_count == 3
 
@@ -499,9 +503,9 @@ class TestPresetEquipmentIntegration:
             equipment_id="test_sword",
             slot=1,
         )
-        
+
         data = equipment.to_dict()
         assert data["equipment_id"] == "test_sword"
-        
+
         loaded = EquipmentAssignment.from_dict(data)
         assert loaded.equipment_id == "test_sword"

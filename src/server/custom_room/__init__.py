@@ -16,7 +16,7 @@
         RoomSettings,
         SpecialRuleType,
     )
-    
+
     # 创建房间
     settings = RoomSettings(
         max_players=4,
@@ -27,18 +27,23 @@
         host_name="玩家1",
         settings=settings,
     )
-    
+
     # 加入房间
     room = await custom_room_manager.join_room(
         player_id="player2",
         player_name="玩家2",
         room_id=room.room_id,
     )
-    
+
     # 开始游戏
     await custom_room_manager.start_game(room.room_id, host_id)
 """
 
+from .manager import (
+    CustomRoomFilter,
+    CustomRoomManager,
+    custom_room_manager,
+)
 from .models import (
     CustomRoom,
     CustomRoomState,
@@ -47,13 +52,6 @@ from .models import (
     RoomSettings,
     SpecialRuleType,
 )
-
-from .manager import (
-    CustomRoomFilter,
-    CustomRoomManager,
-    custom_room_manager,
-)
-
 
 __all__ = [
     # 数据模型

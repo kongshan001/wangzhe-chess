@@ -19,17 +19,16 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from .constants import (
+    BENCH_SIZE,
     BOARD_HEIGHT,
     BOARD_WIDTH,
-    BENCH_SIZE,
-    MAX_MANA,
     INITIAL_MANA,
     INITIAL_PLAYER_HP,
+    MAX_MANA,
 )
-
 
 # ============================================================================
 # 枚举类型
@@ -187,7 +186,7 @@ class HeroTemplate:
     base_attack: int
     base_defense: int
     attack_speed: float
-    skill: Optional[Skill] = None
+    skill: Skill | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """序列化为字典"""
@@ -333,8 +332,8 @@ class Hero:
     attack: int
     defense: int
     attack_speed: float
-    skill: Optional[Skill] = None
-    position: Optional[Position] = None
+    skill: Skill | None = None
+    position: Position | None = None
     mana: int = INITIAL_MANA
     state: HeroState = HeroState.IDLE
     equipment: list[str] = field(default_factory=list)  # 装备实例ID列表（最多3个）
@@ -525,7 +524,7 @@ class Hero:
         template: HeroTemplate,
         instance_id: str,
         star: int = 1,
-        position: Optional[Position] = None,
+        position: Position | None = None,
     ) -> Hero:
         """
         从模板创建英雄实例
@@ -583,7 +582,7 @@ class Board:
         owner_id: 棋盘所有者ID
     """
 
-    grid: list[list[Optional[str]]] = field(
+    grid: list[list[str | None]] = field(
         default_factory=lambda: [[None for _ in range(BOARD_WIDTH)] for _ in range(BOARD_HEIGHT)]
     )
     heroes: dict[str, Hero] = field(default_factory=dict)
@@ -616,7 +615,7 @@ class Board:
         self.heroes[hero.instance_id] = hero
         return True
 
-    def remove_hero(self, instance_id: str) -> Optional[Hero]:
+    def remove_hero(self, instance_id: str) -> Hero | None:
         """
         移除英雄
 
@@ -636,7 +635,7 @@ class Board:
 
         return hero
 
-    def get_hero_at(self, pos: Position) -> Optional[Hero]:
+    def get_hero_at(self, pos: Position) -> Hero | None:
         """
         获取指定位置的英雄
 
@@ -678,7 +677,7 @@ class Board:
         """
         return len(self.get_all_heroes(alive_only))
 
-    def find_nearest_enemy(self, from_pos: Position, enemy_board: Board) -> Optional[Hero]:
+    def find_nearest_enemy(self, from_pos: Position, enemy_board: Board) -> Hero | None:
         """
         寻找最近的敌人
 
@@ -748,7 +747,7 @@ class ShopSlot:
     """
 
     slot_index: int
-    hero_template_id: Optional[str] = None
+    hero_template_id: str | None = None
     is_locked: bool = False
     is_sold: bool = False
 
@@ -801,7 +800,7 @@ class Shop:
         """获取可购买的槽位"""
         return [s for s in self.slots if s.is_available()]
 
-    def get_slot(self, index: int) -> Optional[ShopSlot]:
+    def get_slot(self, index: int) -> ShopSlot | None:
         """获取指定槽位"""
         if 0 <= index < len(self.slots):
             return self.slots[index]
@@ -930,7 +929,7 @@ class Player:
         self.bench.append(hero)
         return True
 
-    def remove_from_bench(self, instance_id: str) -> Optional[Hero]:
+    def remove_from_bench(self, instance_id: str) -> Hero | None:
         """
         从备战席移除英雄
 
@@ -1080,7 +1079,7 @@ class Synergy:
     levels: list[SynergyLevel]
     description: str = ""
 
-    def get_active_level(self, count: int) -> Optional[SynergyLevel]:
+    def get_active_level(self, count: int) -> SynergyLevel | None:
         """
         根据数量获取激活的羁绊等级
 
@@ -1098,7 +1097,7 @@ class Synergy:
                 break
         return active_level
 
-    def get_next_level_requirement(self, count: int) -> Optional[int]:
+    def get_next_level_requirement(self, count: int) -> int | None:
         """
         获取下一级所需数量
 
@@ -1151,7 +1150,7 @@ class ActiveSynergy:
     synergy_name: str
     synergy_type: SynergyType
     count: int
-    active_level: Optional[SynergyLevel] = None
+    active_level: SynergyLevel | None = None
 
     def is_active(self) -> bool:
         """检查羁绊是否激活"""

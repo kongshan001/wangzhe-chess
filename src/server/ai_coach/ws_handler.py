@@ -17,48 +17,42 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING
 
+from ...shared.protocol import (
+    AISuggestionData,
+    AnalyzeLineupMessage,
+    BaseMessage,
+    CoachAnalysisData,
+    CoachSuggestionsMessage,
+    EquipmentAdviceData,
+    EquipmentAdviceMessage,
+    ErrorMessage,
+    GetCoachSuggestionsMessage,
+    GetEquipmentAdviceMessage,
+    GetLineupRecommendationsMessage,
+    GetMatchHistoryMessage,
+    GetPositionAdviceMessage,
+    GetRoundStrategyMessage,
+    GetWinRatePredictionMessage,
+    LineupAnalysisMessage,
+    LineupRecommendationData,
+    LineupRecommendationsMessage,
+    MatchHistoryItemData,
+    MatchHistoryMessage,
+    PositionAdviceData,
+    PositionAdviceMessage,
+    RoundStrategyData,
+    RoundStrategyMessage,
+    WinRatePredictionData,
+    WinRatePredictionMessage,
+)
 from ..ai_coach import (
-    AISuggestion,
     AICoachManager,
     CoachAnalysis,
-    EquipmentAdvice,
     LineupRecommendation,
     MatchHistoryItem,
-    PositionAdvice,
-    RoundStrategy,
-    WinRatePrediction,
     get_ai_coach_manager,
-)
-from ...shared.protocol import (
-    BaseMessage,
-    ErrorMessage,
-    MessageType,
-    GetCoachSuggestionsMessage,
-    CoachSuggestionsMessage,
-    AnalyzeLineupMessage,
-    LineupAnalysisMessage,
-    GetLineupRecommendationsMessage,
-    LineupRecommendationsMessage,
-    GetMatchHistoryMessage,
-    MatchHistoryMessage,
-    GetEquipmentAdviceMessage,
-    EquipmentAdviceMessage,
-    GetPositionAdviceMessage,
-    PositionAdviceMessage,
-    GetRoundStrategyMessage,
-    RoundStrategyMessage,
-    GetWinRatePredictionMessage,
-    WinRatePredictionMessage,
-    AISuggestionData,
-    CoachAnalysisData,
-    LineupRecommendationData,
-    MatchHistoryItemData,
-    EquipmentAdviceData,
-    PositionAdviceData,
-    RoundStrategyData,
-    WinRatePredictionData,
 )
 
 if TYPE_CHECKING:
@@ -70,56 +64,56 @@ logger = logging.getLogger(__name__)
 class AICoachWSHandler:
     """
     AI教练系统 WebSocket 处理器
-    
+
     处理所有AI教练相关的 WebSocket 消息。
-    
+
     使用方式:
         handler = AICoachWSHandler()
-        
+
         @ws_handler.on_message(MessageType.GET_COACH_SUGGESTIONS)
         async def handle_get_coach_suggestions(session, message):
             return await coach_handler.handle_get_coach_suggestions(session, message)
     """
-    
+
     def __init__(self) -> None:
         """初始化处理器"""
-        self._manager: Optional[AICoachManager] = None
-    
+        self._manager: AICoachManager | None = None
+
     @property
     def manager(self) -> AICoachManager:
         """获取AI教练管理器"""
         if self._manager is None:
             self._manager = get_ai_coach_manager()
         return self._manager
-    
+
     # ========================================================================
     # 消息处理
     # ========================================================================
-    
+
     async def handle_get_coach_suggestions(
         self,
-        session: "Session",
+        session: Session,
         message: GetCoachSuggestionsMessage,
-    ) -> Optional[BaseMessage]:
+    ) -> BaseMessage | None:
         """
         处理获取教练建议请求
-        
+
         Args:
             session: WebSocket 会话
             message: 获取教练建议消息
-            
+
         Returns:
             响应消息
         """
         player_id = session.player_id
-        
+
         try:
             # 获取游戏状态
             game_state = message.game_state or {}
-            
+
             # 分析阵容获取建议
             analysis = self.manager.analyze_lineup(player_id, game_state)
-            
+
             # 转换建议为消息格式
             suggestions_data = [
                 AISuggestionData(
@@ -135,21 +129,21 @@ class AICoachWSHandler:
                 )
                 for s in analysis.suggestions
             ]
-            
+
             logger.debug(
                 "获取教练建议",
                 extra={
                     "player_id": player_id,
                     "suggestion_count": len(suggestions_data),
-                }
+                },
             )
-            
+
             return CoachSuggestionsMessage(
                 suggestions=suggestions_data,
                 overall_score=analysis.overall_score,
                 seq=message.seq,
             )
-        
+
         except Exception as e:
             logger.exception(
                 "获取教练建议异常",
@@ -161,48 +155,48 @@ class AICoachWSHandler:
                 details={"error": str(e)},
                 seq=message.seq,
             )
-    
+
     async def handle_analyze_lineup(
         self,
-        session: "Session",
+        session: Session,
         message: AnalyzeLineupMessage,
-    ) -> Optional[BaseMessage]:
+    ) -> BaseMessage | None:
         """
         处理分析阵容请求
-        
+
         Args:
             session: WebSocket 会话
             message: 分析阵容消息
-            
+
         Returns:
             响应消息
         """
         player_id = session.player_id
-        
+
         try:
             # 获取游戏状态
             game_state = message.game_state or {}
-            
+
             # 分析阵容
             analysis = self.manager.analyze_lineup(player_id, game_state)
-            
+
             # 转换为消息格式
             analysis_data = self._convert_analysis_to_data(analysis)
-            
+
             logger.info(
                 "分析阵容",
                 extra={
                     "player_id": player_id,
                     "overall_score": analysis.overall_score,
                     "round_num": analysis.round_num,
-                }
+                },
             )
-            
+
             return LineupAnalysisMessage(
                 analysis=analysis_data,
                 seq=message.seq,
             )
-        
+
         except Exception as e:
             logger.exception(
                 "分析阵容异常",
@@ -214,53 +208,51 @@ class AICoachWSHandler:
                 details={"error": str(e)},
                 seq=message.seq,
             )
-    
+
     async def handle_get_lineup_recommendations(
         self,
-        session: "Session",
+        session: Session,
         message: GetLineupRecommendationsMessage,
-    ) -> Optional[BaseMessage]:
+    ) -> BaseMessage | None:
         """
         处理获取阵容推荐请求
-        
+
         Args:
             session: WebSocket 会话
             message: 获取阵容推荐消息
-            
+
         Returns:
             响应消息
         """
         player_id = session.player_id
-        
+
         try:
             # 获取当前英雄
             current_heroes = message.current_heroes or []
-            
+
             # 获取推荐
             recommendations = self.manager.get_lineup_recommendations(
                 player_id=player_id,
                 current_heroes=current_heroes,
                 limit=message.limit or 5,
             )
-            
+
             # 转换为消息格式
-            recommendations_data = [
-                self._convert_lineup_to_data(r) for r in recommendations
-            ]
-            
+            recommendations_data = [self._convert_lineup_to_data(r) for r in recommendations]
+
             logger.debug(
                 "获取阵容推荐",
                 extra={
                     "player_id": player_id,
                     "recommendation_count": len(recommendations_data),
-                }
+                },
             )
-            
+
             return LineupRecommendationsMessage(
                 recommendations=recommendations_data,
                 seq=message.seq,
             )
-        
+
         except Exception as e:
             logger.exception(
                 "获取阵容推荐异常",
@@ -272,47 +264,45 @@ class AICoachWSHandler:
                 details={"error": str(e)},
                 seq=message.seq,
             )
-    
+
     async def handle_get_match_history(
         self,
-        session: "Session",
+        session: Session,
         message: GetMatchHistoryMessage,
-    ) -> Optional[BaseMessage]:
+    ) -> BaseMessage | None:
         """
         处理获取对局历史请求
-        
+
         Args:
             session: WebSocket 会话
             message: 获取对局历史消息
-            
+
         Returns:
             响应消息
         """
         player_id = session.player_id
-        
+
         try:
             # 获取历史记录
             history = self.manager.get_match_history(
                 player_id=player_id,
                 limit=message.limit or 20,
             )
-            
+
             # 转换为消息格式
-            history_data = [
-                self._convert_match_history_to_data(h) for h in history
-            ]
-            
+            history_data = [self._convert_match_history_to_data(h) for h in history]
+
             # 获取玩家统计
             stats = self.manager.get_player_stats(player_id)
-            
+
             logger.debug(
                 "获取对局历史",
                 extra={
                     "player_id": player_id,
                     "history_count": len(history_data),
-                }
+                },
             )
-            
+
             return MatchHistoryMessage(
                 matches=history_data,
                 total_matches=stats.total_matches,
@@ -320,7 +310,7 @@ class AICoachWSHandler:
                 avg_rank=stats.avg_rank,
                 seq=message.seq,
             )
-        
+
         except Exception as e:
             logger.exception(
                 "获取对局历史异常",
@@ -332,24 +322,24 @@ class AICoachWSHandler:
                 details={"error": str(e)},
                 seq=message.seq,
             )
-    
+
     async def handle_get_equipment_advice(
         self,
-        session: "Session",
+        session: Session,
         message: GetEquipmentAdviceMessage,
-    ) -> Optional[BaseMessage]:
+    ) -> BaseMessage | None:
         """
         处理获取装备建议请求
-        
+
         Args:
             session: WebSocket 会话
             message: 获取装备建议消息
-            
+
         Returns:
             响应消息
         """
         player_id = session.player_id
-        
+
         try:
             # 获取装备建议
             advice_list = self.manager.get_equipment_advice(
@@ -357,7 +347,7 @@ class AICoachWSHandler:
                 equipment=message.equipment or [],
                 heroes=message.heroes or [],
             )
-            
+
             # 转换为消息格式
             advice_data = [
                 EquipmentAdviceData(
@@ -371,20 +361,20 @@ class AICoachWSHandler:
                 )
                 for a in advice_list
             ]
-            
+
             logger.debug(
                 "获取装备建议",
                 extra={
                     "player_id": player_id,
                     "advice_count": len(advice_data),
-                }
+                },
             )
-            
+
             return EquipmentAdviceMessage(
                 advice=advice_data,
                 seq=message.seq,
             )
-        
+
         except Exception as e:
             logger.exception(
                 "获取装备建议异常",
@@ -396,24 +386,24 @@ class AICoachWSHandler:
                 details={"error": str(e)},
                 seq=message.seq,
             )
-    
+
     async def handle_get_position_advice(
         self,
-        session: "Session",
+        session: Session,
         message: GetPositionAdviceMessage,
-    ) -> Optional[BaseMessage]:
+    ) -> BaseMessage | None:
         """
         处理获取站位建议请求
-        
+
         Args:
             session: WebSocket 会话
             message: 获取站位建议消息
-            
+
         Returns:
             响应消息
         """
         player_id = session.player_id
-        
+
         try:
             # 获取站位建议
             advice_list = self.manager.get_position_advice(
@@ -421,7 +411,7 @@ class AICoachWSHandler:
                 board=message.board or {},
                 heroes=message.heroes or [],
             )
-            
+
             # 转换为消息格式
             advice_data = [
                 PositionAdviceData(
@@ -435,20 +425,20 @@ class AICoachWSHandler:
                 )
                 for a in advice_list
             ]
-            
+
             logger.debug(
                 "获取站位建议",
                 extra={
                     "player_id": player_id,
                     "advice_count": len(advice_data),
-                }
+                },
             )
-            
+
             return PositionAdviceMessage(
                 advice=advice_data,
                 seq=message.seq,
             )
-        
+
         except Exception as e:
             logger.exception(
                 "获取站位建议异常",
@@ -460,24 +450,24 @@ class AICoachWSHandler:
                 details={"error": str(e)},
                 seq=message.seq,
             )
-    
+
     async def handle_get_round_strategy(
         self,
-        session: "Session",
+        session: Session,
         message: GetRoundStrategyMessage,
-    ) -> Optional[BaseMessage]:
+    ) -> BaseMessage | None:
         """
         处理获取回合策略请求
-        
+
         Args:
             session: WebSocket 会话
             message: 获取回合策略消息
-            
+
         Returns:
             响应消息
         """
         player_id = session.player_id
-        
+
         try:
             # 获取回合策略
             strategy = self.manager.get_round_strategy(
@@ -485,7 +475,7 @@ class AICoachWSHandler:
                 round_num=message.round_num,
                 game_state=message.game_state or {},
             )
-            
+
             # 转换为消息格式
             strategy_data = RoundStrategyData(
                 round_num=strategy.round_num,
@@ -498,21 +488,21 @@ class AICoachWSHandler:
                 risk_level=strategy.risk_level,
                 win_condition=strategy.win_condition,
             )
-            
+
             logger.debug(
                 "获取回合策略",
                 extra={
                     "player_id": player_id,
                     "round_num": message.round_num,
                     "strategy_type": strategy.strategy_type,
-                }
+                },
             )
-            
+
             return RoundStrategyMessage(
                 strategy=strategy_data,
                 seq=message.seq,
             )
-        
+
         except Exception as e:
             logger.exception(
                 "获取回合策略异常",
@@ -524,31 +514,31 @@ class AICoachWSHandler:
                 details={"error": str(e)},
                 seq=message.seq,
             )
-    
+
     async def handle_get_win_rate_prediction(
         self,
-        session: "Session",
+        session: Session,
         message: GetWinRatePredictionMessage,
-    ) -> Optional[BaseMessage]:
+    ) -> BaseMessage | None:
         """
         处理获取胜率预测请求
-        
+
         Args:
             session: WebSocket 会话
             message: 获取胜率预测消息
-            
+
         Returns:
             响应消息
         """
         player_id = session.player_id
-        
+
         try:
             # 获取胜率预测
             prediction = self.manager.predict_win_rate(
                 player_id=player_id,
                 game_state=message.game_state or {},
             )
-            
+
             # 转换为消息格式
             prediction_data = WinRatePredictionData(
                 predicted_win_rate=prediction.predicted_win_rate,
@@ -559,21 +549,21 @@ class AICoachWSHandler:
                 key_weaknesses=prediction.key_weaknesses,
                 improvement_suggestions=prediction.improvement_suggestions,
             )
-            
+
             logger.debug(
                 "获取胜率预测",
                 extra={
                     "player_id": player_id,
                     "win_rate": prediction.predicted_win_rate,
                     "confidence": prediction.confidence,
-                }
+                },
             )
-            
+
             return WinRatePredictionMessage(
                 prediction=prediction_data,
                 seq=message.seq,
             )
-        
+
         except Exception as e:
             logger.exception(
                 "获取胜率预测异常",
@@ -585,14 +575,12 @@ class AICoachWSHandler:
                 details={"error": str(e)},
                 seq=message.seq,
             )
-    
+
     # ========================================================================
     # 辅助方法
     # ========================================================================
-    
-    def _convert_analysis_to_data(
-        self, analysis: CoachAnalysis
-    ) -> CoachAnalysisData:
+
+    def _convert_analysis_to_data(self, analysis: CoachAnalysis) -> CoachAnalysisData:
         """将 CoachAnalysis 转换为 CoachAnalysisData"""
         suggestions = [
             AISuggestionData(
@@ -608,7 +596,7 @@ class AICoachWSHandler:
             )
             for s in analysis.suggestions
         ]
-        
+
         win_rate_data = None
         if analysis.win_rate_prediction:
             win_rate_data = WinRatePredictionData(
@@ -620,7 +608,7 @@ class AICoachWSHandler:
                 key_weaknesses=analysis.win_rate_prediction.key_weaknesses,
                 improvement_suggestions=analysis.win_rate_prediction.improvement_suggestions,
             )
-        
+
         return CoachAnalysisData(
             analysis_id=analysis.analysis_id,
             player_id=analysis.player_id,
@@ -638,10 +626,8 @@ class AICoachWSHandler:
             win_rate_prediction=win_rate_data,
             created_at=analysis.created_at,
         )
-    
-    def _convert_lineup_to_data(
-        self, lineup: LineupRecommendation
-    ) -> LineupRecommendationData:
+
+    def _convert_lineup_to_data(self, lineup: LineupRecommendation) -> LineupRecommendationData:
         """将 LineupRecommendation 转换为 LineupRecommendationData"""
         return LineupRecommendationData(
             lineup_id=lineup.lineup_id,
@@ -660,15 +646,13 @@ class AICoachWSHandler:
             win_rate=lineup.win_rate,
             popularity=lineup.popularity,
         )
-    
-    def _convert_match_history_to_data(
-        self, item: MatchHistoryItem
-    ) -> MatchHistoryItemData:
+
+    def _convert_match_history_to_data(self, item: MatchHistoryItem) -> MatchHistoryItemData:
         """将 MatchHistoryItem 转换为 MatchHistoryItemData"""
         analysis_data = None
         if item.analysis:
             analysis_data = self._convert_analysis_to_data(item.analysis)
-        
+
         return MatchHistoryItemData(
             match_id=item.match_id,
             game_id=item.game_id,

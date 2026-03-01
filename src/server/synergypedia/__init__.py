@@ -13,14 +13,14 @@
 - manager.py: 羁绊图鉴管理器
 """
 
+from .manager import SynergypediaManager, synergypedia_manager
 from .models import (
+    RecommendedLineup,
+    SynergyAchievement,
     SynergypediaEntry,
     SynergypediaProgress,
-    RecommendedLineup,
     SynergySimulation,
-    SynergyAchievement,
 )
-from .manager import SynergypediaManager, synergypedia_manager
 
 __all__ = [
     "SynergypediaEntry",

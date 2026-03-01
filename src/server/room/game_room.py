@@ -18,19 +18,18 @@ from __future__ import annotations
 
 import asyncio
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Set
+from typing import Any
 
 import structlog
 
 from config.settings import settings
 from src.server.random_event import (
-    RandomEventManager,
     get_random_event_manager,
 )
-
 
 logger = structlog.get_logger()
 
@@ -38,7 +37,7 @@ logger = structlog.get_logger()
 class RoomState(str, Enum):
     """
     房间状态枚举
-    
+
     定义游戏房间可能处于的所有状态：
     - WAITING: 等待玩家加入
     - PREPARING: 准备阶段，玩家可以调整阵容
@@ -46,18 +45,18 @@ class RoomState(str, Enum):
     - SETTLING: 结算阶段，计算本回合结果
     - FINISHED: 游戏结束
     """
-    
-    WAITING = "waiting"       # 等待玩家
-    PREPARING = "preparing"   # 准备阶段
-    BATTLING = "battling"     # 战斗阶段
-    SETTLING = "settling"     # 结算阶段
-    FINISHED = "finished"     # 游戏结束
+
+    WAITING = "waiting"  # 等待玩家
+    PREPARING = "preparing"  # 准备阶段
+    BATTLING = "battling"  # 战斗阶段
+    SETTLING = "settling"  # 结算阶段
+    FINISHED = "finished"  # 游戏结束
 
 
 class PlayerState(str, Enum):
     """
     玩家状态枚举
-    
+
     定义玩家在房间中的状态：
     - CONNECTED: 已连接但未准备
     - READY: 已准备
@@ -65,21 +64,21 @@ class PlayerState(str, Enum):
     - DISCONNECTED: 已断开连接
     - ELIMINATED: 已被淘汰
     """
-    
-    CONNECTED = "connected"     # 已连接
-    READY = "ready"             # 已准备
-    PLAYING = "playing"         # 游戏中
+
+    CONNECTED = "connected"  # 已连接
+    READY = "ready"  # 已准备
+    PLAYING = "playing"  # 游戏中
     DISCONNECTED = "disconnected"  # 断开连接
-    ELIMINATED = "eliminated"   # 已淘汰
+    ELIMINATED = "eliminated"  # 已淘汰
 
 
 @dataclass
 class PlayerInRoom:
     """
     房间内的玩家数据
-    
+
     存储玩家在当前房间/游戏中的所有状态信息。
-    
+
     Attributes:
         player_id: 玩家ID
         nickname: 玩家昵称
@@ -99,12 +98,12 @@ class PlayerInRoom:
         connected_at: 连接时间
         last_action_at: 最后操作时间
     """
-    
+
     player_id: int
     nickname: str
     state: PlayerState = PlayerState.CONNECTED
     slot: int = 0
-    
+
     # 游戏属性
     hp: int = 100
     gold: int = 0
@@ -112,22 +111,22 @@ class PlayerInRoom:
     exp: int = 0
     win_streak: int = 0
     lose_streak: int = 0
-    
+
     # 英雄相关
-    heroes: List[Dict[str, Any]] = field(default_factory=list)
-    bench: List[Dict[str, Any]] = field(default_factory=list)
-    board: List[Dict[str, Any]] = field(default_factory=list)
-    synergies: Dict[str, int] = field(default_factory=dict)
-    
+    heroes: list[dict[str, Any]] = field(default_factory=list)
+    bench: list[dict[str, Any]] = field(default_factory=list)
+    board: list[dict[str, Any]] = field(default_factory=list)
+    synergies: dict[str, int] = field(default_factory=dict)
+
     # 时间戳
-    ready_at: Optional[datetime] = None
+    ready_at: datetime | None = None
     connected_at: datetime = field(default_factory=datetime.now)
     last_action_at: datetime = field(default_factory=datetime.now)
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """
         转换为字典（用于JSON序列化）
-        
+
         Returns:
             包含玩家所有状态信息的字典
         """
@@ -146,48 +145,48 @@ class PlayerInRoom:
             "board_count": len(self.board),
             "synergies": self.synergies,
         }
-    
+
     @property
     def is_alive(self) -> bool:
         """检查玩家是否还活着"""
         return self.hp > 0 and self.state != PlayerState.ELIMINATED
-    
+
     @property
     def is_ready(self) -> bool:
         """检查玩家是否已准备"""
         return self.state == PlayerState.READY
-    
+
     @property
     def is_connected(self) -> bool:
         """检查玩家是否在线"""
         return self.state not in [PlayerState.DISCONNECTED, PlayerState.ELIMINATED]
-    
+
     def set_ready(self) -> None:
         """设置玩家为已准备状态"""
         self.state = PlayerState.READY
         self.ready_at = datetime.now()
         self.last_action_at = datetime.now()
-    
+
     def set_playing(self) -> None:
         """设置玩家为游戏中状态"""
         self.state = PlayerState.PLAYING
-    
+
     def set_disconnected(self) -> None:
         """设置玩家为断开连接状态"""
         self.state = PlayerState.DISCONNECTED
-    
+
     def eliminate(self) -> None:
         """淘汰玩家"""
         self.state = PlayerState.ELIMINATED
         self.hp = 0
-    
+
     def take_damage(self, damage: int) -> int:
         """
         扣除生命值
-        
+
         Args:
             damage: 伤害值
-            
+
         Returns:
             扣除后的生命值
         """
@@ -195,40 +194,40 @@ class PlayerInRoom:
         if self.hp <= 0:
             self.eliminate()
         return self.hp
-    
+
     def heal(self, amount: int) -> int:
         """
         恢复生命值
-        
+
         Args:
             amount: 恢复量
-            
+
         Returns:
             恢复后的生命值
         """
         self.hp = min(100, self.hp + amount)
         return self.hp
-    
+
     def add_gold(self, amount: int) -> int:
         """
         增加金币
-        
+
         Args:
             amount: 金币数量
-            
+
         Returns:
             增加后的金币数
         """
         self.gold += amount
         return self.gold
-    
+
     def spend_gold(self, amount: int) -> bool:
         """
         消耗金币
-        
+
         Args:
             amount: 金币数量
-            
+
         Returns:
             是否成功（金币是否足够）
         """
@@ -236,14 +235,14 @@ class PlayerInRoom:
             self.gold -= amount
             return True
         return False
-    
+
     def add_exp(self, amount: int) -> bool:
         """
         增加经验值并检查是否升级
-        
+
         Args:
             amount: 经验值数量
-            
+
         Returns:
             是否升级
         """
@@ -260,14 +259,14 @@ class PlayerInRoom:
 class GameRoom:
     """
     游戏房间类
-    
+
     管理8人自走棋游戏房间的所有逻辑。
-    
+
     状态机转换：
     WAITING → PREPARING → BATTLING → SETTLING → (循环 PREPARING...)
                          ↓
                       FINISHED
-    
+
     Attributes:
         room_id: 房间唯一ID
         name: 房间名称
@@ -280,17 +279,17 @@ class GameRoom:
         config: 房间配置
         callbacks: 回调函数集合
     """
-    
+
     def __init__(
         self,
-        room_id: Optional[str] = None,
+        room_id: str | None = None,
         name: str = "",
-        host_id: Optional[int] = None,
-        config: Optional[Dict[str, Any]] = None,
+        host_id: int | None = None,
+        config: dict[str, Any] | None = None,
     ) -> None:
         """
         初始化游戏房间
-        
+
         Args:
             room_id: 房间ID（不提供则自动生成）
             name: 房间名称
@@ -300,71 +299,71 @@ class GameRoom:
         self.room_id: str = room_id or str(uuid.uuid4())
         self.name: str = name or f"房间-{self.room_id[:6]}"
         self.state: RoomState = RoomState.WAITING
-        self.host_id: Optional[int] = host_id
-        self.players: Dict[int, PlayerInRoom] = {}
-        self.spectators: Set[int] = set()
-        
+        self.host_id: int | None = host_id
+        self.players: dict[int, PlayerInRoom] = {}
+        self.spectators: set[int] = set()
+
         # 游戏配置
         self.max_players: int = settings.game.MAX_PLAYERS_PER_ROOM
-        self.config: Dict[str, Any] = config or {}
-        
+        self.config: dict[str, Any] = config or {}
+
         # 回合相关
         self.current_round: int = 0
-        self.phase_start_time: Optional[datetime] = None
-        self.round_results: List[Dict[str, Any]] = []
-        
+        self.phase_start_time: datetime | None = None
+        self.round_results: list[dict[str, Any]] = []
+
         # 时间控制
         self.buy_phase_duration: int = settings.game.BUY_PHASE_DURATION
         self.battle_phase_duration: int = settings.game.BATTLE_PHASE_DURATION
-        
+
         # 回调函数
-        self._on_state_change: Optional[Callable[[RoomState, RoomState], None]] = None
-        self._on_player_join: Optional[Callable[[PlayerInRoom], None]] = None
-        self._on_player_leave: Optional[Callable[[int], None]] = None
-        self._on_round_start: Optional[Callable[[int], None]] = None
-        self._on_round_end: Optional[Callable[[int, Dict], None]] = None
-        self._on_game_end: Optional[Callable[[Dict], None]] = None
-        
+        self._on_state_change: Callable[[RoomState, RoomState], None] | None = None
+        self._on_player_join: Callable[[PlayerInRoom], None] | None = None
+        self._on_player_leave: Callable[[int], None] | None = None
+        self._on_round_start: Callable[[int], None] | None = None
+        self._on_round_end: Callable[[int, dict], None] | None = None
+        self._on_game_end: Callable[[dict], None] | None = None
+
         # 异步任务
-        self._phase_task: Optional[asyncio.Task] = None
+        self._phase_task: asyncio.Task | None = None
         self._lock: asyncio.Lock = asyncio.Lock()
-        
+
         logger.info(
             "房间已创建",
             room_id=self.room_id,
             name=self.name,
             max_players=self.max_players,
         )
-    
+
     # ========================================================================
     # 属性访问
     # ========================================================================
-    
+
     @property
     def player_count(self) -> int:
         """获取当前玩家数量"""
         return len(self.players)
-    
+
     @property
     def alive_count(self) -> int:
         """获取存活玩家数量"""
         return sum(1 for p in self.players.values() if p.is_alive)
-    
+
     @property
     def ready_count(self) -> int:
         """获取已准备玩家数量"""
         return sum(1 for p in self.players.values() if p.is_ready)
-    
+
     @property
     def is_full(self) -> bool:
         """检查房间是否已满"""
         return self.player_count >= self.max_players
-    
+
     @property
     def is_empty(self) -> bool:
         """检查房间是否为空"""
         return self.player_count == 0
-    
+
     @property
     def can_start(self) -> bool:
         """检查是否可以开始游戏"""
@@ -374,86 +373,86 @@ class GameRoom:
             and self.ready_count == self.player_count
             and self.state == RoomState.WAITING
         )
-    
+
     @property
     def all_disconnected(self) -> bool:
         """检查是否所有玩家都已断开连接"""
         return all(not p.is_connected for p in self.players.values())
-    
+
     # ========================================================================
     # 回调设置
     # ========================================================================
-    
+
     def on_state_change(self, callback: Callable[[RoomState, RoomState], None]) -> None:
         """设置状态变化回调"""
         self._on_state_change = callback
-    
+
     def on_player_join(self, callback: Callable[[PlayerInRoom], None]) -> None:
         """设置玩家加入回调"""
         self._on_player_join = callback
-    
+
     def on_player_leave(self, callback: Callable[[int], None]) -> None:
         """设置玩家离开回调"""
         self._on_player_leave = callback
-    
+
     def on_round_start(self, callback: Callable[[int], None]) -> None:
         """设置回合开始回调"""
         self._on_round_start = callback
-    
-    def on_round_end(self, callback: Callable[[int, Dict], None]) -> None:
+
+    def on_round_end(self, callback: Callable[[int, dict], None]) -> None:
         """设置回合结束回调"""
         self._on_round_end = callback
-    
-    def on_game_end(self, callback: Callable[[Dict], None]) -> None:
+
+    def on_game_end(self, callback: Callable[[dict], None]) -> None:
         """设置游戏结束回调"""
         self._on_game_end = callback
-    
+
     # ========================================================================
     # 状态管理
     # ========================================================================
-    
+
     async def _set_state(self, new_state: RoomState) -> None:
         """
         设置房间状态（内部方法）
-        
+
         Args:
             new_state: 新状态
         """
         old_state = self.state
         self.state = new_state
         self.phase_start_time = datetime.now()
-        
+
         logger.info(
             "房间状态变更",
             room_id=self.room_id,
             old_state=old_state.value,
             new_state=new_state.value,
         )
-        
+
         if self._on_state_change:
             try:
                 self._on_state_change(old_state, new_state)
             except Exception as e:
                 logger.error("状态变更回调失败", error=str(e))
-    
+
     # ========================================================================
     # 玩家管理
     # ========================================================================
-    
+
     async def add_player(
         self,
         player_id: int,
         nickname: str,
-        slot: Optional[int] = None,
-    ) -> Optional[PlayerInRoom]:
+        slot: int | None = None,
+    ) -> PlayerInRoom | None:
         """
         添加玩家到房间
-        
+
         Args:
             player_id: 玩家ID
             nickname: 玩家昵称
             slot: 指定位置（可选）
-            
+
         Returns:
             玩家实例，如果添加失败返回None
         """
@@ -462,17 +461,17 @@ class GameRoom:
             if player_id in self.players:
                 logger.warning("玩家已在房间中", player_id=player_id)
                 return None
-            
+
             # 检查房间是否已满
             if self.is_full:
                 logger.warning("房间已满", room_id=self.room_id)
                 return None
-            
+
             # 检查房间状态
             if self.state != RoomState.WAITING:
                 logger.warning("游戏已开始，无法加入", state=self.state.value)
                 return None
-            
+
             # 分配位置
             if slot is None:
                 used_slots = {p.slot for p in self.players.values()}
@@ -480,7 +479,7 @@ class GameRoom:
                     if i not in used_slots:
                         slot = i
                         break
-            
+
             # 创建玩家实例
             player = PlayerInRoom(
                 player_id=player_id,
@@ -489,13 +488,13 @@ class GameRoom:
                 gold=settings.game.STARTING_GOLD,
                 hp=settings.game.STARTING_HEALTH,
             )
-            
+
             self.players[player_id] = player
-            
+
             # 如果是第一个玩家，设为房主
             if self.host_id is None:
                 self.host_id = player_id
-            
+
             logger.info(
                 "玩家加入房间",
                 player_id=player_id,
@@ -503,31 +502,31 @@ class GameRoom:
                 room_id=self.room_id,
                 slot=slot,
             )
-            
+
             if self._on_player_join:
                 try:
                     self._on_player_join(player)
                 except Exception as e:
                     logger.error("玩家加入回调失败", error=str(e))
-            
+
             return player
-    
+
     async def remove_player(self, player_id: int) -> bool:
         """
         从房间移除玩家
-        
+
         Args:
             player_id: 玩家ID
-            
+
         Returns:
             是否成功移除
         """
         async with self._lock:
             if player_id not in self.players:
                 return False
-            
+
             player = self.players[player_id]
-            
+
             # 如果游戏进行中，标记为断开连接而不是移除
             if self.state in [RoomState.PREPARING, RoomState.BATTLING, RoomState.SETTLING]:
                 player.set_disconnected()
@@ -539,92 +538,92 @@ class GameRoom:
             else:
                 # 游戏未开始，直接移除
                 del self.players[player_id]
-                
+
                 # 如果是房主，转让房主
                 if self.host_id == player_id:
                     if self.players:
                         self.host_id = next(iter(self.players.keys()))
                     else:
                         self.host_id = None
-                
+
                 logger.info(
                     "玩家离开房间",
                     player_id=player_id,
                     room_id=self.room_id,
                 )
-            
+
             if self._on_player_leave:
                 try:
                     self._on_player_leave(player_id)
                 except Exception as e:
                     logger.error("玩家离开回调失败", error=str(e))
-            
+
             return True
-    
+
     async def set_player_ready(self, player_id: int, ready: bool = True) -> bool:
         """
         设置玩家准备状态
-        
+
         Args:
             player_id: 玩家ID
             ready: 是否准备
-            
+
         Returns:
             是否成功设置
         """
         async with self._lock:
             if player_id not in self.players:
                 return False
-            
+
             player = self.players[player_id]
-            
+
             if ready:
                 player.set_ready()
             else:
                 player.state = PlayerState.CONNECTED
                 player.ready_at = None
-            
+
             logger.info(
                 "玩家准备状态变更",
                 player_id=player_id,
                 ready=ready,
                 room_id=self.room_id,
             )
-            
+
             # 检查是否可以自动开始
             if self.can_start:
                 asyncio.create_task(self.start_game())
-            
+
             return True
-    
-    def get_player(self, player_id: int) -> Optional[PlayerInRoom]:
+
+    def get_player(self, player_id: int) -> PlayerInRoom | None:
         """
         获取玩家实例
-        
+
         Args:
             player_id: 玩家ID
-            
+
         Returns:
             玩家实例，如果不存在返回None
         """
         return self.players.get(player_id)
-    
-    def get_all_players(self) -> List[PlayerInRoom]:
+
+    def get_all_players(self) -> list[PlayerInRoom]:
         """获取所有玩家列表"""
         return list(self.players.values())
-    
-    def get_alive_players(self) -> List[PlayerInRoom]:
+
+    def get_alive_players(self) -> list[PlayerInRoom]:
         """获取存活玩家列表"""
         return [p for p in self.players.values() if p.is_alive]
-    
+
     # ========================================================================
     # 游戏流程控制
     # ========================================================================
-    
+
     async def start_game(self) -> bool:
         """
         开始游戏
-        
+
         Returns:
             是否成功开始
         """
@@ -632,32 +631,32 @@ class GameRoom:
             if not self.can_start:
                 logger.warning("无法开始游戏", state=self.state.value)
                 return False
-            
+
             # 切换到准备状态
             await self._set_state(RoomState.PREPARING)
-            
+
             # 设置所有玩家为游戏中
             for player in self.players.values():
                 player.set_playing()
-            
+
             # 初始化第一回合
             self.current_round = 1
-            
+
             logger.info(
                 "游戏开始",
                 room_id=self.room_id,
                 player_count=self.player_count,
             )
-            
+
             # 开始回合循环
             asyncio.create_task(self._game_loop())
-            
+
             return True
-    
+
     async def _game_loop(self) -> None:
         """
         游戏主循环
-        
+
         循环执行：准备阶段 → 战斗阶段 → 结算阶段
         直到只剩一名玩家或满足其他结束条件
         """
@@ -666,30 +665,30 @@ class GameRoom:
                 # 回合开始
                 if self._on_round_start:
                     self._on_round_start(self.current_round)
-                
+
                 # 准备阶段
                 await self._prepare_phase()
-                
+
                 if self.state == RoomState.FINISHED:
                     break
-                
+
                 # 战斗阶段
                 await self._battle_phase()
-                
+
                 if self.state == RoomState.FINISHED:
                     break
-                
+
                 # 结算阶段
                 await self._settle_phase()
-                
+
                 # 检查游戏是否结束
                 if self._check_game_end():
                     await self._end_game()
                     break
-                
+
                 # 进入下一回合
                 self.current_round += 1
-                
+
             except asyncio.CancelledError:
                 logger.info("游戏循环被取消", room_id=self.room_id)
                 break
@@ -697,37 +696,37 @@ class GameRoom:
                 logger.error("游戏循环错误", error=str(e), room_id=self.room_id)
                 await self._end_game()
                 break
-    
+
     async def _prepare_phase(self) -> None:
         """
         准备阶段
-        
+
         玩家可以购买英雄、调整阵容
         """
         await self._set_state(RoomState.PREPARING)
-        
+
         # 推进活跃事件回合（处理持续事件）
         event_manager = get_random_event_manager()
         event_manager.advance_round(self.room_id)
-        
+
         # 检查并触发随机事件
         await self._check_random_events()
-        
+
         # 分发金币
         for player in self.get_alive_players():
             # 基础金币 + 利息 + 连胜/连败奖励
             base_gold = min(5, self.current_round)
             interest = min(5, player.gold // 10)
             streak_bonus = 0
-            
+
             if player.win_streak >= 2:
                 streak_bonus = min(3, player.win_streak)
             elif player.lose_streak >= 2:
                 streak_bonus = min(3, player.lose_streak)
-            
+
             total_gold = base_gold + interest + streak_bonus
             player.add_gold(total_gold)
-            
+
             logger.debug(
                 "分发金币",
                 player_id=player.player_id,
@@ -736,29 +735,29 @@ class GameRoom:
                 streak=streak_bonus,
                 total=total_gold,
             )
-        
+
         # 等待准备阶段结束
         await asyncio.sleep(self.buy_phase_duration)
-    
+
     async def _check_random_events(self) -> None:
         """
         检查并触发随机事件
-        
+
         在每回合开始时检查是否有随机事件触发
         """
         event_manager = get_random_event_manager()
-        
+
         # 获取存活玩家信息
         alive_players = self.get_alive_players()
         players_data = [{"player_id": p.player_id, "gold": p.gold} for p in alive_players]
-        
+
         # 检查事件触发
         triggered_events = event_manager.check_events(
             room_id=self.room_id,
             round_number=self.current_round,
             context={"player_count": len(alive_players)},
         )
-        
+
         # 执行触发的事件
         for event in triggered_events:
             result = event_manager.execute_event(
@@ -768,10 +767,10 @@ class GameRoom:
                 players=players_data,
                 context={"player_count": len(alive_players)},
             )
-            
+
             # 应用事件效果到玩家
             await self._apply_event_effects(event, result, alive_players)
-            
+
             logger.info(
                 "随机事件触发",
                 room_id=self.room_id,
@@ -780,16 +779,16 @@ class GameRoom:
                 round=self.current_round,
                 affected_count=len(result.get("affected_players", [])),
             )
-    
+
     async def _apply_event_effects(
         self,
         event,
-        result: Dict[str, Any],
-        players: List["PlayerInRoom"],
+        result: dict[str, Any],
+        players: list[PlayerInRoom],
     ) -> None:
         """
         应用事件效果到玩家
-        
+
         Args:
             event: 事件对象
             result: 执行结果
@@ -797,7 +796,7 @@ class GameRoom:
         """
         for effect_result in result.get("effects", []):
             effect_type = effect_result.get("effect_type")
-            
+
             # 金币效果
             if effect_type == "give_gold_all":
                 gold = effect_result.get("details", {}).get("gold_given", 0)
@@ -809,7 +808,7 @@ class GameRoom:
                         gold=gold,
                         event_id=event.event_id,
                     )
-            
+
             # 经验效果
             elif effect_type == "give_exp_all":
                 exp = effect_result.get("details", {}).get("exp_given", 0)
@@ -821,7 +820,7 @@ class GameRoom:
                         exp=exp,
                         event_id=event.event_id,
                     )
-            
+
             # 升级效果
             elif effect_type == "free_level_up":
                 for player in players:
@@ -832,86 +831,88 @@ class GameRoom:
                         new_level=player.level,
                         event_id=event.event_id,
                     )
-    
+
     async def _battle_phase(self) -> None:
         """
         战斗阶段
-        
+
         自动进行玩家间的战斗
         """
         await self._set_state(RoomState.BATTLING)
-        
+
         alive_players = self.get_alive_players()
-        
+
         # 生成对战配对
         battles = self._generate_battles(alive_players)
-        
+
         # 执行战斗（这里简化处理）
         battle_results = []
         for attacker, defender in battles:
             result = await self._execute_battle(attacker, defender)
             battle_results.append(result)
-        
+
         # 等待战斗阶段结束
         await asyncio.sleep(self.battle_phase_duration)
-    
+
     def _generate_battles(
         self,
-        players: List[PlayerInRoom],
-    ) -> List[tuple[PlayerInRoom, PlayerInRoom]]:
+        players: list[PlayerInRoom],
+    ) -> list[tuple[PlayerInRoom, PlayerInRoom]]:
         """
         生成对战配对
-        
+
         Args:
             players: 参战玩家列表
-            
+
         Returns:
             对战配对列表 [(攻击方, 防守方), ...]
         """
         battles = []
         n = len(players)
-        
+
         if n < 2:
             return battles
-        
+
         # 简单的配对逻辑：随机配对
         import random
+
         shuffled = players.copy()
         random.shuffle(shuffled)
-        
+
         for i in range(0, n - 1, 2):
             battles.append((shuffled[i], shuffled[i + 1]))
-        
+
         # 奇数人时，最后一人打镜像
         if n % 2 == 1:
             battles.append((shuffled[-1], shuffled[-1]))
-        
+
         return battles
-    
+
     async def _execute_battle(
         self,
         attacker: PlayerInRoom,
         defender: PlayerInRoom,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         执行单场战斗
-        
+
         Args:
             attacker: 攻击方
             defender: 防守方
-            
+
         Returns:
             战斗结果字典
         """
         # 简化的战斗逻辑：比较战力
         attacker_power = len(attacker.board) * 10 + attacker.level * 5
         defender_power = len(defender.board) * 10 + defender.level * 5
-        
+
         # 添加随机性
         import random
+
         attacker_power += random.randint(-5, 5)
         defender_power += random.randint(-5, 5)
-        
+
         result = {
             "round": self.current_round,
             "attacker_id": attacker.player_id,
@@ -919,7 +920,7 @@ class GameRoom:
             "attacker_power": attacker_power,
             "defender_power": defender_power,
         }
-        
+
         if attacker_power > defender_power:
             # 攻击方获胜
             damage = max(1, (attacker_power - defender_power) // 5)
@@ -944,20 +945,20 @@ class GameRoom:
             # 平局
             result["winner_id"] = None
             result["damage"] = 0
-        
+
         return result
-    
+
     async def _settle_phase(self) -> None:
         """
         结算阶段
-        
+
         计算本回合结果，更新玩家状态
         """
         await self._set_state(RoomState.SETTLING)
-        
+
         # 统计存活玩家
         alive = self.get_alive_players()
-        
+
         # 记录回合结果
         round_result = {
             "round": self.current_round,
@@ -965,43 +966,43 @@ class GameRoom:
             "players": [p.to_dict() for p in alive],
         }
         self.round_results.append(round_result)
-        
+
         # 回合结束回调
         if self._on_round_end:
             self._on_round_end(self.current_round, round_result)
-        
+
         # 短暂等待
         await asyncio.sleep(3)
-    
+
     def _check_game_end(self) -> bool:
         """
         检查游戏是否结束
-        
+
         Returns:
             游戏是否结束
         """
         alive = self.get_alive_players()
         return len(alive) <= 1 or self.all_disconnected
-    
+
     async def _end_game(self) -> None:
         """
         结束游戏
-        
+
         计算最终排名和奖励
         """
         await self._set_state(RoomState.FINISHED)
-        
+
         # 计算排名
         alive_players = self.get_alive_players()
         all_players = list(self.players.values())
-        
+
         # 按存活状态和血量排序
         ranked = sorted(
             all_players,
             key=lambda p: (p.is_alive, p.hp if p.is_alive else 0),
             reverse=True,
         )
-        
+
         # 生成最终结果
         results = {
             "room_id": self.room_id,
@@ -1019,37 +1020,37 @@ class GameRoom:
                 for i, p in enumerate(ranked)
             ],
         }
-        
+
         logger.info(
             "游戏结束",
             room_id=self.room_id,
             total_rounds=self.current_round,
             winner_id=ranked[0].player_id if ranked else None,
         )
-        
+
         # 游戏结束回调
         if self._on_game_end:
             self._on_game_end(results)
-    
+
     async def force_end(self) -> None:
         """
         强制结束游戏
-        
+
         房主或管理员可以调用
         """
         if self._phase_task:
             self._phase_task.cancel()
-        
+
         await self._end_game()
-    
+
     # ========================================================================
     # 数据同步
     # ========================================================================
-    
-    def get_room_state(self) -> Dict[str, Any]:
+
+    def get_room_state(self) -> dict[str, Any]:
         """
         获取房间完整状态（用于同步）
-        
+
         Returns:
             包含房间所有状态的字典
         """
@@ -1062,32 +1063,34 @@ class GameRoom:
             "player_count": self.player_count,
             "alive_count": self.alive_count,
             "current_round": self.current_round,
-            "phase_start_time": self.phase_start_time.isoformat() if self.phase_start_time else None,
+            "phase_start_time": self.phase_start_time.isoformat()
+            if self.phase_start_time
+            else None,
             "players": [p.to_dict() for p in self.players.values()],
             "config": self.config,
         }
-    
-    def get_player_state(self, player_id: int) -> Optional[Dict[str, Any]]:
+
+    def get_player_state(self, player_id: int) -> dict[str, Any] | None:
         """
         获取指定玩家的详细状态
-        
+
         Args:
             player_id: 玩家ID
-            
+
         Returns:
             玩家状态字典
         """
         player = self.get_player(player_id)
         if not player:
             return None
-        
+
         state = player.to_dict()
         state["heroes"] = player.heroes
         state["bench"] = player.bench
         state["board"] = player.board
         return state
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典（简化版）"""
         return {
             "room_id": self.room_id,
@@ -1098,7 +1101,7 @@ class GameRoom:
             "max_players": self.max_players,
             "current_round": self.current_round,
         }
-    
+
     def __repr__(self) -> str:
         return (
             f"<GameRoom(id={self.room_id}, state={self.state.value}, "

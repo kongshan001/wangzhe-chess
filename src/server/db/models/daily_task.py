@@ -11,7 +11,6 @@
 from __future__ import annotations
 
 from datetime import date, datetime
-from typing import Optional
 
 from sqlalchemy import (
     Boolean,
@@ -20,7 +19,6 @@ from sqlalchemy import (
     Index,
     Integer,
     String,
-    Text,
     UniqueConstraint,
 )
 from sqlalchemy.dialects.mysql import JSON
@@ -32,9 +30,9 @@ from src.server.models.base import Base, IdMixin, TimestampMixin
 class DailyTaskDB(Base, IdMixin, TimestampMixin):
     """
     每日任务实例数据模型
-    
+
     存储玩家每日生成的任务实例。
-    
+
     Attributes:
         id: 主键ID
         player_id: 玩家ID
@@ -49,7 +47,7 @@ class DailyTaskDB(Base, IdMixin, TimestampMixin):
         icon: 图标ID
         refreshed: 是否被刷新过
     """
-    
+
     __tablename__ = "daily_tasks"
     __table_args__ = (
         UniqueConstraint("player_id", "task_id", name="uq_daily_task_player_task"),
@@ -58,80 +56,80 @@ class DailyTaskDB(Base, IdMixin, TimestampMixin):
         Index("ix_daily_tasks_player_date", "player_id", "task_date"),
         {"comment": "每日任务表"},
     )
-    
+
     player_id: Mapped[str] = mapped_column(
         String(64),
         nullable=False,
         comment="玩家ID",
     )
-    
+
     task_id: Mapped[str] = mapped_column(
         String(64),
         nullable=False,
         comment="任务唯一ID",
     )
-    
+
     template_id: Mapped[str] = mapped_column(
         String(64),
         nullable=False,
         comment="任务模板ID",
     )
-    
+
     task_date: Mapped[date] = mapped_column(
         Date,
         nullable=False,
         comment="任务日期",
     )
-    
+
     name: Mapped[str] = mapped_column(
         String(100),
         nullable=False,
         comment="任务名称",
     )
-    
+
     description: Mapped[str] = mapped_column(
         String(500),
         nullable=False,
         default="",
         comment="任务描述",
     )
-    
-    requirement: Mapped[Optional[dict]] = mapped_column(
+
+    requirement: Mapped[dict | None] = mapped_column(
         JSON,
         nullable=True,
         comment="任务需求 (JSON)",
     )
-    
-    rewards: Mapped[Optional[dict]] = mapped_column(
+
+    rewards: Mapped[dict | None] = mapped_column(
         JSON,
         nullable=True,
         comment="任务奖励 (JSON)",
     )
-    
+
     difficulty: Mapped[int] = mapped_column(
         Integer,
         default=2,
         nullable=False,
         comment="任务难度 (1=简单, 2=普通, 3=困难)",
     )
-    
+
     icon: Mapped[str] = mapped_column(
         String(50),
         default="",
         nullable=False,
         comment="图标ID",
     )
-    
+
     refreshed: Mapped[bool] = mapped_column(
         Boolean,
         default=False,
         nullable=False,
         comment="是否被刷新过",
     )
-    
+
     def __repr__(self) -> str:
         return f"<DailyTaskDB(player_id='{self.player_id}', task_id='{self.task_id}', name='{self.name}')>"
-    
+
     def to_dict(self) -> dict:
         """转换为字典"""
         data = super().to_dict()
@@ -144,9 +142,9 @@ class DailyTaskDB(Base, IdMixin, TimestampMixin):
 class TaskProgressDB(Base, IdMixin, TimestampMixin):
     """
     任务进度数据模型
-    
+
     存储玩家的任务进度记录。
-    
+
     Attributes:
         id: 主键ID
         player_id: 玩家ID
@@ -158,7 +156,7 @@ class TaskProgressDB(Base, IdMixin, TimestampMixin):
         claimed: 是否已领取奖励
         claimed_at: 领取时间
     """
-    
+
     __tablename__ = "task_progress"
     __table_args__ = (
         UniqueConstraint("player_id", "task_id", name="uq_task_progress_player_task"),
@@ -169,78 +167,78 @@ class TaskProgressDB(Base, IdMixin, TimestampMixin):
         Index("ix_task_progress_claimed", "claimed"),
         {"comment": "任务进度表"},
     )
-    
+
     player_id: Mapped[str] = mapped_column(
         String(64),
         nullable=False,
         comment="玩家ID",
     )
-    
+
     task_id: Mapped[str] = mapped_column(
         String(64),
         nullable=False,
         comment="任务ID",
     )
-    
+
     task_date: Mapped[date] = mapped_column(
         Date,
         nullable=False,
         comment="任务日期",
     )
-    
+
     progress: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
         comment="当前进度值",
     )
-    
+
     completed: Mapped[bool] = mapped_column(
         Boolean,
         default=False,
         nullable=False,
         comment="是否已完成",
     )
-    
-    completed_at: Mapped[Optional[datetime]] = mapped_column(
+
+    completed_at: Mapped[datetime | None] = mapped_column(
         DateTime,
         nullable=True,
         comment="完成时间",
     )
-    
+
     claimed: Mapped[bool] = mapped_column(
         Boolean,
         default=False,
         nullable=False,
         comment="是否已领取奖励",
     )
-    
-    claimed_at: Mapped[Optional[datetime]] = mapped_column(
+
+    claimed_at: Mapped[datetime | None] = mapped_column(
         DateTime,
         nullable=True,
         comment="领取时间",
     )
-    
+
     def __repr__(self) -> str:
         return f"<TaskProgressDB(player_id='{self.player_id}', task_id='{self.task_id}', progress={self.progress})>"
-    
+
     @property
     def is_claimable(self) -> bool:
         """是否可领取奖励"""
         return self.completed and not self.claimed
-    
+
     def mark_completed(self) -> None:
         """标记为已完成"""
         if not self.completed:
             self.completed = True
             self.completed_at = datetime.now()
-    
+
     def mark_claimed(self) -> None:
         """标记为已领取"""
         if not self.claimed:
             self.claimed = True
             self.claimed_at = datetime.now()
-    
+
     def to_dict(self) -> dict:
         """转换为字典"""
         data = super().to_dict()
@@ -260,9 +258,9 @@ class TaskProgressDB(Base, IdMixin, TimestampMixin):
 class PlayerDailyStatsDB(Base, IdMixin, TimestampMixin):
     """
     玩家每日统计数据模型
-    
+
     存储玩家每日的游戏统计数据，用于任务进度计算。
-    
+
     Attributes:
         id: 主键ID
         player_id: 玩家ID
@@ -283,7 +281,7 @@ class PlayerDailyStatsDB(Base, IdMixin, TimestampMixin):
         perfect_wins: 完美胜利次数
         refresh_count: 任务刷新次数
     """
-    
+
     __tablename__ = "player_daily_stats"
     __table_args__ = (
         UniqueConstraint("player_id", "stat_date", name="uq_player_daily_stats"),
@@ -292,138 +290,138 @@ class PlayerDailyStatsDB(Base, IdMixin, TimestampMixin):
         Index("ix_player_daily_stats_player_date", "player_id", "stat_date"),
         {"comment": "玩家每日统计表"},
     )
-    
+
     player_id: Mapped[str] = mapped_column(
         String(64),
         nullable=False,
         comment="玩家ID",
     )
-    
+
     stat_date: Mapped[date] = mapped_column(
         Date,
         nullable=False,
         comment="统计日期",
     )
-    
+
     games_played: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
         comment="对局次数",
     )
-    
+
     games_won: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
         comment="获胜次数",
     )
-    
+
     first_place_count: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
         comment="第一名次数",
     )
-    
+
     top4_count: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
         comment="前4名次数",
     )
-    
+
     damage_dealt: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
         comment="造成伤害",
     )
-    
+
     heroes_killed: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
         comment="击杀英雄数",
     )
-    
+
     gold_earned: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
         comment="获得金币",
     )
-    
+
     gold_spent: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
         comment="花费金币",
     )
-    
+
     max_gold_saved: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
         comment="单局最大保留金币",
     )
-    
+
     heroes_2star_collected: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
         comment="2星英雄合成数",
     )
-    
+
     heroes_3star_collected: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
         comment="3星英雄合成数",
     )
-    
+
     heroes_bought: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
         comment="购买英雄数",
     )
-    
+
     team_games: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
         comment="组队游戏次数",
     )
-    
+
     perfect_wins: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
         comment="完美胜利次数",
     )
-    
+
     refresh_count: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
         comment="任务刷新次数",
     )
-    
+
     def __repr__(self) -> str:
         return f"<PlayerDailyStatsDB(player_id='{self.player_id}', date='{self.stat_date}')>"
-    
+
     def to_dict(self) -> dict:
         """转换为字典"""
         data = super().to_dict()
         if self.stat_date:
             data["stat_date"] = self.stat_date.isoformat()
         return data
-    
+
     def increment(self, field: str, value: int = 1) -> None:
         """
         增加指定字段的值
-        
+
         Args:
             field: 字段名
             value: 增量值
@@ -431,11 +429,11 @@ class PlayerDailyStatsDB(Base, IdMixin, TimestampMixin):
         if hasattr(self, field):
             current = getattr(self, field, 0)
             setattr(self, field, current + value)
-    
+
     def update_max(self, field: str, value: int) -> None:
         """
         更新最大值字段
-        
+
         Args:
             field: 字段名
             value: 新值

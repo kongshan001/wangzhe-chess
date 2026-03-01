@@ -14,7 +14,7 @@
         LeaderboardPeriod,
         get_leaderboard_manager,
     )
-    
+
     manager = get_leaderboard_manager()
     leaderboard = manager.get_leaderboard(
         LeaderboardType.TIER,
@@ -24,6 +24,10 @@
     )
 """
 
+from .manager import (
+    LeaderboardManager,
+    get_leaderboard_manager,
+)
 from .models import (
     LeaderboardData,
     LeaderboardEntry,
@@ -31,10 +35,6 @@ from .models import (
     LeaderboardReward,
     LeaderboardType,
     PlayerRankInfo,
-)
-from .manager import (
-    LeaderboardManager,
-    get_leaderboard_manager,
 )
 
 __all__ = [

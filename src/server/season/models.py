@@ -15,30 +15,32 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 class SeasonStatus(Enum):
     """赛季状态枚举"""
-    UPCOMING = "upcoming"      # 即将开始
-    ACTIVE = "active"          # 进行中
-    ENDING = "ending"          # 即将结束(最后3天)
-    ENDED = "ended"            # 已结束
+
+    UPCOMING = "upcoming"  # 即将开始
+    ACTIVE = "active"  # 进行中
+    ENDING = "ending"  # 即将结束(最后3天)
+    ENDED = "ended"  # 已结束
 
 
 class Tier(int, Enum):
     """段位枚举"""
-    BRONZE = 1       # 青铜
-    SILVER = 2       # 白银
-    GOLD = 3         # 黄金
-    PLATINUM = 4     # 铂金
-    DIAMOND = 5      # 钻石
-    MASTER = 6       # 大师
+
+    BRONZE = 1  # 青铜
+    SILVER = 2  # 白银
+    GOLD = 3  # 黄金
+    PLATINUM = 4  # 铂金
+    DIAMOND = 5  # 钻石
+    MASTER = 6  # 大师
     GRANDMASTER = 7  # 宗师
-    KING = 8         # 王者
+    KING = 8  # 王者
 
     @classmethod
-    def from_name(cls, name: str) -> "Tier":
+    def from_name(cls, name: str) -> Tier:
         """从名称获取段位"""
         name_map = {
             "bronze": cls.BRONZE,
@@ -72,9 +74,9 @@ class Tier(int, Enum):
 class SeasonReward:
     """
     赛季奖励配置
-    
+
     根据玩家最终段位发放的奖励。
-    
+
     Attributes:
         tier: 达到的段位
         avatar_frame: 头像框ID（可选）
@@ -84,15 +86,16 @@ class SeasonReward:
         exp: 经验值奖励
         items: 其他物品奖励列表
     """
+
     tier: Tier
-    avatar_frame: Optional[str] = None
-    skin: Optional[str] = None
-    title: Optional[str] = None
+    avatar_frame: str | None = None
+    skin: str | None = None
+    title: str | None = None
     gold: int = 0
     exp: int = 0
-    items: list[Dict[str, Any]] = field(default_factory=list)
+    items: list[dict[str, Any]] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典"""
         return {
             "tier": self.tier.value,
@@ -106,14 +109,14 @@ class SeasonReward:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "SeasonReward":
+    def from_dict(cls, data: dict[str, Any]) -> SeasonReward:
         """从字典创建"""
         tier = data.get("tier", 1)
         if isinstance(tier, int):
             tier = Tier(tier)
         elif isinstance(tier, str):
             tier = Tier.from_name(tier)
-        
+
         return cls(
             tier=tier,
             avatar_frame=data.get("avatar_frame"),
@@ -129,9 +132,9 @@ class SeasonReward:
 class Season:
     """
     赛季信息
-    
+
     定义一个赛季的基本信息和奖励配置。
-    
+
     Attributes:
         season_id: 赛季唯一ID
         name: 赛季名称
@@ -143,15 +146,16 @@ class Season:
         pass_free_rewards: 免费通行证奖励
         pass_premium_rewards: 付费通行证奖励
     """
+
     season_id: str
     name: str
     start_time: datetime
     end_time: datetime
     is_active: bool = True
     description: str = ""
-    rewards: Dict[int, SeasonReward] = field(default_factory=dict)
-    pass_free_rewards: list[Dict[str, Any]] = field(default_factory=list)
-    pass_premium_rewards: list[Dict[str, Any]] = field(default_factory=list)
+    rewards: dict[int, SeasonReward] = field(default_factory=dict)
+    pass_free_rewards: list[dict[str, Any]] = field(default_factory=list)
+    pass_premium_rewards: list[dict[str, Any]] = field(default_factory=list)
 
     @property
     def status(self) -> SeasonStatus:
@@ -186,11 +190,11 @@ class Season:
         elapsed = (datetime.now() - self.start_time).total_seconds()
         return min(1.0, max(0.0, elapsed / total))
 
-    def get_reward_for_tier(self, tier: Tier) -> Optional[SeasonReward]:
+    def get_reward_for_tier(self, tier: Tier) -> SeasonReward | None:
         """获取指定段位的奖励"""
         return self.rewards.get(tier.value)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典"""
         return {
             "season_id": self.season_id,
@@ -209,12 +213,12 @@ class Season:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Season":
+    def from_dict(cls, data: dict[str, Any]) -> Season:
         """从字典创建"""
         rewards = {}
         for tier_val, reward_data in data.get("rewards", {}).items():
             rewards[int(tier_val)] = SeasonReward.from_dict(reward_data)
-        
+
         return cls(
             season_id=data["season_id"],
             name=data["name"],
@@ -232,9 +236,9 @@ class Season:
 class PlayerSeasonData:
     """
     玩家赛季数据
-    
+
     记录玩家在一个赛季中的表现和进度。
-    
+
     Attributes:
         player_id: 玩家ID
         season_id: 赛季ID
@@ -245,17 +249,18 @@ class PlayerSeasonData:
         total_top4: 总前四场数
         first_place_count: 第一名次数
         top4_rate: 前四率
-        
+
         # 通行证
         pass_level: 通行证等级
         pass_exp: 通行证经验
         pass_premium: 是否购买付费通行证
-        
+
         # 定位赛
         placement_done: 是否完成定位赛
         placement_matches: 定位赛场次
         placement_wins: 定位赛胜场
     """
+
     player_id: str
     season_id: str
     highest_tier: Tier = Tier.BRONZE
@@ -265,12 +270,12 @@ class PlayerSeasonData:
     total_top4: int = 0
     first_place_count: int = 0
     top4_rate: float = 0.0
-    
+
     # 通行证
     pass_level: int = 1
     pass_exp: int = 0
     pass_premium: bool = False
-    
+
     # 定位赛
     placement_done: bool = False
     placement_matches: int = 0
@@ -294,7 +299,7 @@ class PlayerSeasonData:
     def add_game_result(self, rank: int) -> None:
         """
         添加对局结果
-        
+
         Args:
             rank: 本局排名 (1-8)
         """
@@ -304,17 +309,17 @@ class PlayerSeasonData:
             self.first_place_count += 1
         if rank <= 4:
             self.total_top4 += 1
-        
+
         # 更新前四率
         self.top4_rate = round(self.total_top4 / self.total_games * 100, 2)
 
     def add_pass_exp(self, exp: int) -> int:
         """
         添加通行证经验并升级
-        
+
         Args:
             exp: 获得的经验值
-            
+
         Returns:
             升级后的等级
         """
@@ -327,7 +332,7 @@ class PlayerSeasonData:
     def update_tier(self, new_tier: Tier) -> None:
         """
         更新段位
-        
+
         Args:
             new_tier: 新段位
         """
@@ -338,23 +343,23 @@ class PlayerSeasonData:
     def record_placement_match(self, won: bool) -> bool:
         """
         记录定位赛结果
-        
+
         Args:
             won: 是否获胜
-            
+
         Returns:
             是否完成定位赛
         """
         self.placement_matches += 1
         if won:
             self.placement_wins += 1
-        
+
         if self.placement_matches >= 10:
             self.placement_done = True
-        
+
         return self.placement_done
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典"""
         return {
             "player_id": self.player_id,
@@ -379,21 +384,21 @@ class PlayerSeasonData:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "PlayerSeasonData":
+    def from_dict(cls, data: dict[str, Any]) -> PlayerSeasonData:
         """从字典创建"""
         highest_tier = data.get("highest_tier", 1)
         final_tier = data.get("final_tier", 1)
-        
+
         if isinstance(highest_tier, int):
             highest_tier = Tier(highest_tier)
         elif isinstance(highest_tier, str):
             highest_tier = Tier.from_name(highest_tier)
-        
+
         if isinstance(final_tier, int):
             final_tier = Tier(final_tier)
         elif isinstance(final_tier, str):
             final_tier = Tier.from_name(final_tier)
-        
+
         return cls(
             player_id=data["player_id"],
             season_id=data["season_id"],

@@ -18,68 +18,41 @@ import pytest
 src_path = Path(__file__).parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
-from shared.constants import (
-    BASE_INCOME_PER_ROUND,
-    BENCH_SIZE,
-    BOARD_HEIGHT,
-    BOARD_WIDTH,
-    HERO_POOL_COUNTS,
-    INITIAL_PLAYER_HP,
-    INTEREST_INCREMENT,
-    LEVEL_UP_EXP,
-    MAX_HERO_COST,
-    MAX_HERO_STAR,
-    MAX_INTEREST_GOLD,
-    MAX_PLAYER_LEVEL,
-    MIN_HERO_COST,
-    REFRESH_PROBABILITY,
-    SHOP_SLOT_COUNT,
-)
-from shared.models import (
-    ActiveSynergy,
-    BattleResult,
-    Board,
-    DamageEvent,
-    DamageType,
-    DeathEvent,
-    Hero,
-    HeroState,
-    HeroTemplate,
-    Player,
-    PlayerState,
-    Position,
-    Shop,
-    ShopSlot,
-    Skill,
-    SkillEvent,
-    Synergy,
-    SynergyLevel,
-    SynergyType,
-)
 from server.game.battle.simulator import BattleSimulator, BattleUnit, DeterministicRNG
-from server.game.economy import EconomyManager, EconomyState, IncomeBreakdown
+from server.game.economy import EconomyManager, EconomyState
 from server.game.hero_pool import (
+    SAMPLE_HEROES_CONFIG,
     HeroConfigLoader,
     HeroFactory,
     SharedHeroPool,
     ShopManager,
-    SAMPLE_HEROES_CONFIG,
 )
-from server.game.synergy import SynergyManager, RACE_SYNERGIES, PROFESSION_SYNERGIES
-
+from server.game.synergy import SynergyManager
+from shared.constants import (
+    INITIAL_PLAYER_HP,
+)
+from shared.models import (
+    Board,
+    DamageType,
+    Hero,
+    HeroTemplate,
+    Player,
+    Position,
+    Skill,
+    Synergy,
+    SynergyLevel,
+    SynergyType,
+)
 
 # ============================================================================
 # 基础配置
 # ============================================================================
 
+
 def pytest_configure(config):
     """pytest 配置钩子"""
-    config.addinivalue_line(
-        "markers", "asyncio: mark test as an asyncio test"
-    )
-    config.addinivalue_line(
-        "markers", "slow: mark test as slow running"
-    )
+    config.addinivalue_line("markers", "asyncio: mark test as an asyncio test")
+    config.addinivalue_line("markers", "slow: mark test as slow running")
     config.addinivalue_line(
         "markers", "deterministic: mark test as requiring deterministic behavior"
     )
@@ -88,6 +61,7 @@ def pytest_configure(config):
 # ============================================================================
 # 英雄相关 fixtures
 # ============================================================================
+
 
 @pytest.fixture
 def sample_skill() -> Skill:
@@ -195,6 +169,7 @@ def three_star_hero(sample_hero_template: HeroTemplate) -> Hero:
 # 棋盘相关 fixtures
 # ============================================================================
 
+
 @pytest.fixture
 def empty_board() -> Board:
     """创建空棋盘"""
@@ -267,6 +242,7 @@ def battle_board() -> tuple[Board, Board]:
 # 玩家相关 fixtures
 # ============================================================================
 
+
 @pytest.fixture
 def sample_player() -> Player:
     """创建示例玩家"""
@@ -300,18 +276,19 @@ def player_with_heroes(sample_player: Player, sample_heroes: list[Hero]) -> Play
     # 添加英雄到备战席
     for hero in sample_heroes[:3]:
         sample_player.add_to_bench(hero)
-    
+
     # 放置英雄到棋盘
     if len(sample_heroes) > 3:
         sample_player.board.place_hero(sample_heroes[3], Position(x=0, y=0))
         sample_player.board.place_hero(sample_heroes[4], Position(x=1, y=0))
-    
+
     return sample_player
 
 
 # ============================================================================
 # 英雄池相关 fixtures
 # ============================================================================
+
 
 @pytest.fixture
 def hero_config_loader() -> HeroConfigLoader:
@@ -342,6 +319,7 @@ def shop_manager(shared_hero_pool: SharedHeroPool) -> ShopManager:
 # ============================================================================
 # 羁绊相关 fixtures
 # ============================================================================
+
 
 @pytest.fixture
 def synergy_manager() -> SynergyManager:
@@ -378,6 +356,7 @@ def sample_synergies() -> list[Synergy]:
 # 经济相关 fixtures
 # ============================================================================
 
+
 @pytest.fixture
 def economy_manager() -> EconomyManager:
     """创建经济管理器"""
@@ -399,6 +378,7 @@ def economy_state() -> EconomyState:
 # ============================================================================
 # 战斗相关 fixtures
 # ============================================================================
+
 
 @pytest.fixture
 def deterministic_rng() -> DeterministicRNG:
@@ -423,13 +403,14 @@ def battle_simulator(battle_board: tuple[Board, Board]) -> BattleSimulator:
 # 房间相关 fixtures（模拟房间类）
 # ============================================================================
 
+
 class MockRoom:
     """
     模拟房间类（用于测试）
-    
+
     由于当前项目没有房间管理模块，这里创建一个模拟类用于测试。
     """
-    
+
     def __init__(self, room_id: str, max_players: int = 8):
         self.room_id = room_id
         self.max_players = max_players
@@ -437,7 +418,7 @@ class MockRoom:
         self.state = "waiting"
         self.current_round = 0
         self._round_results: dict[str, Any] = {}
-    
+
     def add_player(self, player: Player) -> bool:
         if len(self.players) >= self.max_players:
             return False
@@ -445,38 +426,38 @@ class MockRoom:
             return False
         self.players[player.player_id] = player
         return True
-    
+
     def remove_player(self, player_id: str) -> bool:
         if player_id not in self.players:
             return False
         del self.players[player_id]
         return True
-    
+
     def get_player_count(self) -> int:
         return len(self.players)
-    
+
     def is_full(self) -> bool:
         return len(self.players) >= self.max_players
-    
+
     def can_start(self) -> bool:
         return len(self.players) >= 2
-    
+
     def start_game(self) -> bool:
         if not self.can_start():
             return False
         self.state = "preparing"
         self.current_round = 1
         return True
-    
+
     def next_round(self) -> bool:
         if self.state == "game_over":
             return False
         self.current_round += 1
         return True
-    
+
     def end_game(self) -> None:
         self.state = "game_over"
-    
+
     def get_alive_players(self) -> list[Player]:
         return [p for p in self.players.values() if p.is_alive()]
 
@@ -500,9 +481,11 @@ def mock_room_with_players(sample_players: list[Player]) -> MockRoom:
 # 辅助函数 fixtures
 # ============================================================================
 
+
 @pytest.fixture
 def create_test_hero():
     """创建测试英雄的工厂函数"""
+
     def _create(
         instance_id: str,
         name: str = "测试英雄",
@@ -552,12 +535,14 @@ def create_test_hero():
             attack_speed=attack_speed,
             skill=skill,
         )
+
     return _create
 
 
 @pytest.fixture
 def create_test_board():
     """创建测试棋盘的工厂函数"""
+
     def _create(owner_id: str, heroes: list[Hero] = None) -> Board:
         board = Board.create_empty(owner_id)
         if heroes:
@@ -567,4 +552,5 @@ def create_test_board():
                 pos = Position(x=x, y=y)
                 board.place_hero(hero, pos)
         return board
+
     return _create

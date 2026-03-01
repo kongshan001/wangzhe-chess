@@ -18,49 +18,48 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass, field
-from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class SuggestionType(str, Enum):
     """建议类型枚举"""
-    
-    LINEUP = "lineup"             # 阵容建议
-    EQUIPMENT = "equipment"       # 装备建议
-    POSITION = "position"         # 站位建议
-    ECONOMY = "economy"           # 经济建议
-    HERO_BUY = "hero_buy"         # 英雄购买建议
-    HERO_SELL = "hero_sell"       # 英雄出售建议
-    LEVEL_UP = "level_up"         # 升级建议
-    SYNERGY = "synergy"           # 羁绊建议
+
+    LINEUP = "lineup"  # 阵容建议
+    EQUIPMENT = "equipment"  # 装备建议
+    POSITION = "position"  # 站位建议
+    ECONOMY = "economy"  # 经济建议
+    HERO_BUY = "hero_buy"  # 英雄购买建议
+    HERO_SELL = "hero_sell"  # 英雄出售建议
+    LEVEL_UP = "level_up"  # 升级建议
+    SYNERGY = "synergy"  # 羁绊建议
 
 
 class Priority(str, Enum):
     """建议优先级"""
-    
-    LOW = "low"           # 低优先级
-    MEDIUM = "medium"     # 中优先级
-    HIGH = "high"         # 高优先级
-    CRITICAL = "critical" # 关键/紧急
+
+    LOW = "low"  # 低优先级
+    MEDIUM = "medium"  # 中优先级
+    HIGH = "high"  # 高优先级
+    CRITICAL = "critical"  # 关键/紧急
 
 
 class AnalysisType(str, Enum):
     """分析类型"""
-    
-    EARLY_GAME = "early_game"     # 前期（1-10回合）
-    MID_GAME = "mid_game"         # 中期（11-20回合）
-    LATE_GAME = "late_game"       # 后期（21+回合）
-    POST_GAME = "post_game"       # 赛后分析
+
+    EARLY_GAME = "early_game"  # 前期（1-10回合）
+    MID_GAME = "mid_game"  # 中期（11-20回合）
+    LATE_GAME = "late_game"  # 后期（21+回合）
+    POST_GAME = "post_game"  # 赛后分析
 
 
 @dataclass
 class AISuggestion:
     """
     AI建议
-    
+
     代表AI教练给出的一条建议。
-    
+
     Attributes:
         suggestion_id: 建议ID
         suggestion_type: 建议类型
@@ -74,20 +73,20 @@ class AISuggestion:
         created_at: 创建时间
         metadata: 额外元数据
     """
-    
+
     suggestion_id: str
     suggestion_type: SuggestionType
     priority: Priority
     title: str
     description: str
     reason: str
-    action: Dict[str, Any]
+    action: dict[str, Any]
     expected_benefit: str
     confidence: float = 0.8
     created_at: int = field(default_factory=lambda: int(time.time() * 1000))
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    
-    def to_dict(self) -> Dict[str, Any]:
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典"""
         return {
             "suggestion_id": self.suggestion_id,
@@ -102,9 +101,9 @@ class AISuggestion:
             "created_at": self.created_at,
             "metadata": self.metadata,
         }
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "AISuggestion":
+    def from_dict(cls, data: dict[str, Any]) -> AISuggestion:
         """从字典创建"""
         return cls(
             suggestion_id=data["suggestion_id"],
@@ -125,9 +124,9 @@ class AISuggestion:
 class EquipmentAdvice:
     """
     装备建议
-    
+
     关于装备合成和分配的建议。
-    
+
     Attributes:
         equipment_id: 装备ID
         equipment_name: 装备名称
@@ -137,16 +136,16 @@ class EquipmentAdvice:
         priority: 优先级
         expected_stat_boost: 预期属性提升
     """
-    
+
     equipment_id: str
     equipment_name: str
-    target_hero_id: Optional[str]
+    target_hero_id: str | None
     reason: str
-    recipe: Optional[List[str]] = None
+    recipe: list[str] | None = None
     priority: Priority = Priority.MEDIUM
-    expected_stat_boost: Dict[str, float] = field(default_factory=dict)
-    
-    def to_dict(self) -> Dict[str, Any]:
+    expected_stat_boost: dict[str, float] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典"""
         return {
             "equipment_id": self.equipment_id,
@@ -163,9 +162,9 @@ class EquipmentAdvice:
 class PositionAdvice:
     """
     站位建议
-    
+
     关于英雄在棋盘上的站位建议。
-    
+
     Attributes:
         hero_id: 英雄ID
         hero_name: 英雄名称
@@ -175,16 +174,16 @@ class PositionAdvice:
         priority: 优先级
         tactical_role: 战术角色（坦克/输出/辅助等）
     """
-    
+
     hero_id: str
     hero_name: str
-    current_position: Optional[Dict[str, int]]
-    recommended_position: Dict[str, int]
+    current_position: dict[str, int] | None
+    recommended_position: dict[str, int]
     reason: str
     priority: Priority = Priority.MEDIUM
     tactical_role: str = "fighter"
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典"""
         return {
             "hero_id": self.hero_id,
@@ -201,9 +200,9 @@ class PositionAdvice:
 class RoundStrategy:
     """
     回合策略
-    
+
     针对特定回合的策略建议。
-    
+
     Attributes:
         round_num: 回合数
         phase: 游戏阶段
@@ -215,18 +214,18 @@ class RoundStrategy:
         risk_level: 风险等级
         win_condition: 获胜条件
     """
-    
+
     round_num: int
     phase: AnalysisType
     strategy_type: str  # aggressive / defensive / balanced / economic
     description: str
-    key_actions: List[str] = field(default_factory=list)
-    focus_synergies: List[str] = field(default_factory=list)
-    economy_advice: Optional[str] = None
+    key_actions: list[str] = field(default_factory=list)
+    focus_synergies: list[str] = field(default_factory=list)
+    economy_advice: str | None = None
     risk_level: str = "medium"  # low / medium / high
-    win_condition: Optional[str] = None
-    
-    def to_dict(self) -> Dict[str, Any]:
+    win_condition: str | None = None
+
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典"""
         return {
             "round_num": self.round_num,
@@ -245,9 +244,9 @@ class RoundStrategy:
 class WinRatePrediction:
     """
     胜率预测
-    
+
     基于当前局势的胜率预测。
-    
+
     Attributes:
         predicted_win_rate: 预测胜率（0-1）
         confidence: 置信度
@@ -257,16 +256,16 @@ class WinRatePrediction:
         key_weaknesses: 关键劣势
         improvement_suggestions: 改进建议
     """
-    
+
     predicted_win_rate: float
     confidence: float
-    factors: Dict[str, float] = field(default_factory=dict)
+    factors: dict[str, float] = field(default_factory=dict)
     comparison_rank: int = 4
-    key_advantages: List[str] = field(default_factory=list)
-    key_weaknesses: List[str] = field(default_factory=list)
-    improvement_suggestions: List[str] = field(default_factory=list)
-    
-    def to_dict(self) -> Dict[str, Any]:
+    key_advantages: list[str] = field(default_factory=list)
+    key_weaknesses: list[str] = field(default_factory=list)
+    improvement_suggestions: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典"""
         return {
             "predicted_win_rate": self.predicted_win_rate,
@@ -283,9 +282,9 @@ class WinRatePrediction:
 class CoachAnalysis:
     """
     对局分析
-    
+
     AI教练对对局的完整分析结果。
-    
+
     Attributes:
         analysis_id: 分析ID
         player_id: 玩家ID
@@ -303,7 +302,7 @@ class CoachAnalysis:
         win_rate_prediction: 胜率预测
         created_at: 创建时间
     """
-    
+
     analysis_id: str
     player_id: int
     game_id: str
@@ -314,13 +313,13 @@ class CoachAnalysis:
     synergy_score: float = 50.0
     position_score: float = 50.0
     overall_score: float = 50.0
-    strengths: List[str] = field(default_factory=list)
-    weaknesses: List[str] = field(default_factory=list)
-    suggestions: List[AISuggestion] = field(default_factory=list)
-    win_rate_prediction: Optional[WinRatePrediction] = None
+    strengths: list[str] = field(default_factory=list)
+    weaknesses: list[str] = field(default_factory=list)
+    suggestions: list[AISuggestion] = field(default_factory=list)
+    win_rate_prediction: WinRatePrediction | None = None
     created_at: int = field(default_factory=lambda: int(time.time() * 1000))
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典"""
         return {
             "analysis_id": self.analysis_id,
@@ -336,19 +335,19 @@ class CoachAnalysis:
             "strengths": self.strengths,
             "weaknesses": self.weaknesses,
             "suggestions": [s.to_dict() for s in self.suggestions],
-            "win_rate_prediction": self.win_rate_prediction.to_dict() if self.win_rate_prediction else None,
+            "win_rate_prediction": self.win_rate_prediction.to_dict()
+            if self.win_rate_prediction
+            else None,
             "created_at": self.created_at,
         }
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "CoachAnalysis":
+    def from_dict(cls, data: dict[str, Any]) -> CoachAnalysis:
         """从字典创建"""
-        suggestions = [
-            AISuggestion.from_dict(s) for s in data.get("suggestions", [])
-        ]
+        suggestions = [AISuggestion.from_dict(s) for s in data.get("suggestions", [])]
         win_rate_data = data.get("win_rate_prediction")
         win_rate = WinRatePrediction(**win_rate_data) if win_rate_data else None
-        
+
         return cls(
             analysis_id=data["analysis_id"],
             player_id=data["player_id"],
@@ -372,9 +371,9 @@ class CoachAnalysis:
 class LineupRecommendation:
     """
     阵容推荐
-    
+
     AI推荐的阵容配置。
-    
+
     Attributes:
         lineup_id: 阵容ID
         name: 阵容名称
@@ -392,24 +391,24 @@ class LineupRecommendation:
         win_rate: 该阵容的历史胜率
         popularity: 流行度
     """
-    
+
     lineup_id: str
     name: str
     description: str
     difficulty: int = 3
-    core_heroes: List[str] = field(default_factory=list)
-    optional_heroes: List[str] = field(default_factory=list)
-    synergies: Dict[str, int] = field(default_factory=dict)  # 羁绊名 -> 等级
+    core_heroes: list[str] = field(default_factory=list)
+    optional_heroes: list[str] = field(default_factory=list)
+    synergies: dict[str, int] = field(default_factory=dict)  # 羁绊名 -> 等级
     play_style: str = "balanced"  # aggressive / defensive / balanced
-    early_game: List[str] = field(default_factory=list)
-    mid_game: List[str] = field(default_factory=list)
-    late_game: List[str] = field(default_factory=list)
-    key_items: List[str] = field(default_factory=list)
-    tips: List[str] = field(default_factory=list)
+    early_game: list[str] = field(default_factory=list)
+    mid_game: list[str] = field(default_factory=list)
+    late_game: list[str] = field(default_factory=list)
+    key_items: list[str] = field(default_factory=list)
+    tips: list[str] = field(default_factory=list)
     win_rate: float = 0.5
     popularity: float = 0.5
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典"""
         return {
             "lineup_id": self.lineup_id,
@@ -428,9 +427,9 @@ class LineupRecommendation:
             "win_rate": self.win_rate,
             "popularity": self.popularity,
         }
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "LineupRecommendation":
+    def from_dict(cls, data: dict[str, Any]) -> LineupRecommendation:
         """从字典创建"""
         return cls(
             lineup_id=data["lineup_id"],
@@ -455,9 +454,9 @@ class LineupRecommendation:
 class MatchHistoryItem:
     """
     对局历史记录
-    
+
     用于AI教练分析玩家的历史对局数据。
-    
+
     Attributes:
         match_id: 对局ID
         game_id: 游戏ID
@@ -473,22 +472,22 @@ class MatchHistoryItem:
         analysis: 对局分析（如果有）
         played_at: 对局时间
     """
-    
+
     match_id: str
     game_id: str
     final_rank: int
     total_rounds: int
     duration_seconds: int
-    final_lineup: List[str] = field(default_factory=list)
-    final_synergies: Dict[str, int] = field(default_factory=dict)
+    final_lineup: list[str] = field(default_factory=list)
+    final_synergies: dict[str, int] = field(default_factory=dict)
     damage_dealt: int = 0
     damage_taken: int = 0
     gold_earned: int = 0
-    key_decisions: List[str] = field(default_factory=list)
-    analysis: Optional[CoachAnalysis] = None
+    key_decisions: list[str] = field(default_factory=list)
+    analysis: CoachAnalysis | None = None
     played_at: int = field(default_factory=lambda: int(time.time() * 1000))
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典"""
         return {
             "match_id": self.match_id,
@@ -505,12 +504,12 @@ class MatchHistoryItem:
             "analysis": self.analysis.to_dict() if self.analysis else None,
             "played_at": self.played_at,
         }
-    
+
     @property
     def duration_minutes(self) -> float:
         """对局时长（分钟）"""
         return round(self.duration_seconds / 60, 1)
-    
+
     @property
     def is_win(self) -> bool:
         """是否获胜（第一名）"""
@@ -521,9 +520,9 @@ class MatchHistoryItem:
 class PlayerLearningStats:
     """
     玩家学习统计
-    
+
     AI教练跟踪的玩家学习数据。
-    
+
     Attributes:
         player_id: 玩家ID
         total_matches: 总对局数
@@ -536,33 +535,33 @@ class PlayerLearningStats:
         suggestions_followed: 采纳建议次数
         coaching_sessions: 教练会话次数
     """
-    
+
     player_id: int
     total_matches: int = 0
     wins: int = 0
     top4_count: int = 0
     avg_rank: float = 4.0
-    favorite_synergies: Dict[str, int] = field(default_factory=dict)
-    improvement_areas: List[str] = field(default_factory=list)
+    favorite_synergies: dict[str, int] = field(default_factory=dict)
+    improvement_areas: list[str] = field(default_factory=list)
     recent_form: str = "stable"  # improving / declining / stable
     suggestions_followed: int = 0
     coaching_sessions: int = 0
-    
+
     @property
     def win_rate(self) -> float:
         """胜率"""
         if self.total_matches == 0:
             return 0.0
         return round(self.wins / self.total_matches, 3)
-    
+
     @property
     def top4_rate(self) -> float:
         """前4名率"""
         if self.total_matches == 0:
             return 0.0
         return round(self.top4_count / self.total_matches, 3)
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典"""
         return {
             "player_id": self.player_id,

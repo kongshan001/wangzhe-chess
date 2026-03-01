@@ -14,29 +14,28 @@
 - 数据模型: HeroShard, ShardComposition, ShardsBackpack 等
 """
 
+from .manager import (
+    HeroShardManager,
+    get_hero_shard_manager,
+)
 from .models import (
+    HERO_DECOMPOSE_CONFIG,
+    SHARD_COMPOSITION_CONFIG,
     BatchComposeResult,
     BatchDecomposeResult,
     HeroComposeResult,
     HeroDecomposeResult,
     HeroShard,
     ShardComposition,
-    ShardSource,
     ShardsBackpack,
+    ShardSource,
     StarLevel,
-    HERO_DECOMPOSE_CONFIG,
-    SHARD_COMPOSITION_CONFIG,
-)
-from .manager import (
-    HeroShardManager,
-    get_hero_shard_manager,
 )
 
 __all__ = [
     # 管理器
     "HeroShardManager",
     "get_hero_shard_manager",
-    
     # 数据模型
     "HeroShard",
     "ShardComposition",
@@ -47,7 +46,6 @@ __all__ = [
     "HeroDecomposeResult",
     "BatchComposeResult",
     "BatchDecomposeResult",
-    
     # 配置常量
     "HERO_DECOMPOSE_CONFIG",
     "SHARD_COMPOSITION_CONFIG",

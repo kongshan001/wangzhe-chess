@@ -11,22 +11,26 @@
 
 使用方式:
     from src.server.friendship import get_friendship_manager
-    
+
     manager = get_friendship_manager()
-    
+
     # 发送好友请求
     manager.send_friend_request(player_id, friend_id, "Hi!")
-    
+
     # 接受好友请求
     manager.accept_friend_request(request_id)
-    
+
     # 发送私聊消息
     manager.send_private_message(from_id, to_id, "Hello!")
-    
+
     # 创建队伍
     team = manager.create_team(leader_id)
 """
 
+from .manager import (
+    FriendshipManager,
+    get_friendship_manager,
+)
 from .models import (
     BlockedPlayer,
     FriendInfo,
@@ -38,10 +42,6 @@ from .models import (
     PrivateMessage,
     PrivateMessageData,
     TeamInfo,
-)
-from .manager import (
-    FriendshipManager,
-    get_friendship_manager,
 )
 
 __all__ = [

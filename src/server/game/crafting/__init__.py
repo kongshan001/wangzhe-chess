@@ -9,18 +9,18 @@
 
 使用示例:
     from server.game.crafting import CraftingManager, PlayerInventory
-    
+
     # 创建管理器
     manager = CraftingManager()
-    
+
     # 创建玩家背包
     inventory = PlayerInventory()
     inventory.add_equipment("eq_001", 2)  # 添加2个铁剑
     inventory.gold = 100
-    
+
     # 查找可合成的配方
     craftable = manager.get_craftable_recipes(inventory)
-    
+
     # 执行合成
     result = manager.craft(craftable[0], inventory)
 """

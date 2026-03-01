@@ -11,7 +11,6 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional
 
 from sqlalchemy import (
     Boolean,
@@ -24,7 +23,7 @@ from sqlalchemy import (
     func,
 )
 from sqlalchemy.dialects.mysql import JSON
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 from src.server.models.base import Base, IdMixin, TimestampMixin
 
@@ -32,9 +31,9 @@ from src.server.models.base import Base, IdMixin, TimestampMixin
 class SpectatorDB(Base, IdMixin, TimestampMixin):
     """
     观战记录模型
-    
+
     记录玩家的观战历史。
-    
+
     Attributes:
         id: 主键ID
         spectator_id: 观众玩家ID（外键）
@@ -47,7 +46,7 @@ class SpectatorDB(Base, IdMixin, TimestampMixin):
         visibility: 对局可见性
         metadata: 额外数据
     """
-    
+
     __tablename__ = "spectator_records"
     __table_args__ = (
         Index("ix_spectator_records_spectator_id", "spectator_id"),
@@ -55,74 +54,74 @@ class SpectatorDB(Base, IdMixin, TimestampMixin):
         Index("ix_spectator_records_joined_at", "joined_at"),
         {"comment": "观战记录表"},
     )
-    
+
     spectator_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey("players.id", ondelete="CASCADE"),
         nullable=False,
         comment="观众玩家ID",
     )
-    
+
     game_id: Mapped[str] = mapped_column(
         String(64),
         nullable=False,
         comment="观战的对局ID",
     )
-    
+
     watching_player_id: Mapped[str] = mapped_column(
         String(64),
         nullable=False,
         comment="观看的玩家ID",
     )
-    
+
     joined_at: Mapped[datetime] = mapped_column(
         DateTime,
         server_default=func.now(),
         nullable=False,
         comment="加入时间",
     )
-    
-    left_at: Mapped[Optional[datetime]] = mapped_column(
+
+    left_at: Mapped[datetime | None] = mapped_column(
         DateTime,
         nullable=True,
         comment="离开时间",
     )
-    
+
     duration_seconds: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
         comment="观战时长（秒）",
     )
-    
+
     chat_count: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
         comment="发送弹幕数量",
     )
-    
+
     visibility: Mapped[str] = mapped_column(
         String(20),
         default="public",
         nullable=False,
         comment="对局可见性",
     )
-    
-    metadata: Mapped[Optional[dict]] = mapped_column(
+
+    metadata: Mapped[dict | None] = mapped_column(
         JSON,
         nullable=True,
         comment="额外数据",
     )
-    
+
     def __repr__(self) -> str:
         return f"<SpectatorDB(id={self.id}, spectator_id={self.spectator_id}, game_id='{self.game_id}')>"
-    
+
     @property
     def is_active(self) -> bool:
         """是否正在观战"""
         return self.left_at is None
-    
+
     def calculate_duration(self) -> int:
         """计算观战时长"""
         if self.left_at is None:
@@ -135,9 +134,9 @@ class SpectatorDB(Base, IdMixin, TimestampMixin):
 class SpectatorChatDB(Base, IdMixin, TimestampMixin):
     """
     观战聊天记录模型
-    
+
     记录观战中的弹幕和聊天消息。
-    
+
     Attributes:
         id: 主键ID
         game_id: 对局ID
@@ -150,7 +149,7 @@ class SpectatorChatDB(Base, IdMixin, TimestampMixin):
         tier: 段位
         is_deleted: 是否已删除
     """
-    
+
     __tablename__ = "spectator_chats"
     __table_args__ = (
         Index("ix_spectator_chats_game_id", "game_id"),
@@ -158,75 +157,77 @@ class SpectatorChatDB(Base, IdMixin, TimestampMixin):
         Index("ix_spectator_chats_sent_at", "sent_at"),
         {"comment": "观战聊天记录表"},
     )
-    
+
     game_id: Mapped[str] = mapped_column(
         String(64),
         nullable=False,
         comment="对局ID",
     )
-    
+
     sender_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey("players.id", ondelete="CASCADE"),
         nullable=False,
         comment="发送者ID",
     )
-    
+
     sender_name: Mapped[str] = mapped_column(
         String(50),
         nullable=False,
         comment="发送者昵称",
     )
-    
+
     content: Mapped[str] = mapped_column(
         Text,
         nullable=False,
         comment="消息内容",
     )
-    
+
     sent_at: Mapped[datetime] = mapped_column(
         DateTime,
         server_default=func.now(),
         nullable=False,
         comment="发送时间",
     )
-    
+
     message_type: Mapped[str] = mapped_column(
         String(20),
         default="text",
         nullable=False,
         comment="消息类型 (text/emoji/system)",
     )
-    
-    avatar: Mapped[Optional[str]] = mapped_column(
+
+    avatar: Mapped[str | None] = mapped_column(
         String(500),
         nullable=True,
         comment="头像URL",
     )
-    
-    tier: Mapped[Optional[str]] = mapped_column(
+
+    tier: Mapped[str | None] = mapped_column(
         String(20),
         nullable=True,
         comment="段位",
     )
-    
+
     is_deleted: Mapped[bool] = mapped_column(
         Boolean,
         default=False,
         nullable=False,
         comment="是否已删除",
     )
-    
+
     def __repr__(self) -> str:
-        return f"<SpectatorChatDB(id={self.id}, game_id='{self.game_id}', sender_id={self.sender_id})>"
+        return (
+            f"<SpectatorChatDB(id={self.id}, game_id='{self.game_id}', sender_id={self.sender_id})>"
+        )
 
 
 class SpectatorStatsDB(Base, IdMixin, TimestampMixin):
     """
     观战统计模型
-    
+
     统计玩家的观战数据。
-    
+
     Attributes:
         id: 主键ID
         player_id: 玩家ID（外键）
@@ -237,13 +238,13 @@ class SpectatorStatsDB(Base, IdMixin, TimestampMixin):
         created_at: 创建时间
         updated_at: 更新时间
     """
-    
+
     __tablename__ = "spectator_stats"
     __table_args__ = (
         Index("ix_spectator_stats_player_id", "player_id", unique=True),
         {"comment": "观战统计表"},
     )
-    
+
     player_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey("players.id", ondelete="CASCADE"),
@@ -251,37 +252,37 @@ class SpectatorStatsDB(Base, IdMixin, TimestampMixin):
         unique=True,
         comment="玩家ID",
     )
-    
+
     total_spectate_count: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
         comment="总观战次数",
     )
-    
+
     total_spectate_time: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
         comment="总观战时长（秒）",
     )
-    
+
     total_chat_count: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
         comment="总弹幕数量",
     )
-    
-    favorite_players: Mapped[Optional[dict]] = mapped_column(
+
+    favorite_players: Mapped[dict | None] = mapped_column(
         JSON,
         nullable=True,
         comment="最常观战的玩家统计",
     )
-    
+
     def __repr__(self) -> str:
         return f"<SpectatorStatsDB(player_id={self.player_id}, count={self.total_spectate_count})>"
-    
+
     @property
     def avg_spectate_time(self) -> float:
         """平均观战时长（秒）"""

@@ -11,7 +11,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 from src.shared.models import Synergy, SynergyType
 
@@ -20,9 +20,9 @@ from src.shared.models import Synergy, SynergyType
 class SynergypediaEntry:
     """
     羁绊图鉴条目
-    
+
     包含羁绊的完整信息，用于图鉴展示。
-    
+
     Attributes:
         name: 羁绊名称
         synergy_type: 羁绊类型（种族/职业）
@@ -32,6 +32,7 @@ class SynergypediaEntry:
         icon: 羁绊图标
         tips: 使用技巧
     """
+
     name: str
     synergy_type: SynergyType
     description: str
@@ -39,7 +40,7 @@ class SynergypediaEntry:
     related_heroes: list[str] = field(default_factory=list)
     icon: str = ""
     tips: str = ""
-    
+
     def to_dict(self) -> dict[str, Any]:
         """序列化为字典"""
         return {
@@ -51,16 +52,16 @@ class SynergypediaEntry:
             "icon": self.icon,
             "tips": self.tips,
         }
-    
+
     @classmethod
     def from_synergy(cls, synergy: Synergy, related_heroes: list[str]) -> SynergypediaEntry:
         """
         从 Synergy 对象创建图鉴条目
-        
+
         Args:
             synergy: 羁绊定义对象
             related_heroes: 关联英雄列表
-            
+
         Returns:
             图鉴条目
         """
@@ -73,11 +74,11 @@ class SynergypediaEntry:
             }
             for level in synergy.levels
         ]
-        
+
         # 根据羁绊类型设置图标和技巧
         icon = cls._get_icon(synergy.name, synergy.synergy_type)
         tips = cls._get_tips(synergy.name)
-        
+
         return cls(
             name=synergy.name,
             synergy_type=synergy.synergy_type,
@@ -87,14 +88,14 @@ class SynergypediaEntry:
             icon=icon,
             tips=tips,
         )
-    
+
     @staticmethod
     def _get_icon(name: str, synergy_type: SynergyType) -> str:
         """获取羁绊图标"""
         # 简单的图标命名规则
         prefix = "race" if synergy_type == SynergyType.RACE else "class"
         return f"synergy_{prefix}_{name}.png"
-    
+
     @staticmethod
     def _get_tips(name: str) -> str:
         """获取羁绊使用技巧"""
@@ -118,14 +119,14 @@ class SynergypediaEntry:
             "术士": "术士羁绊提供技能吸血，增加法术英雄的续航能力。",
         }
         return tips_map.get(name, "合理搭配羁绊可以获得强大效果。")
-    
-    def get_level_for_count(self, count: int) -> Optional[dict[str, Any]]:
+
+    def get_level_for_count(self, count: int) -> dict[str, Any] | None:
         """
         根据英雄数量获取对应的羁绊等级
-        
+
         Args:
             count: 英雄数量
-            
+
         Returns:
             羁绊等级信息，未激活返回 None
         """
@@ -142,9 +143,9 @@ class SynergypediaEntry:
 class SynergypediaProgress:
     """
     羁绊进度
-    
+
     记录玩家对某个羁绊的使用进度和成就。
-    
+
     Attributes:
         synergy_name: 羁绊名称
         activation_count: 总激活次数
@@ -154,6 +155,7 @@ class SynergypediaProgress:
         win_rate: 胜率
         achievements: 已解锁的成就列表
     """
+
     synergy_name: str
     activation_count: int = 0
     max_heroes_used: int = 0
@@ -161,14 +163,14 @@ class SynergypediaProgress:
     total_games: int = 0
     win_count: int = 0
     achievements: list[str] = field(default_factory=list)
-    
+
     @property
     def win_rate(self) -> float:
         """计算胜率"""
         if self.total_games == 0:
             return 0.0
         return round(self.win_count / self.total_games * 100, 1)
-    
+
     def to_dict(self) -> dict[str, Any]:
         """序列化为字典"""
         return {
@@ -180,7 +182,7 @@ class SynergypediaProgress:
             "win_rate": self.win_rate,
             "achievements": self.achievements,
         }
-    
+
     def update_with_game_result(
         self,
         heroes_count: int,
@@ -189,38 +191,38 @@ class SynergypediaProgress:
     ) -> list[str]:
         """
         根据对局结果更新进度
-        
+
         Args:
             heroes_count: 该羁绊使用的英雄数
             level_reached: 达到的羁绊等级
             is_win: 是否获胜
-            
+
         Returns:
             新解锁的成就列表
         """
         new_achievements = []
-        
+
         # 更新统计
         self.activation_count += 1
         self.total_games += 1
         if is_win:
             self.win_count += 1
-        
+
         if heroes_count > self.max_heroes_used:
             self.max_heroes_used = heroes_count
-        
+
         if level_reached > self.highest_level_reached:
             self.highest_level_reached = level_reached
-        
+
         # 检查成就
         new_achievements.extend(self._check_achievements(heroes_count, level_reached))
-        
+
         return new_achievements
-    
+
     def _check_achievements(self, heroes_count: int, level_reached: int) -> list[str]:
         """检查并解锁成就"""
         new_achievements = []
-        
+
         # 激活次数成就
         count_achievements = [
             (10, f"{self.synergy_name}入门者"),
@@ -232,7 +234,7 @@ class SynergypediaProgress:
             if self.activation_count >= count and achievement not in self.achievements:
                 self.achievements.append(achievement)
                 new_achievements.append(achievement)
-        
+
         # 等级成就
         level_achievements = [
             (1, f"{self.synergy_name}初窥门径"),
@@ -243,7 +245,7 @@ class SynergypediaProgress:
             if level_reached >= level and achievement not in self.achievements:
                 self.achievements.append(achievement)
                 new_achievements.append(achievement)
-        
+
         return new_achievements
 
 
@@ -251,9 +253,9 @@ class SynergypediaProgress:
 class RecommendedLineup:
     """
     推荐阵容
-    
+
     包含基于羁绊的推荐阵容信息。
-    
+
     Attributes:
         name: 阵容名称
         description: 阵容描述
@@ -266,6 +268,7 @@ class RecommendedLineup:
         mid_game: 中期发展方向
         late_game: 后期成型目标
     """
+
     name: str
     description: str
     core_synergies: list[str]
@@ -276,7 +279,7 @@ class RecommendedLineup:
     early_game: str = ""
     mid_game: str = ""
     late_game: str = ""
-    
+
     def to_dict(self) -> dict[str, Any]:
         """序列化为字典"""
         return {
@@ -297,9 +300,9 @@ class RecommendedLineup:
 class SynergySimulation:
     """
     羁绊模拟结果
-    
+
     包含模拟器选择英雄后的羁绊激活情况。
-    
+
     Attributes:
         selected_heroes: 选中的英雄列表
         active_synergies: 激活的羁绊列表
@@ -308,13 +311,14 @@ class SynergySimulation:
         recommendations: 推荐补充的英雄
         total_bonuses: 总属性加成
     """
+
     selected_heroes: list[str]
     active_synergies: list[dict[str, Any]]
     inactive_synergies: list[dict[str, Any]]
     synergy_progress: dict[str, dict[str, Any]]
     recommendations: list[dict[str, Any]]
     total_bonuses: dict[str, float] = field(default_factory=dict)
-    
+
     def to_dict(self) -> dict[str, Any]:
         """序列化为字典"""
         return {
@@ -325,14 +329,14 @@ class SynergySimulation:
             "recommendations": self.recommendations,
             "total_bonuses": self.total_bonuses,
         }
-    
+
     def is_synergy_active(self, synergy_name: str) -> bool:
         """检查指定羁绊是否激活"""
         for synergy in self.active_synergies:
             if synergy["name"] == synergy_name:
                 return True
         return False
-    
+
     def get_synergy_level(self, synergy_name: str) -> int:
         """获取指定羁绊的当前等级"""
         for synergy in self.active_synergies:
@@ -345,9 +349,9 @@ class SynergySimulation:
 class SynergyAchievement:
     """
     羁绊成就
-    
+
     定义羁绊相关的成就。
-    
+
     Attributes:
         achievement_id: 成就ID
         name: 成就名称
@@ -358,6 +362,7 @@ class SynergyAchievement:
         reward: 奖励信息
         is_unlocked: 是否已解锁
     """
+
     achievement_id: str
     name: str
     description: str
@@ -366,7 +371,7 @@ class SynergyAchievement:
     requirement_value: int
     reward: dict[str, Any] = field(default_factory=dict)
     is_unlocked: bool = False
-    
+
     def to_dict(self) -> dict[str, Any]:
         """序列化为字典"""
         return {
@@ -379,20 +384,20 @@ class SynergyAchievement:
             "reward": self.reward,
             "is_unlocked": self.is_unlocked,
         }
-    
+
     def check_unlock(self, progress: SynergypediaProgress) -> bool:
         """
         检查是否解锁
-        
+
         Args:
             progress: 羁绊进度
-            
+
         Returns:
             是否解锁
         """
         if self.is_unlocked:
             return False
-        
+
         if self.requirement_type == "activation_count":
             if progress.activation_count >= self.requirement_value:
                 self.is_unlocked = True
@@ -405,5 +410,5 @@ class SynergyAchievement:
             if progress.highest_level_reached >= self.requirement_value:
                 self.is_unlocked = True
                 return True
-        
+
         return False

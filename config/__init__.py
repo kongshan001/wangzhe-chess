@@ -7,13 +7,13 @@
 使用示例：
     from config.settings import settings
     from config.logging import setup_logging, get_logger
-    
+
     # 初始化日志
     setup_logging()
-    
+
     # 获取配置
     db_url = settings.database.url
-    
+
     # 获取日志器
     logger = get_logger(__name__)
     logger.info("应用启动")

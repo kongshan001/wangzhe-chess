@@ -8,15 +8,15 @@
 - 金币刷新任务
 """
 
+from .manager import DailyTaskManager, get_daily_task_manager
 from .models import (
     DailyTask,
+    TaskDifficulty,
     TaskProgress,
     TaskRequirement,
     TaskReward,
     TaskType,
-    TaskDifficulty,
 )
-from .manager import DailyTaskManager, get_daily_task_manager
 
 __all__ = [
     "DailyTask",

@@ -4,16 +4,15 @@
 提供 HTTP API 和 WebSocket 服务
 """
 
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
 
+import structlog
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
-import structlog
 
 from config.settings import settings
-from src.server.db.database import init_db, close_db, DatabaseConfig
-
+from src.server.db.database import DatabaseConfig, close_db, init_db
 
 logger = structlog.get_logger()
 
@@ -96,16 +95,40 @@ from src.shared.protocol import MessageType
 
 def register_handlers():
     """注册所有消息处理器"""
+    # 导入各处理器
     from src.server.ws.consumable_ws import ConsumableWSHandler
-    
-    handler = ConsumableWSHandler()
-    
-    # 注册 consumable 处理器 (使用MessageType枚举)
-    ws_handler._handlers[MessageType.GET_CONSUMABLES] = handler.handle_get_consumables
-    ws_handler._handlers[MessageType.GET_PLAYER_CONSUMABLES] = handler.handle_get_player_consumables
-    ws_handler._handlers[MessageType.BUY_CONSUMABLE] = handler.handle_buy_consumable
-    
-    print(f"✅ 已注册 3 个消息处理器, 当前共 {len(ws_handler._handlers)} 个")
+    from src.server.ws.emote_ws import EmoteWSHandler
+    from src.server.ws.lineup_ws import LineupWSHandler
+    from src.server.ws.spectator_ws import SpectatorWSHandler
+    from src.server.ws.voting_ws import VotingWSHandler
+
+    # 创建处理器实例
+    consumable_handler = ConsumableWSHandler()
+    emote_handler = EmoteWSHandler()
+    lineup_handler = LineupWSHandler()
+    spectator_handler = SpectatorWSHandler()
+    voting_handler = VotingWSHandler()
+
+    # 注册 consumable 处理器
+    ws_handler._handlers[MessageType.GET_CONSUMABLES] = consumable_handler.handle_get_consumables
+    ws_handler._handlers[MessageType.GET_PLAYER_CONSUMABLES] = consumable_handler.handle_get_player_consumables
+    ws_handler._handlers[MessageType.BUY_CONSUMABLE] = consumable_handler.handle_buy_consumable
+
+    # 注册 emote 处理器
+    ws_handler._handlers[MessageType.GET_EMOTES] = emote_handler.handle_get_emotes
+    ws_handler._handlers[MessageType.SEND_EMOTE] = emote_handler.handle_send_emote
+
+    # 注册 lineup 处理器
+    ws_handler._handlers[MessageType.LINEUP_SAVE] = lineup_handler.handle_save
+    ws_handler._handlers[MessageType.LINEUP_LOAD] = lineup_handler.handle_load
+
+    # 注册 spectator 处理器
+    ws_handler._handlers[MessageType.GET_SPECTATABLE_GAMES] = spectator_handler.handle_get_spectatable_games
+
+    # 注册 voting 处理器
+    ws_handler._handlers[MessageType.GET_VOTING_LIST] = voting_handler.handle_get_voting_list
+
+    print(f"✅ 已注册 {len(ws_handler._handlers) - 4} 个业务消息处理器, 当前共 {len(ws_handler._handlers)} 个")
 
 
 # 注册处理器

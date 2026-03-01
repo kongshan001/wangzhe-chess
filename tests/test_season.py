@@ -8,22 +8,23 @@
 - SeasonManager 管理器
 """
 
-import pytest
 from datetime import datetime, timedelta
 
+import pytest
+
+from src.server.season.manager import SeasonManager
 from src.server.season.models import (
+    PlayerSeasonData,
     Season,
     SeasonReward,
     SeasonStatus,
-    PlayerSeasonData,
     Tier,
 )
-from src.server.season.manager import SeasonManager
-
 
 # ============================================================================
 # Tier 测试
 # ============================================================================
+
 
 class TestTier:
     """段位枚举测试"""
@@ -64,6 +65,7 @@ class TestTier:
 # SeasonReward 测试
 # ============================================================================
 
+
 class TestSeasonReward:
     """赛季奖励测试"""
 
@@ -93,13 +95,13 @@ class TestSeasonReward:
             title="钻石精英",
             items=[{"item_id": "chest", "quantity": 1}],
         )
-        
+
         data = reward.to_dict()
         assert data["tier"] == 5
         assert data["tier_name"] == "钻石"
         assert data["gold"] == 2500
         assert data["avatar_frame"] == "diamond_frame"
-        
+
         restored = SeasonReward.from_dict(data)
         assert restored.tier == Tier.DIAMOND
         assert restored.gold == reward.gold
@@ -108,6 +110,7 @@ class TestSeasonReward:
 # ============================================================================
 # Season 测试
 # ============================================================================
+
 
 class TestSeason:
     """赛季测试"""
@@ -193,11 +196,11 @@ class TestSeason:
             end_time=datetime.now() + timedelta(days=28),
             rewards=rewards,
         )
-        
+
         gold_reward = season.get_reward_for_tier(Tier.GOLD)
         assert gold_reward is not None
         assert gold_reward.gold == 1200
-        
+
         bronze_reward = season.get_reward_for_tier(Tier.BRONZE)
         assert bronze_reward is None
 
@@ -213,13 +216,13 @@ class TestSeason:
                 Tier.GOLD.value: SeasonReward(tier=Tier.GOLD, gold=1200),
             },
         )
-        
+
         data = season.to_dict()
         assert data["season_id"] == "S1"
         assert data["name"] == "第一赛季"
         assert data["description"] == "新赛季测试"
         assert "rewards" in data
-        
+
         restored = Season.from_dict(data)
         assert restored.season_id == season.season_id
         assert restored.name == season.name
@@ -228,6 +231,7 @@ class TestSeason:
 # ============================================================================
 # PlayerSeasonData 测试
 # ============================================================================
+
 
 class TestPlayerSeasonData:
     """玩家赛季数据测试"""
@@ -251,20 +255,20 @@ class TestPlayerSeasonData:
             player_id="player_001",
             season_id="S1",
         )
-        
+
         # 添加第一名
         data.add_game_result(1)
         assert data.total_games == 1
         assert data.total_wins == 1
         assert data.first_place_count == 1
         assert data.total_top4 == 1
-        
+
         # 添加第三名
         data.add_game_result(3)
         assert data.total_games == 2
         assert data.total_wins == 1
         assert data.total_top4 == 2
-        
+
         # 添加第八名
         data.add_game_result(8)
         assert data.total_games == 3
@@ -276,14 +280,14 @@ class TestPlayerSeasonData:
             player_id="player_001",
             season_id="S1",
         )
-        
+
         assert data.win_rate == 0.0
-        
+
         data.add_game_result(1)
         data.add_game_result(1)
         data.add_game_result(2)
         data.add_game_result(3)
-        
+
         assert data.win_rate == 50.0
         assert data.top4_rate == 100.0
 
@@ -293,12 +297,12 @@ class TestPlayerSeasonData:
             player_id="player_001",
             season_id="S1",
         )
-        
+
         new_level = data.add_pass_exp(50)
         assert data.pass_exp == 50
         assert new_level == 1
         assert data.pass_level == 1
-        
+
         new_level = data.add_pass_exp(60)
         assert data.pass_exp == 110
         assert new_level == 2
@@ -310,11 +314,11 @@ class TestPlayerSeasonData:
             player_id="player_001",
             season_id="S1",
         )
-        
+
         data.update_tier(Tier.GOLD)
         assert data.final_tier == Tier.GOLD
         assert data.highest_tier == Tier.GOLD
-        
+
         data.update_tier(Tier.SILVER)
         assert data.final_tier == Tier.SILVER
         assert data.highest_tier == Tier.GOLD  # 最高段位保持不变
@@ -325,17 +329,17 @@ class TestPlayerSeasonData:
             player_id="player_001",
             season_id="S1",
         )
-        
+
         for i in range(5):
             data.record_placement_match(won=True)
-        
+
         assert data.placement_matches == 5
         assert data.placement_wins == 5
         assert data.placement_done is False
-        
+
         for i in range(5):
             data.record_placement_match(won=False)
-        
+
         assert data.placement_matches == 10
         assert data.placement_wins == 5
         assert data.placement_done is True
@@ -352,14 +356,14 @@ class TestPlayerSeasonData:
             pass_level=10,
             pass_premium=True,
         )
-        
+
         serialized = data.to_dict()
         assert serialized["player_id"] == "player_001"
         assert serialized["highest_tier"] == 5
         assert serialized["highest_tier_name"] == "钻石"
         assert serialized["final_tier"] == 3
         assert serialized["pass_premium"] is True
-        
+
         restored = PlayerSeasonData.from_dict(serialized)
         assert restored.player_id == data.player_id
         assert restored.highest_tier == data.highest_tier
@@ -369,6 +373,7 @@ class TestPlayerSeasonData:
 # ============================================================================
 # SeasonManager 测试
 # ============================================================================
+
 
 class TestSeasonManager:
     """赛季管理器测试"""
@@ -390,7 +395,7 @@ class TestSeasonManager:
             name="第一赛季",
             duration_days=28,
         )
-        
+
         assert season is not None
         assert season.season_id == "S1"
         assert season.name == "第一赛季"
@@ -399,7 +404,7 @@ class TestSeasonManager:
     def test_get_current_season(self, manager):
         """测试获取当前赛季"""
         manager.create_season("S1", "第一赛季")
-        
+
         current = manager.get_current_season()
         assert current is not None
         assert current.season_id == "S1"
@@ -407,7 +412,7 @@ class TestSeasonManager:
     def test_end_season(self, manager):
         """测试结束赛季"""
         manager.create_season("S1", "第一赛季")
-        
+
         result = manager.end_season("S1")
         assert result is True
         assert manager.current_season_id is None
@@ -416,24 +421,24 @@ class TestSeasonManager:
         """测试段位软重置"""
         # 青铜保持青铜
         assert manager.soft_reset_tier(Tier.BRONZE) == Tier.BRONZE
-        
+
         # 白银软重置: ceil((2+1)/2)=ceil(1.5)=2 -> 白银
         assert manager.soft_reset_tier(Tier.SILVER) == Tier.SILVER
-        
+
         # 黄金软重置: ceil((3+1)/2)=ceil(2)=2 -> 白银
         assert manager.soft_reset_tier(Tier.GOLD) == Tier.SILVER
-        
+
         # 王者软重置: ceil((8+1)/2)=ceil(4.5)=5 -> 钻石
         assert manager.soft_reset_tier(Tier.KING) == Tier.DIAMOND
 
     def test_calculate_season_reward(self, manager):
         """测试计算赛季奖励"""
         manager.create_season("S1", "第一赛季")
-        
+
         # 创建玩家赛季数据
         player_data = manager.get_or_create_player_season_data("player_001")
         player_data.update_tier(Tier.GOLD)
-        
+
         reward = manager.calculate_season_reward("player_001")
         assert reward is not None
         assert reward.tier == Tier.GOLD
@@ -442,11 +447,11 @@ class TestSeasonManager:
     def test_record_game_result(self, manager):
         """测试记录对局结果"""
         manager.create_season("S1", "第一赛季")
-        
+
         data = manager.record_game_result("player_001", rank=1)
         assert data.total_games == 1
         assert data.total_wins == 1
-        
+
         data = manager.record_game_result("player_001", rank=3)
         assert data.total_games == 2
         assert data.total_top4 == 2
@@ -457,11 +462,11 @@ class TestSeasonManager:
         manager.create_season("S1", "第一赛季")
         player_data = manager.get_or_create_player_season_data("player_001")
         player_data.update_tier(Tier.DIAMOND)
-        
+
         # 创建第二赛季
         manager.create_season("S2", "第二赛季")
         new_data = manager.start_new_season_for_player("player_001", "S2")
-        
+
         # 钻石软重置后应为黄金 (5+1)/2 = 3
         assert new_data.final_tier == Tier.GOLD
         assert new_data.season_id == "S2"
@@ -469,13 +474,13 @@ class TestSeasonManager:
     def test_get_season_ranking(self, manager):
         """测试赛季排行榜"""
         manager.create_season("S1", "第一赛季")
-        
+
         # 创建多个玩家数据
         for i in range(5):
             data = manager.get_or_create_player_season_data(f"player_{i}")
             data.update_tier(Tier(i + 2))  # 白银到大师
             data.add_game_result(1)
-        
+
         ranking = manager.get_season_ranking(limit=10)
         assert len(ranking) == 5
         # 最高段位应该在第一位 (player_4 是大师=6)
@@ -484,10 +489,10 @@ class TestSeasonManager:
     def test_add_pass_exp(self, manager):
         """测试添加通行证经验"""
         manager.create_season("S1", "第一赛季")
-        
+
         new_level = manager.add_pass_exp("player_001", 150)
         assert new_level == 2
-        
+
         player_data = manager.get_player_season_data("player_001")
         assert player_data.pass_level == 2
         assert player_data.pass_exp == 150
@@ -496,6 +501,7 @@ class TestSeasonManager:
 # ============================================================================
 # 边界条件测试
 # ============================================================================
+
 
 class TestBoundaryConditions:
     """边界条件测试"""
@@ -506,7 +512,7 @@ class TestBoundaryConditions:
             player_id="player_001",
             season_id="S1",
         )
-        
+
         assert data.win_rate == 0.0
         assert data.top4_rate == 0.0
         assert data.avg_rank == 0.0
@@ -534,16 +540,16 @@ class TestBoundaryConditions:
         """测试空排行榜"""
         manager = SeasonManager()
         manager.create_season("S1", "第一赛季")
-        
+
         ranking = manager.get_season_ranking()
         assert ranking == []
 
     def test_nonexistent_season(self):
         """测试不存在的赛季"""
         manager = SeasonManager()
-        
+
         season = manager.get_season("NONEXISTENT")
         assert season is None
-        
+
         reward = manager.calculate_season_reward("player_001", "NONEXISTENT")
         assert reward is None

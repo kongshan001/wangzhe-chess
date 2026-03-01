@@ -15,22 +15,22 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class TutorialType(str, Enum):
     """
     引导类型枚举
-    
+
     定义不同类型的引导关卡。
     """
-    
-    BASIC_OPERATION = "basic_operation"      # 基础操作
-    SYNERGY_CONCEPT = "synergy_concept"      # 羁绊概念
-    ECONOMY_MANAGEMENT = "economy_management" # 经济管理
-    POSITIONING = "positioning"              # 站位技巧
-    EQUIPMENT_CRAFTING = "equipment_crafting" # 装备合成
-    
+
+    BASIC_OPERATION = "basic_operation"  # 基础操作
+    SYNERGY_CONCEPT = "synergy_concept"  # 羁绊概念
+    ECONOMY_MANAGEMENT = "economy_management"  # 经济管理
+    POSITIONING = "positioning"  # 站位技巧
+    EQUIPMENT_CRAFTING = "equipment_crafting"  # 装备合成
+
     def get_display_name(self) -> str:
         """获取显示名称"""
         names = {
@@ -46,32 +46,32 @@ class TutorialType(str, Enum):
 class TutorialStepAction(str, Enum):
     """
     引导步骤动作类型枚举
-    
+
     定义步骤需要玩家执行的动作类型。
     """
-    
-    CLICK = "click"               # 点击指定位置
-    DRAG = "drag"                 # 拖拽操作
-    BUY_HERO = "buy_hero"         # 购买英雄
-    SELL_HERO = "sell_hero"       # 出售英雄
-    REFRESH_SHOP = "refresh_shop" # 刷新商店
-    PLACE_HERO = "place_hero"     # 放置英雄
-    UPGRADE_HERO = "upgrade_hero" # 升级英雄
-    SYNTHESIZE_EQUIPMENT = "synthesize_equipment" # 合成装备
-    VIEW_SYNERGY = "view_synergy" # 查看羁绊
-    VIEW_INFO = "view_info"       # 查看信息面板
-    WAIT = "wait"                 # 等待
-    CONFIRM = "confirm"           # 确认操作
+
+    CLICK = "click"  # 点击指定位置
+    DRAG = "drag"  # 拖拽操作
+    BUY_HERO = "buy_hero"  # 购买英雄
+    SELL_HERO = "sell_hero"  # 出售英雄
+    REFRESH_SHOP = "refresh_shop"  # 刷新商店
+    PLACE_HERO = "place_hero"  # 放置英雄
+    UPGRADE_HERO = "upgrade_hero"  # 升级英雄
+    SYNTHESIZE_EQUIPMENT = "synthesize_equipment"  # 合成装备
+    VIEW_SYNERGY = "view_synergy"  # 查看羁绊
+    VIEW_INFO = "view_info"  # 查看信息面板
+    WAIT = "wait"  # 等待
+    CONFIRM = "confirm"  # 确认操作
 
 
 @dataclass
 class TutorialHighlight:
     """
     引导高亮区域
-    
+
     定义需要高亮显示的UI区域。
     """
-    
+
     # 目标元素ID或选择器
     target: str
     # 高亮形状 (rect, circle, highlight)
@@ -79,15 +79,15 @@ class TutorialHighlight:
     # 高亮动画 (pulse, glow, bounce)
     animation: str = "pulse"
     # 提示文本
-    tip_text: Optional[str] = None
+    tip_text: str | None = None
     # 提示位置 (top, bottom, left, right, center)
     tip_position: str = "bottom"
     # 是否遮挡其他区域
     block_others: bool = True
     # 额外参数
-    params: Dict[str, Any] = field(default_factory=dict)
-    
-    def to_dict(self) -> Dict[str, Any]:
+    params: dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典"""
         return {
             "target": self.target,
@@ -98,9 +98,9 @@ class TutorialHighlight:
             "block_others": self.block_others,
             "params": self.params,
         }
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> TutorialHighlight:
+    def from_dict(cls, data: dict[str, Any]) -> TutorialHighlight:
         """从字典创建"""
         return cls(
             target=data.get("target", ""),
@@ -117,10 +117,10 @@ class TutorialHighlight:
 class TutorialStep:
     """
     引导步骤
-    
+
     定义单个引导步骤的所有信息。
     """
-    
+
     # 步骤ID
     step_id: str
     # 步骤序号
@@ -130,29 +130,29 @@ class TutorialStep:
     # 步骤描述
     description: str
     # 步骤详细说明
-    detail: Optional[str] = None
+    detail: str | None = None
     # 需要执行的动作
     action: TutorialStepAction = TutorialStepAction.CLICK
     # 动作目标 (元素ID或选择器)
     action_target: str = ""
     # 动作参数 (如购买英雄时指定英雄ID)
-    action_params: Dict[str, Any] = field(default_factory=dict)
+    action_params: dict[str, Any] = field(default_factory=dict)
     # 高亮区域列表
-    highlights: List[TutorialHighlight] = field(default_factory=list)
+    highlights: list[TutorialHighlight] = field(default_factory=list)
     # 步骤超时时间 (秒), 0表示不限时
     timeout: int = 0
     # 跳过该步骤的按钮文本
-    skip_text: Optional[str] = None
+    skip_text: str | None = None
     # 完成后的提示文本
-    complete_text: Optional[str] = None
+    complete_text: str | None = None
     # 触发条件 (可选, 用于复杂步骤)
-    trigger_condition: Optional[Dict[str, Any]] = None
+    trigger_condition: dict[str, Any] | None = None
     # 步骤图标
-    icon: Optional[str] = None
+    icon: str | None = None
     # 步骤奖励 (可选)
-    reward: Optional[TutorialReward] = None
-    
-    def to_dict(self) -> Dict[str, Any]:
+    reward: TutorialReward | None = None
+
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典"""
         return {
             "step_id": self.step_id,
@@ -160,7 +160,9 @@ class TutorialStep:
             "title": self.title,
             "description": self.description,
             "detail": self.detail,
-            "action": self.action.value if isinstance(self.action, TutorialStepAction) else self.action,
+            "action": self.action.value
+            if isinstance(self.action, TutorialStepAction)
+            else self.action,
             "action_target": self.action_target,
             "action_params": self.action_params,
             "highlights": [h.to_dict() for h in self.highlights],
@@ -171,20 +173,18 @@ class TutorialStep:
             "icon": self.icon,
             "reward": self.reward.to_dict() if self.reward else None,
         }
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> TutorialStep:
+    def from_dict(cls, data: dict[str, Any]) -> TutorialStep:
         """从字典创建"""
-        highlights = [
-            TutorialHighlight.from_dict(h) for h in data.get("highlights", [])
-        ]
-        
+        highlights = [TutorialHighlight.from_dict(h) for h in data.get("highlights", [])]
+
         action_str = data.get("action", "click")
         action = TutorialStepAction(action_str) if isinstance(action_str, str) else action_str
-        
+
         reward_data = data.get("reward")
         reward = TutorialReward.from_dict(reward_data) if reward_data else None
-        
+
         return cls(
             step_id=data.get("step_id", ""),
             order=data.get("order", 0),
@@ -208,28 +208,28 @@ class TutorialStep:
 class TutorialReward:
     """
     引导奖励
-    
+
     定义完成引导后获得的奖励。
     """
-    
+
     # 金币奖励
     gold: int = 0
     # 经验奖励
     exp: int = 0
     # 英雄奖励列表 [{"hero_id": "xxx", "star": 1, "count": 1}]
-    heroes: List[Dict[str, Any]] = field(default_factory=list)
+    heroes: list[dict[str, Any]] = field(default_factory=list)
     # 装备奖励列表 [{"equipment_id": "xxx", "count": 1}]
-    equipments: List[Dict[str, Any]] = field(default_factory=list)
+    equipments: list[dict[str, Any]] = field(default_factory=list)
     # 道具奖励列表 [{"item_id": "xxx", "count": 1}]
-    items: List[Dict[str, Any]] = field(default_factory=list)
+    items: list[dict[str, Any]] = field(default_factory=list)
     # 称号奖励
-    title: Optional[str] = None
+    title: str | None = None
     # 头像框奖励
-    avatar_frame: Optional[str] = None
+    avatar_frame: str | None = None
     # 自定义奖励描述
-    custom_description: Optional[str] = None
-    
-    def to_dict(self) -> Dict[str, Any]:
+    custom_description: str | None = None
+
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典"""
         return {
             "gold": self.gold,
@@ -241,9 +241,9 @@ class TutorialReward:
             "avatar_frame": self.avatar_frame,
             "custom_description": self.custom_description,
         }
-    
+
     @classmethod
-    def from_dict(cls, data: Optional[Dict[str, Any]]) -> Optional[TutorialReward]:
+    def from_dict(cls, data: dict[str, Any] | None) -> TutorialReward | None:
         """从字典创建"""
         if not data:
             return None
@@ -257,34 +257,34 @@ class TutorialReward:
             avatar_frame=data.get("avatar_frame"),
             custom_description=data.get("custom_description"),
         )
-    
+
     def get_total_value(self) -> int:
         """
         计算奖励总价值
-        
+
         用于排序和展示。
         金币=1, 经验=0.5, 英雄=费用*100, 装备=200
         """
         value = self.gold
         value += int(self.exp * 0.5)
-        
+
         for hero in self.heroes:
             # 假设英雄基础价值为费用的100倍
             cost = hero.get("cost", 1)
             star = hero.get("star", 1)
             count = hero.get("count", 1)
             value += cost * 100 * star * count
-        
+
         for equip in self.equipments:
             count = equip.get("count", 1)
             value += 200 * count
-        
+
         for item in self.items:
             count = item.get("count", 1)
             value += 100 * count
-        
+
         return value
-    
+
     def is_empty(self) -> bool:
         """检查是否有实际奖励"""
         return (
@@ -302,10 +302,10 @@ class TutorialReward:
 class Tutorial:
     """
     引导配置
-    
+
     定义完整的引导关卡配置。
     """
-    
+
     # 引导ID
     tutorial_id: str
     # 引导类型
@@ -315,11 +315,11 @@ class Tutorial:
     # 引导描述
     description: str
     # 引导步骤列表
-    steps: List[TutorialStep] = field(default_factory=list)
+    steps: list[TutorialStep] = field(default_factory=list)
     # 完成奖励
     completion_reward: TutorialReward = field(default_factory=TutorialReward)
     # 解锁条件 (需要完成的其他引导ID)
-    prerequisites: List[str] = field(default_factory=list)
+    prerequisites: list[str] = field(default_factory=list)
     # 是否必须 (无法跳过)
     required: bool = False
     # 推荐等级 (1-5, 5最高)
@@ -327,23 +327,25 @@ class Tutorial:
     # 预计完成时间 (分钟)
     estimated_time: int = 5
     # 引导图标
-    icon: Optional[str] = None
+    icon: str | None = None
     # 引导背景图
-    background_image: Optional[str] = None
+    background_image: str | None = None
     # 开始前的提示文本
-    intro_text: Optional[str] = None
+    intro_text: str | None = None
     # 完成后的提示文本
-    complete_text: Optional[str] = None
+    complete_text: str | None = None
     # 排序权重
     sort_order: int = 0
     # 是否启用
     enabled: bool = True
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典"""
         return {
             "tutorial_id": self.tutorial_id,
-            "tutorial_type": self.tutorial_type.value if isinstance(self.tutorial_type, TutorialType) else self.tutorial_type,
+            "tutorial_type": self.tutorial_type.value
+            if isinstance(self.tutorial_type, TutorialType)
+            else self.tutorial_type,
             "name": self.name,
             "description": self.description,
             "steps": [s.to_dict() for s in self.steps],
@@ -359,17 +361,19 @@ class Tutorial:
             "sort_order": self.sort_order,
             "enabled": self.enabled,
         }
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> Tutorial:
+    def from_dict(cls, data: dict[str, Any]) -> Tutorial:
         """从字典创建"""
         type_str = data.get("tutorial_type", "basic_operation")
         tutorial_type = TutorialType(type_str) if isinstance(type_str, str) else type_str
-        
+
         steps = [TutorialStep.from_dict(s) for s in data.get("steps", [])]
         reward_data = data.get("completion_reward", {})
-        completion_reward = TutorialReward.from_dict(reward_data) if reward_data else TutorialReward()
-        
+        completion_reward = (
+            TutorialReward.from_dict(reward_data) if reward_data else TutorialReward()
+        )
+
         return cls(
             tutorial_id=data.get("tutorial_id", ""),
             tutorial_type=tutorial_type,
@@ -388,14 +392,14 @@ class Tutorial:
             sort_order=data.get("sort_order", 0),
             enabled=data.get("enabled", True),
         )
-    
-    def get_step(self, step_id: str) -> Optional[TutorialStep]:
+
+    def get_step(self, step_id: str) -> TutorialStep | None:
         """
         获取指定步骤
-        
+
         Args:
             step_id: 步骤ID
-            
+
         Returns:
             步骤对象，不存在返回None
         """
@@ -403,14 +407,14 @@ class Tutorial:
             if step.step_id == step_id:
                 return step
         return None
-    
-    def get_step_by_order(self, order: int) -> Optional[TutorialStep]:
+
+    def get_step_by_order(self, order: int) -> TutorialStep | None:
         """
         获取指定序号的步骤
-        
+
         Args:
             order: 步骤序号
-            
+
         Returns:
             步骤对象，不存在返回None
         """
@@ -418,7 +422,7 @@ class Tutorial:
             if step.order == order:
                 return step
         return None
-    
+
     @property
     def total_steps(self) -> int:
         """获取总步骤数"""
@@ -429,10 +433,10 @@ class Tutorial:
 class PlayerTutorialProgress:
     """
     玩家引导进度
-    
+
     记录玩家在引导中的进度状态。
     """
-    
+
     # 玩家ID
     player_id: str
     # 引导ID
@@ -442,27 +446,27 @@ class PlayerTutorialProgress:
     # 当前步骤ID
     current_step_id: str = ""
     # 已完成的步骤ID列表
-    completed_steps: List[str] = field(default_factory=list)
+    completed_steps: list[str] = field(default_factory=list)
     # 是否已完成
     completed: bool = False
     # 完成时间
-    completed_at: Optional[datetime] = None
+    completed_at: datetime | None = None
     # 是否已领取奖励
     claimed: bool = False
     # 领取时间
-    claimed_at: Optional[datetime] = None
+    claimed_at: datetime | None = None
     # 是否已跳过
     skipped: bool = False
     # 跳过时间
-    skipped_at: Optional[datetime] = None
+    skipped_at: datetime | None = None
     # 引导开始时间
-    started_at: Optional[datetime] = None
+    started_at: datetime | None = None
     # 引导完成耗时 (秒)
     duration_seconds: int = 0
     # 引导尝试次数
     attempts: int = 1
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典"""
         return {
             "player_id": self.player_id,
@@ -480,18 +484,19 @@ class PlayerTutorialProgress:
             "duration_seconds": self.duration_seconds,
             "attempts": self.attempts,
         }
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> PlayerTutorialProgress:
+    def from_dict(cls, data: dict[str, Any]) -> PlayerTutorialProgress:
         """从字典创建"""
-        def parse_datetime(dt_str: Optional[str]) -> Optional[datetime]:
+
+        def parse_datetime(dt_str: str | None) -> datetime | None:
             if dt_str:
                 try:
                     return datetime.fromisoformat(dt_str)
                 except (ValueError, TypeError):
                     pass
             return None
-        
+
         return cls(
             player_id=data.get("player_id", ""),
             tutorial_id=data.get("tutorial_id", ""),
@@ -508,64 +513,64 @@ class PlayerTutorialProgress:
             duration_seconds=data.get("duration_seconds", 0),
             attempts=data.get("attempts", 1),
         )
-    
+
     @property
     def is_claimable(self) -> bool:
         """是否可领取奖励"""
         return (self.completed or self.skipped) and not self.claimed
-    
+
     def start(self) -> None:
         """开始引导"""
         if not self.started_at:
             self.started_at = datetime.now()
             self.current_step = 1
             self.completed_steps = []
-    
+
     def advance_step(self, step_id: str) -> bool:
         """
         推进到下一步
-        
+
         Args:
             step_id: 完成的步骤ID
-            
+
         Returns:
             是否成功推进
         """
         if self.completed:
             return False
-        
+
         # 记录完成的步骤
         if step_id not in self.completed_steps:
             self.completed_steps.append(step_id)
-        
+
         # 推进步骤
         self.current_step += 1
-        
+
         return True
-    
+
     def complete(self) -> None:
         """完成引导"""
         if not self.completed:
             self.completed = True
             self.completed_at = datetime.now()
-            
+
             # 计算耗时
             if self.started_at:
                 duration = datetime.now() - self.started_at
                 self.duration_seconds = int(duration.total_seconds())
-    
+
     def claim(self) -> None:
         """领取奖励"""
         if not self.claimed:
             self.claimed = True
             self.claimed_at = datetime.now()
-    
+
     def skip(self) -> None:
         """跳过引导"""
         if not self.completed and not self.skipped:
             self.skipped = True
             self.skipped_at = datetime.now()
-    
+
     def reset(self) -> None:
         """重置进度"""
         self.current_step = 0

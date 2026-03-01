@@ -19,36 +19,35 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..db.database import get_session
 from ..crud.player import PlayerCRUD
-from ..models.player import RankTier
-
+from ..db.database import get_session
 
 # ============================================================================
 # 请求/响应模型
 # ============================================================================
 
+
 class PlayerResponse(BaseModel):
     """
     玩家信息响应模型
-    
+
     包含玩家的基本信息，不包含敏感信息。
     """
-    
+
     id: int = Field(..., description="玩家ID")
     user_id: str = Field(..., description="用户唯一标识")
     nickname: str = Field(..., description="昵称")
-    avatar: Optional[str] = Field(None, description="头像URL")
+    avatar: str | None = Field(None, description="头像URL")
     is_active: bool = Field(..., description="是否激活")
     created_at: datetime = Field(..., description="创建时间")
-    last_login_at: Optional[datetime] = Field(None, description="最后登录时间")
-    
+    last_login_at: datetime | None = Field(None, description="最后登录时间")
+
     model_config = {
         "from_attributes": True,
         "json_schema_extra": {
@@ -61,20 +60,20 @@ class PlayerResponse(BaseModel):
                 "created_at": "2024-01-01T00:00:00",
                 "last_login_at": "2024-01-15T12:00:00",
             }
-        }
+        },
     }
 
 
 class PlayerUpdateRequest(BaseModel):
     """
     玩家信息更新请求
-    
+
     可更新的字段：昵称、头像
     """
-    
-    nickname: Optional[str] = Field(None, min_length=2, max_length=20, description="新昵称")
-    avatar: Optional[str] = Field(None, max_length=500, description="新头像URL")
-    
+
+    nickname: str | None = Field(None, min_length=2, max_length=20, description="新昵称")
+    avatar: str | None = Field(None, max_length=500, description="新头像URL")
+
     model_config = {
         "json_schema_extra": {
             "example": {
@@ -89,7 +88,7 @@ class PlayerRankResponse(BaseModel):
     """
     玩家段位响应模型
     """
-    
+
     tier: str = Field(..., description="段位")
     sub_tier: int = Field(..., description="子段位(1-5)")
     stars: int = Field(..., description="当前星数")
@@ -98,7 +97,7 @@ class PlayerRankResponse(BaseModel):
     max_points: int = Field(..., description="历史最高积分")
     display_rank: str = Field(..., description="段位显示文本")
     is_placed: bool = Field(..., description="是否完成定位赛")
-    
+
     model_config = {
         "from_attributes": True,
         "json_schema_extra": {
@@ -112,7 +111,7 @@ class PlayerRankResponse(BaseModel):
                 "display_rank": "gold3 2星",
                 "is_placed": True,
             }
-        }
+        },
     }
 
 
@@ -120,7 +119,7 @@ class PlayerStatsResponse(BaseModel):
     """
     玩家统计响应模型
     """
-    
+
     total_matches: int = Field(..., description="总对局数")
     total_wins: int = Field(..., description="总胜场")
     total_top4: int = Field(..., description="总前四场数")
@@ -132,7 +131,7 @@ class PlayerStatsResponse(BaseModel):
     total_gold_earned: int = Field(..., description="总获得金币")
     max_win_streak: int = Field(..., description="最大连胜")
     fastest_win_round: int = Field(..., description="最快获胜回合")
-    
+
     model_config = {
         "from_attributes": True,
         "json_schema_extra": {
@@ -149,27 +148,27 @@ class PlayerStatsResponse(BaseModel):
                 "max_win_streak": 5,
                 "fastest_win_round": 15,
             }
-        }
+        },
     }
 
 
 class PlayerDetailResponse(BaseModel):
     """
     玩家详情响应模型
-    
+
     包含玩家的所有信息：基本信息、段位、统计
     """
-    
+
     id: int = Field(..., description="玩家ID")
     user_id: str = Field(..., description="用户唯一标识")
     nickname: str = Field(..., description="昵称")
-    avatar: Optional[str] = Field(None, description="头像URL")
+    avatar: str | None = Field(None, description="头像URL")
     is_active: bool = Field(..., description="是否激活")
     created_at: datetime = Field(..., description="创建时间")
-    last_login_at: Optional[datetime] = Field(None, description="最后登录时间")
-    rank: Optional[PlayerRankResponse] = Field(None, description="段位信息")
-    stats: Optional[PlayerStatsResponse] = Field(None, description="统计信息")
-    
+    last_login_at: datetime | None = Field(None, description="最后登录时间")
+    rank: PlayerRankResponse | None = Field(None, description="段位信息")
+    stats: PlayerStatsResponse | None = Field(None, description="统计信息")
+
     model_config = {
         "from_attributes": True,
     }
@@ -178,14 +177,14 @@ class PlayerDetailResponse(BaseModel):
 class PlayerListItem(BaseModel):
     """
     玩家列表项
-    
+
     用于玩家搜索结果中的简化信息
     """
-    
+
     id: int = Field(..., description="玩家ID")
     nickname: str = Field(..., description="昵称")
-    avatar: Optional[str] = Field(None, description="头像URL")
-    
+    avatar: str | None = Field(None, description="头像URL")
+
     model_config = {
         "from_attributes": True,
     }
@@ -195,24 +194,24 @@ class PlayerListResponse(BaseModel):
     """
     玩家列表响应
     """
-    
+
     total: int = Field(..., description="总数")
-    items: List[PlayerListItem] = Field(..., description="玩家列表")
+    items: list[PlayerListItem] = Field(..., description="玩家列表")
 
 
 class InventoryItemResponse(BaseModel):
     """
     背包物品响应
     """
-    
+
     id: int = Field(..., description="物品记录ID")
     item_type: str = Field(..., description="物品类型")
     item_id: str = Field(..., description="物品ID")
     quantity: int = Field(..., description="数量")
-    extra_data: Optional[Dict[str, Any]] = Field(None, description="额外数据")
-    expires_at: Optional[datetime] = Field(None, description="过期时间")
+    extra_data: dict[str, Any] | None = Field(None, description="额外数据")
+    expires_at: datetime | None = Field(None, description="过期时间")
     is_expired: bool = Field(..., description="是否已过期")
-    
+
     model_config = {
         "from_attributes": True,
     }
@@ -222,7 +221,7 @@ class ErrorResponse(BaseModel):
     """
     错误响应模型
     """
-    
+
     detail: str = Field(..., description="错误信息")
     code: str = Field(..., description="错误代码")
 
@@ -268,27 +267,27 @@ async def get_player(
 ) -> PlayerDetailResponse:
     """
     获取玩家信息
-    
+
     通过玩家ID获取玩家的详细信息。
-    
+
     Args:
         player_id: 玩家ID
-        
+
     Returns:
         玩家详情，包含段位和统计信息
-        
+
     Raises:
         HTTPException: 玩家不存在时返回404
     """
     crud = PlayerCRUD(session)
     player = await crud.get_by_id(player_id)
-    
+
     if not player:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"玩家不存在: {player_id}",
         )
-    
+
     # 构建响应
     response = PlayerDetailResponse(
         id=player.id,
@@ -299,7 +298,7 @@ async def get_player(
         created_at=player.created_at,
         last_login_at=player.last_login_at,
     )
-    
+
     # 添加段位信息
     if player.rank:
         response.rank = PlayerRankResponse(
@@ -312,7 +311,7 @@ async def get_player(
             display_rank=player.rank.display_rank,
             is_placed=player.rank.is_placed,
         )
-    
+
     # 添加统计信息
     if player.stats:
         response.stats = PlayerStatsResponse(
@@ -328,7 +327,7 @@ async def get_player(
             max_win_streak=player.stats.max_win_streak,
             fastest_win_round=player.stats.fastest_win_round,
         )
-    
+
     return response
 
 
@@ -365,21 +364,21 @@ async def update_player(
 ) -> PlayerResponse:
     """
     更新玩家信息
-    
+
     更新指定玩家的昵称或头像。
-    
+
     Args:
         player_id: 玩家ID
         data: 更新数据
-        
+
     Returns:
         更新后的玩家信息
-        
+
     Raises:
         HTTPException: 玩家不存在时返回404
     """
     crud = PlayerCRUD(session)
-    
+
     # 检查是否有需要更新的字段
     update_data = data.model_dump(exclude_unset=True)
     if not update_data:
@@ -387,15 +386,15 @@ async def update_player(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="没有需要更新的字段",
         )
-    
+
     player = await crud.update(player_id, **update_data)
-    
+
     if not player:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"玩家不存在: {player_id}",
         )
-    
+
     return PlayerResponse(
         id=player.id,
         user_id=player.user_id,
@@ -436,27 +435,27 @@ async def get_player_stats(
 ) -> PlayerStatsResponse:
     """
     获取玩家统计
-    
+
     获取指定玩家的游戏统计数据。
-    
+
     Args:
         player_id: 玩家ID
-        
+
     Returns:
         玩家统计数据
-        
+
     Raises:
         HTTPException: 玩家不存在时返回404
     """
     crud = PlayerCRUD(session)
     stats = await crud.get_stats(player_id)
-    
+
     if not stats:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"玩家统计数据不存在: {player_id}",
         )
-    
+
     return PlayerStatsResponse(
         total_matches=stats.total_matches,
         total_wins=stats.total_wins,
@@ -501,27 +500,27 @@ async def get_player_rank(
 ) -> PlayerRankResponse:
     """
     获取玩家段位
-    
+
     获取指定玩家的段位信息。
-    
+
     Args:
         player_id: 玩家ID
-        
+
     Returns:
         玩家段位信息
-        
+
     Raises:
         HTTPException: 玩家不存在时返回404
     """
     crud = PlayerCRUD(session)
     rank = await crud.get_rank(player_id)
-    
+
     if not rank:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"玩家段位数据不存在: {player_id}",
         )
-    
+
     return PlayerRankResponse(
         tier=rank.tier,
         sub_tier=rank.sub_tier,
@@ -536,7 +535,7 @@ async def get_player_rank(
 
 @router.get(
     "/{player_id}/inventory",
-    response_model=List[InventoryItemResponse],
+    response_model=list[InventoryItemResponse],
     summary="获取玩家背包",
     description="""
     获取指定玩家的背包物品列表。
@@ -546,7 +545,7 @@ async def get_player_rank(
     responses={
         200: {
             "description": "背包物品列表",
-            "model": List[InventoryItemResponse],
+            "model": list[InventoryItemResponse],
         },
         404: {
             "description": "玩家不存在",
@@ -556,35 +555,35 @@ async def get_player_rank(
 )
 async def get_player_inventory(
     player_id: int,
-    item_type: Optional[str] = Query(None, description="物品类型筛选"),
+    item_type: str | None = Query(None, description="物品类型筛选"),
     session: AsyncSession = Depends(get_session),
-) -> List[InventoryItemResponse]:
+) -> list[InventoryItemResponse]:
     """
     获取玩家背包
-    
+
     获取指定玩家的背包物品列表。
-    
+
     Args:
         player_id: 玩家ID
         item_type: 物品类型筛选（可选）
-        
+
     Returns:
         背包物品列表
-        
+
     Raises:
         HTTPException: 玩家不存在时返回404
     """
     crud = PlayerCRUD(session)
-    
+
     # 先检查玩家是否存在
     if not await crud.exists(player_id):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"玩家不存在: {player_id}",
         )
-    
+
     items = await crud.get_inventory(player_id, item_type)
-    
+
     return [
         InventoryItemResponse(
             id=item.id,
@@ -617,19 +616,19 @@ async def search_players(
 ) -> PlayerListResponse:
     """
     搜索玩家
-    
+
     通过昵称或用户名搜索玩家。
-    
+
     Args:
         query: 搜索关键词
         limit: 返回数量限制
-        
+
     Returns:
         匹配的玩家列表
     """
     crud = PlayerCRUD(session)
     players = await crud.search(query, limit)
-    
+
     items = [
         PlayerListItem(
             id=p.id,
@@ -638,7 +637,7 @@ async def search_players(
         )
         for p in players
     ]
-    
+
     return PlayerListResponse(
         total=len(items),
         items=items,

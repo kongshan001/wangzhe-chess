@@ -13,10 +13,9 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
-
 
 # ============================================================================
 # 消息类型枚举
@@ -465,8 +464,8 @@ class BaseMessage(BaseModel):
     """
 
     type: MessageType = Field(..., description="消息类型")
-    seq: Optional[int] = Field(default=None, description="消息序列号")
-    timestamp: Optional[int] = Field(default=None, description="消息时间戳（毫秒）")
+    seq: int | None = Field(default=None, description="消息序列号")
+    timestamp: int | None = Field(default=None, description="消息时间戳（毫秒）")
 
     class Config:
         use_enum_values = True
@@ -522,7 +521,7 @@ class DisconnectMessage(BaseMessage):
     """
 
     type: MessageType = MessageType.DISCONNECT
-    reason: Optional[str] = Field(default=None, description="断开原因")
+    reason: str | None = Field(default=None, description="断开原因")
 
 
 class HeartbeatMessage(BaseMessage):
@@ -564,8 +563,8 @@ class ReconnectedMessage(BaseMessage):
 
     type: MessageType = MessageType.RECONNECTED
     player_id: str = Field(..., description="玩家ID")
-    room_id: Optional[str] = Field(default=None, description="当前房间ID")
-    game_state: Optional[dict[str, Any]] = Field(default=None, description="游戏状态")
+    room_id: str | None = Field(default=None, description="当前房间ID")
+    game_state: dict[str, Any] | None = Field(default=None, description="游戏状态")
 
 
 # ============================================================================
@@ -585,7 +584,7 @@ class CreateRoomMessage(BaseMessage):
 
     type: MessageType = MessageType.CREATE_ROOM
     room_name: str = Field(..., description="房间名称")
-    password: Optional[str] = Field(default=None, description="房间密码")
+    password: str | None = Field(default=None, description="房间密码")
     max_players: int = Field(default=8, ge=2, le=8, description="最大玩家数")
 
 
@@ -614,7 +613,7 @@ class JoinRoomMessage(BaseMessage):
 
     type: MessageType = MessageType.JOIN_ROOM
     room_id: str = Field(..., description="房间ID")
-    password: Optional[str] = Field(default=None, description="房间密码")
+    password: str | None = Field(default=None, description="房间密码")
 
 
 class RoomJoinedMessage(BaseMessage):
@@ -1115,7 +1114,7 @@ class PlayerHpUpdateMessage(BaseMessage):
     player_id: str = Field(..., description="玩家ID")
     hp: int = Field(..., ge=0, description="当前血量")
     max_hp: int = Field(default=100, description="最大血量")
-    damage: Optional[int] = Field(default=None, description="本次受到的伤害")
+    damage: int | None = Field(default=None, description="本次受到的伤害")
 
 
 class PlayerGoldUpdateMessage(BaseMessage):
@@ -1293,7 +1292,7 @@ class ErrorMessage(BaseMessage):
     type: MessageType = MessageType.ERROR
     code: int = Field(..., description="错误码")
     message: str = Field(..., description="错误描述")
-    details: Optional[dict[str, Any]] = Field(default=None, description="错误详情")
+    details: dict[str, Any] | None = Field(default=None, description="错误详情")
 
 
 # ============================================================================
@@ -1324,14 +1323,14 @@ class HeroData(BaseModel):
     defense: int = Field(..., description="防御力")
     attack_speed: float = Field(..., description="攻击速度")
     mana: int = Field(default=0, description="当前蓝量")
-    position: Optional[PositionData] = Field(default=None, description="位置")
+    position: PositionData | None = Field(default=None, description="位置")
 
 
 class ShopSlotData(BaseModel):
     """商店槽位数据"""
 
     slot_index: int = Field(..., description="槽位索引")
-    hero_template_id: Optional[str] = Field(default=None, description="英雄模板ID")
+    hero_template_id: str | None = Field(default=None, description="英雄模板ID")
     is_locked: bool = Field(default=False, description="是否锁定")
     is_sold: bool = Field(default=False, description="是否已售出")
 
@@ -1460,8 +1459,8 @@ class LineupPresetData(BaseModel):
     slots: list[LineupSlotData] = Field(default_factory=list, description="槽位列表")
     target_synergies: list[LineupSynergyData] = Field(default_factory=list, description="目标羁绊")
     notes: str = Field(default="", description="策略备注")
-    created_at: Optional[str] = Field(default=None, description="创建时间")
-    updated_at: Optional[str] = Field(default=None, description="更新时间")
+    created_at: str | None = Field(default=None, description="创建时间")
+    updated_at: str | None = Field(default=None, description="更新时间")
 
 
 class LineupSaveMessage(BaseMessage):
@@ -1872,7 +1871,7 @@ class FriendStatusUpdateMessage(BaseMessage):
     type: MessageType = MessageType.FRIEND_STATUS_UPDATE
     friend_id: str = Field(..., description="好友ID")
     status: str = Field(..., description="新状态")
-    in_game_info: Optional[dict[str, Any]] = Field(default=None, description="游戏中信息")
+    in_game_info: dict[str, Any] | None = Field(default=None, description="游戏中信息")
 
 
 # ============================================================================
@@ -1921,7 +1920,7 @@ class GetChatHistoryMessage(BaseMessage):
     type: MessageType = MessageType.GET_CHAT_HISTORY
     friend_id: str = Field(..., description="好友ID")
     limit: int = Field(default=50, ge=1, le=100, description="返回数量")
-    before_id: Optional[str] = Field(default=None, description="此消息ID之前的记录")
+    before_id: str | None = Field(default=None, description="此消息ID之前的记录")
 
 
 class ChatHistoryMessage(BaseMessage):
@@ -2150,7 +2149,7 @@ class TeamInfoMessage(BaseMessage):
     """
 
     type: MessageType = MessageType.TEAM_INFO
-    team: Optional[TeamInfoData] = Field(default=None, description="队伍信息")
+    team: TeamInfoData | None = Field(default=None, description="队伍信息")
 
 
 class TeamDisbandedMessage(BaseMessage):
@@ -2212,9 +2211,9 @@ class FriendInfoData(BaseModel):
     stars: int = Field(default=0, description="星数")
     display_rank: str = Field(default="", description="段位显示")
     relation: str = Field(default="friend", description="关系")
-    last_online_at: Optional[str] = Field(default=None, description="最后在线时间")
+    last_online_at: str | None = Field(default=None, description="最后在线时间")
     is_online: bool = Field(default=False, description="是否在线")
-    in_game_info: Optional[dict[str, Any]] = Field(default=None, description="游戏中信息")
+    in_game_info: dict[str, Any] | None = Field(default=None, description="游戏中信息")
 
 
 class FriendRequestData(BaseModel):
@@ -2226,7 +2225,7 @@ class FriendRequestData(BaseModel):
     from_nickname: str = Field(default="", description="发送者昵称")
     from_avatar: str = Field(default="", description="发送者头像")
     message: str = Field(default="", description="附带消息")
-    created_at: Optional[str] = Field(default=None, description="创建时间")
+    created_at: str | None = Field(default=None, description="创建时间")
 
 
 class PrivateMessageData(BaseModel):
@@ -2239,7 +2238,7 @@ class PrivateMessageData(BaseModel):
     from_avatar: str = Field(default="", description="发送者头像")
     content: str = Field(..., description="消息内容")
     message_type: str = Field(default="text", description="消息类型")
-    created_at: Optional[str] = Field(default=None, description="创建时间")
+    created_at: str | None = Field(default=None, description="创建时间")
 
 
 class PlayerSearchInfoData(BaseModel):
@@ -2263,7 +2262,7 @@ class TeamInfoData(BaseModel):
     member_count: int = Field(default=0, description="成员数")
     max_members: int = Field(default=3, description="最大成员数")
     is_full: bool = Field(default=False, description="是否已满")
-    created_at: Optional[str] = Field(default=None, description="创建时间")
+    created_at: str | None = Field(default=None, description="创建时间")
 
 
 class TeamInviteData(BaseModel):
@@ -2274,7 +2273,7 @@ class TeamInviteData(BaseModel):
     inviter_id: str = Field(..., description="邀请者ID")
     inviter_nickname: str = Field(default="", description="邀请者昵称")
     team_member_count: int = Field(default=1, description="队伍成员数")
-    created_at: Optional[str] = Field(default=None, description="创建时间")
+    created_at: str | None = Field(default=None, description="创建时间")
 
 
 # ============================================================================
@@ -2343,9 +2342,9 @@ class LeaderboardDataMessage(BaseMessage):
     page: int = Field(default=1, description="当前页码")
     page_size: int = Field(default=50, description="每页大小")
     total_pages: int = Field(default=0, description="总页数")
-    updated_at: Optional[str] = Field(default=None, description="更新时间")
-    period_start: Optional[str] = Field(default=None, description="周期开始时间")
-    period_end: Optional[str] = Field(default=None, description="周期结束时间")
+    updated_at: str | None = Field(default=None, description="更新时间")
+    period_start: str | None = Field(default=None, description="周期开始时间")
+    period_end: str | None = Field(default=None, description="周期结束时间")
 
 
 class GetPlayerRankMessage(BaseMessage):
@@ -2358,8 +2357,8 @@ class GetPlayerRankMessage(BaseMessage):
     """
 
     type: MessageType = MessageType.GET_PLAYER_RANK
-    leaderboard_type: Optional[str] = Field(default=None, description="排行榜类型")
-    period: Optional[str] = Field(default=None, description="排行榜周期")
+    leaderboard_type: str | None = Field(default=None, description="排行榜类型")
+    period: str | None = Field(default=None, description="排行榜周期")
 
 
 class PlayerRankInfoData(BaseModel):
@@ -2408,7 +2407,7 @@ class LeaderboardOverviewData(BaseModel):
     period_name: str = Field(default="", description="周期名称")
     total_count: int = Field(default=0, description="总参与人数")
     top_players: list[dict[str, Any]] = Field(default_factory=list, description="前三名")
-    updated_at: Optional[str] = Field(default=None, description="更新时间")
+    updated_at: str | None = Field(default=None, description="更新时间")
 
 
 class LeaderboardListResultMessage(BaseMessage):
@@ -2450,8 +2449,8 @@ class LeaderboardRewardData(BaseModel):
 
     gold: int = Field(default=0, description="金币")
     exp: int = Field(default=0, description="经验值")
-    title: Optional[str] = Field(default=None, description="称号")
-    avatar_frame: Optional[str] = Field(default=None, description="头像框")
+    title: str | None = Field(default=None, description="称号")
+    avatar_frame: str | None = Field(default=None, description="头像框")
     items: list[dict[str, Any]] = Field(default_factory=list, description="其他物品")
 
 
@@ -2483,7 +2482,7 @@ class CheckinRewardData(BaseModel):
 
     reward_id: str = Field(..., description="奖励ID")
     reward_type: str = Field(..., description="奖励类型")
-    item_id: Optional[str] = Field(default=None, description="物品ID")
+    item_id: str | None = Field(default=None, description="物品ID")
     quantity: int = Field(default=1, description="数量")
 
 
@@ -2670,7 +2669,7 @@ class SynergyPediaEntryData(BaseModel):
     related_heroes: list[str] = Field(default_factory=list, description="关联英雄")
     icon: str = Field(default="", description="羁绊图标")
     tips: str = Field(default="", description="使用技巧")
-    progress: Optional[dict[str, Any]] = Field(default=None, description="玩家进度")
+    progress: dict[str, Any] | None = Field(default=None, description="玩家进度")
 
 
 class SynergyPediaListMessage(BaseMessage):
@@ -2713,7 +2712,7 @@ class SynergyPediaDetailMessage(BaseMessage):
 
     type: MessageType = MessageType.SYNERGY_PEDIA_DETAIL
     entry: SynergyPediaEntryData = Field(..., description="羁绊详情")
-    progress: Optional[dict[str, Any]] = Field(default=None, description="玩家进度")
+    progress: dict[str, Any] | None = Field(default=None, description="玩家进度")
     recommended_lineups: list[dict[str, Any]] = Field(default_factory=list, description="推荐阵容")
 
 
@@ -2765,7 +2764,7 @@ class GetSynergyRecommendationsMessage(BaseMessage):
     """
 
     type: MessageType = MessageType.GET_SYNERGY_RECOMMENDATIONS
-    synergy_name: Optional[str] = Field(default=None, description="羁绊名称")
+    synergy_name: str | None = Field(default=None, description="羁绊名称")
     limit: int = Field(default=10, description="返回数量限制")
 
 
@@ -2792,7 +2791,7 @@ class GetSynergyAchievementsMessage(BaseMessage):
     """
 
     type: MessageType = MessageType.GET_SYNERGY_ACHIEVEMENTS
-    synergy_name: Optional[str] = Field(default=None, description="羁绊名称")
+    synergy_name: str | None = Field(default=None, description="羁绊名称")
 
 
 class SynergyAchievementData(BaseModel):
@@ -2900,7 +2899,7 @@ class GetEventHistoryMessage(BaseMessage):
     """
 
     type: MessageType = MessageType.GET_EVENT_HISTORY
-    room_id: Optional[str] = Field(default=None, description="房间ID")
+    room_id: str | None = Field(default=None, description="房间ID")
     limit: int = Field(default=50, description="返回数量限制")
 
 
@@ -2979,7 +2978,7 @@ class VotingOptionData(BaseModel):
     option_id: str = Field(..., description="选项ID")
     title: str = Field(..., description="选项标题")
     description: str = Field(default="", description="选项描述")
-    icon: Optional[str] = Field(default=None, description="选项图标")
+    icon: str | None = Field(default=None, description="选项图标")
     vote_count: int = Field(default=0, description="当前票数")
     percentage: float = Field(default=0.0, description="得票百分比")
 
@@ -2989,7 +2988,7 @@ class VotingRewardData(BaseModel):
 
     reward_id: str = Field(..., description="奖励ID")
     reward_type: str = Field(..., description="奖励类型")
-    item_id: Optional[str] = Field(default=None, description="物品ID")
+    item_id: str | None = Field(default=None, description="物品ID")
     quantity: int = Field(default=1, description="数量")
     is_bonus: bool = Field(default=False, description="是否为投中额外奖励")
 
@@ -3003,8 +3002,8 @@ class VotingPollData(BaseModel):
     voting_type: str = Field(..., description="投票类型")
     status: str = Field(..., description="投票状态")
     options: list[VotingOptionData] = Field(default_factory=list, description="投票选项")
-    start_time: Optional[str] = Field(default=None, description="开始时间")
-    end_time: Optional[str] = Field(default=None, description="结束时间")
+    start_time: str | None = Field(default=None, description="开始时间")
+    end_time: str | None = Field(default=None, description="结束时间")
     total_votes: int = Field(default=0, description="总票数")
     total_voters: int = Field(default=0, description="参与人数")
     min_vip_level: int = Field(default=0, description="最低VIP等级要求")
@@ -3016,7 +3015,7 @@ class VotingInfoData(BaseModel):
 
     poll: VotingPollData = Field(..., description="投票详情")
     player_voted: bool = Field(default=False, description="玩家是否已投票")
-    player_option_id: Optional[str] = Field(default=None, description="玩家投票选项ID")
+    player_option_id: str | None = Field(default=None, description="玩家投票选项ID")
     player_vote_weight: int = Field(default=1, description="玩家投票权重")
     can_vote: bool = Field(default=True, description="是否可以投票")
     reason: str = Field(default="", description="不能投票的原因")
@@ -3026,12 +3025,12 @@ class VotingResultData(BaseModel):
     """投票结果数据"""
 
     poll_id: str = Field(..., description="投票ID")
-    winning_option_id: Optional[str] = Field(default=None, description="获胜选项ID")
-    winning_option: Optional[VotingOptionData] = Field(default=None, description="获胜选项")
+    winning_option_id: str | None = Field(default=None, description="获胜选项ID")
+    winning_option: VotingOptionData | None = Field(default=None, description="获胜选项")
     total_votes: int = Field(default=0, description="总票数")
     total_voters: int = Field(default=0, description="参与人数")
     results: list[VotingOptionData] = Field(default_factory=list, description="各选项结果")
-    ended_at: Optional[str] = Field(default=None, description="结束时间")
+    ended_at: str | None = Field(default=None, description="结束时间")
 
 
 # ============================================================================
@@ -3051,8 +3050,8 @@ class GetVotingListMessage(BaseMessage):
     """
 
     type: MessageType = MessageType.GET_VOTING_LIST
-    status: Optional[str] = Field(default=None, description="状态过滤")
-    voting_type: Optional[str] = Field(default=None, description="类型过滤")
+    status: str | None = Field(default=None, description="状态过滤")
+    voting_type: str | None = Field(default=None, description="类型过滤")
     limit: int = Field(default=20, description="返回数量限制")
     offset: int = Field(default=0, description="偏移量")
 
@@ -3226,8 +3225,8 @@ class SpectatorPlayerStateData(BaseModel):
 
     player_id: str = Field(..., description="玩家ID")
     nickname: str = Field(default="", description="昵称")
-    avatar: Optional[str] = Field(default=None, description="头像")
-    tier: Optional[str] = Field(default=None, description="段位")
+    avatar: str | None = Field(default=None, description="头像")
+    tier: str | None = Field(default=None, description="段位")
     hp: int = Field(default=100, description="生命值")
     gold: int = Field(default=0, description="金币")
     level: int = Field(default=1, description="等级")
@@ -3257,8 +3256,8 @@ class SpectatorChatData(BaseModel):
     content: str = Field(..., description="消息内容")
     sent_at: int = Field(..., description="发送时间")
     message_type: str = Field(default="text", description="消息类型")
-    avatar: Optional[str] = Field(default=None, description="头像")
-    tier: Optional[str] = Field(default=None, description="段位")
+    avatar: str | None = Field(default=None, description="头像")
+    tier: str | None = Field(default=None, description="段位")
 
 
 # 观战请求消息
@@ -3398,7 +3397,7 @@ class SpectateLeftMessage(BaseMessage):
 
     type: MessageType = MessageType.SPECTATE_LEFT
     game_id: str = Field(..., description="对局ID")
-    session_id: Optional[str] = Field(default=None, description="观战会话ID")
+    session_id: str | None = Field(default=None, description="观战会话ID")
 
 
 class SpectateStateMessage(BaseMessage):
@@ -3468,7 +3467,7 @@ class SkinData(BaseModel):
     rarity: str = Field(..., description="稀有度")
     rarity_name: str = Field(default="", description="稀有度名称")
     skin_type: str = Field(default="shop", description="皮肤类型")
-    price: Optional[dict[str, Any]] = Field(default=None, description="价格")
+    price: dict[str, Any] | None = Field(default=None, description="价格")
     stat_bonuses: list[dict[str, Any]] = Field(default_factory=list, description="属性加成")
     effects: list[dict[str, Any]] = Field(default_factory=list, description="特效列表")
     preview_image: str = Field(default="", description="预览图")
@@ -3488,7 +3487,7 @@ class PlayerSkinData(BaseModel):
     rarity: str = Field(default="normal", description="稀有度")
     is_equipped: bool = Field(default=False, description="是否已装备")
     is_favorite: bool = Field(default=False, description="是否收藏")
-    acquired_at: Optional[str] = Field(default=None, description="获得时间")
+    acquired_at: str | None = Field(default=None, description="获得时间")
     acquire_type: str = Field(default="buy", description="获得方式")
 
 
@@ -3508,7 +3507,7 @@ class GetSkinsMessage(BaseMessage):
     """
 
     type: MessageType = MessageType.GET_SKINS
-    rarity_filter: Optional[str] = Field(default=None, description="稀有度筛选")
+    rarity_filter: str | None = Field(default=None, description="稀有度筛选")
     page: int = Field(default=1, ge=1, description="页码")
     page_size: int = Field(default=20, ge=1, le=100, description="每页大小")
 
@@ -3534,7 +3533,7 @@ class GetOwnedSkinsMessage(BaseMessage):
     """
 
     type: MessageType = MessageType.GET_OWNED_SKINS
-    hero_id: Optional[str] = Field(default=None, description="英雄ID")
+    hero_id: str | None = Field(default=None, description="英雄ID")
 
 
 class EquipSkinMessage(BaseMessage):
@@ -3627,7 +3626,7 @@ class HeroSkinsListMessage(BaseMessage):
     hero_id: str = Field(..., description="英雄ID")
     hero_name: str = Field(default="", description="英雄名称")
     skins: list[SkinData] = Field(default_factory=list, description="皮肤列表")
-    equipped_skin_id: Optional[str] = Field(default=None, description="当前装备的皮肤ID")
+    equipped_skin_id: str | None = Field(default=None, description="当前装备的皮肤ID")
 
 
 class OwnedSkinsListMessage(BaseMessage):
@@ -3675,7 +3674,7 @@ class SkinUnequippedMessage(BaseMessage):
 
     type: MessageType = MessageType.SKIN_UNEQUIPPED
     hero_id: str = Field(..., description="英雄ID")
-    previous_skin_id: Optional[str] = Field(default=None, description="之前装备的皮肤ID")
+    previous_skin_id: str | None = Field(default=None, description="之前装备的皮肤ID")
 
 
 class SkinBoughtMessage(BaseMessage):
@@ -3744,7 +3743,7 @@ class HeroShardData(BaseModel):
     hero_name: str = Field(default="", description="英雄名称")
     quantity: int = Field(default=0, description="碎片数量")
     hero_cost: int = Field(default=1, description="英雄费用")
-    last_acquired_at: Optional[str] = Field(default=None, description="最后获得时间")
+    last_acquired_at: str | None = Field(default=None, description="最后获得时间")
     can_compose: bool = Field(default=False, description="是否可合成")
 
 
@@ -3778,7 +3777,7 @@ class GetShardBackpackMessage(BaseMessage):
     """
 
     type: MessageType = MessageType.GET_SHARD_BACKPACK
-    hero_id: Optional[str] = Field(default=None, description="英雄ID")
+    hero_id: str | None = Field(default=None, description="英雄ID")
 
 
 class ComposeHeroMessage(BaseMessage):
@@ -3911,7 +3910,7 @@ class HeroComposedMessage(BaseMessage):
     shards_used: int = Field(default=0, description="消耗碎片数")
     heroes_used: int = Field(default=0, description="消耗英雄数")
     success: bool = Field(default=True, description="是否成功")
-    error_message: Optional[str] = Field(default=None, description="错误信息")
+    error_message: str | None = Field(default=None, description="错误信息")
 
 
 class HeroDecomposedMessage(BaseMessage):
@@ -3933,7 +3932,7 @@ class HeroDecomposedMessage(BaseMessage):
     star_level: int = Field(default=1, description="星级")
     shards_gained: int = Field(default=0, description="获得碎片数")
     success: bool = Field(default=True, description="是否成功")
-    error_message: Optional[str] = Field(default=None, description="错误信息")
+    error_message: str | None = Field(default=None, description="错误信息")
 
 
 class BatchComposeResultMessage(BaseMessage):
@@ -4050,8 +4049,8 @@ class ReplayPlayerSnapshotData(BaseModel):
 
     player_id: int = Field(..., description="玩家ID")
     nickname: str = Field(default="", description="昵称")
-    avatar: Optional[str] = Field(default=None, description="头像")
-    tier: Optional[str] = Field(default=None, description="段位")
+    avatar: str | None = Field(default=None, description="头像")
+    tier: str | None = Field(default=None, description="段位")
     hp: int = Field(default=100, description="生命值")
     gold: int = Field(default=0, description="金币")
     level: int = Field(default=1, description="等级")
@@ -4071,8 +4070,8 @@ class ReplayFrameData(BaseModel):
     player_snapshots: dict[str, ReplayPlayerSnapshotData] = Field(
         default_factory=dict, description="玩家快照"
     )
-    shop_data: Optional[dict[str, Any]] = Field(default=None, description="商店数据")
-    battle_data: Optional[dict[str, Any]] = Field(default=None, description="战斗数据")
+    shop_data: dict[str, Any] | None = Field(default=None, description="商店数据")
+    battle_data: dict[str, Any] | None = Field(default=None, description="战斗数据")
     events: list[dict[str, Any]] = Field(default_factory=list, description="事件列表")
 
 
@@ -4089,7 +4088,7 @@ class ReplayMetadataData(BaseModel):
     created_at: int = Field(default=0, description="创建时间")
     game_version: str = Field(default="1.0.0", description="游戏版本")
     is_shared: bool = Field(default=False, description="是否已分享")
-    share_code: Optional[str] = Field(default=None, description="分享码")
+    share_code: str | None = Field(default=None, description="分享码")
     tags: list[str] = Field(default_factory=list, description="标签")
 
 
@@ -4105,16 +4104,16 @@ class ReplayListItemData(BaseModel):
     duration_minutes: float = Field(default=0.0, description="对局时长（分钟）")
     created_at: int = Field(default=0, description="创建时间")
     is_shared: bool = Field(default=False, description="是否已分享")
-    share_code: Optional[str] = Field(default=None, description="分享码")
+    share_code: str | None = Field(default=None, description="分享码")
 
 
 class ReplayData(BaseModel):
     """完整回放数据"""
 
     replay_id: str = Field(..., description="回放ID")
-    metadata: Optional[ReplayMetadataData] = Field(default=None, description="元数据")
+    metadata: ReplayMetadataData | None = Field(default=None, description="元数据")
     frames: list[ReplayFrameData] = Field(default_factory=list, description="帧列表")
-    initial_state: Optional[dict[str, Any]] = Field(default=None, description="初始状态")
+    initial_state: dict[str, Any] | None = Field(default=None, description="初始状态")
     final_rankings: list[dict[str, Any]] = Field(default_factory=list, description="最终排名")
 
 
@@ -4249,8 +4248,8 @@ class ReplayControlMessage(BaseMessage):
     type: MessageType = MessageType.REPLAY_CONTROL
     session_id: str = Field(..., description="播放会话ID")
     action: str = Field(..., description="控制动作")
-    speed: Optional[float] = Field(default=None, description="播放速度")
-    round_num: Optional[int] = Field(default=None, description="跳转回合")
+    speed: float | None = Field(default=None, description="播放速度")
+    round_num: int | None = Field(default=None, description="跳转回合")
 
 
 class ReplayStateUpdateMessage(BaseMessage):
@@ -4274,7 +4273,7 @@ class ReplayStateUpdateMessage(BaseMessage):
     current_frame_index: int = Field(default=0, description="当前帧索引")
     total_frames: int = Field(default=0, description="总帧数")
     speed: float = Field(default=1.0, description="播放速度")
-    current_frame: Optional[ReplayFrameData] = Field(default=None, description="当前帧数据")
+    current_frame: ReplayFrameData | None = Field(default=None, description="当前帧数据")
 
 
 class ExportReplayMessage(BaseMessage):
@@ -4302,7 +4301,7 @@ class ReplayExportedMessage(BaseMessage):
     type: MessageType = MessageType.REPLAY_EXPORTED
     replay_id: str = Field(..., description="回放ID")
     share_code: str = Field(..., description="分享码")
-    export_data: Optional[str] = Field(default=None, description="导出数据")
+    export_data: str | None = Field(default=None, description="导出数据")
 
 
 class ImportReplayMessage(BaseMessage):
@@ -4315,8 +4314,8 @@ class ImportReplayMessage(BaseMessage):
     """
 
     type: MessageType = MessageType.IMPORT_REPLAY
-    share_code: Optional[str] = Field(default=None, description="分享码")
-    import_data: Optional[str] = Field(default=None, description="导入数据")
+    share_code: str | None = Field(default=None, description="分享码")
+    import_data: str | None = Field(default=None, description="导入数据")
 
 
 class ReplayImportedMessage(BaseMessage):
@@ -4348,8 +4347,8 @@ class EmoteData(BaseModel):
     emote_type: str = Field(default="static", description="表情类型")
     asset_url: str = Field(default="", description="表情资源URL")
     thumbnail_url: str = Field(default="", description="缩略图URL")
-    sound_url: Optional[str] = Field(default=None, description="音效URL")
-    unlock_condition: Optional[dict[str, Any]] = Field(default=None, description="解锁条件")
+    sound_url: str | None = Field(default=None, description="音效URL")
+    unlock_condition: dict[str, Any] | None = Field(default=None, description="解锁条件")
     is_free: bool = Field(default=True, description="是否免费")
     sort_order: int = Field(default=0, description="排序顺序")
 
@@ -4363,7 +4362,7 @@ class PlayerEmoteData(BaseModel):
     thumbnail_url: str = Field(default="", description="缩略图URL")
     category: str = Field(default="default", description="表情分类")
     emote_type: str = Field(default="static", description="表情类型")
-    hotkey: Optional[str] = Field(default=None, description="快捷键")
+    hotkey: str | None = Field(default=None, description="快捷键")
     use_count: int = Field(default=0, description="使用次数")
 
 
@@ -4377,7 +4376,7 @@ class EmoteSentData(BaseModel):
     emote_type: str = Field(default="static", description="表情类型")
     from_player_id: str = Field(..., description="发送者ID")
     from_nickname: str = Field(default="", description="发送者昵称")
-    to_player_id: Optional[str] = Field(default=None, description="目标玩家ID")
+    to_player_id: str | None = Field(default=None, description="目标玩家ID")
     room_id: str = Field(default="", description="房间ID")
     round_number: int = Field(default=0, description="回合数")
     timestamp: str = Field(default="", description="发送时间")
@@ -4392,11 +4391,11 @@ class EmoteHistoryItemData(BaseModel):
     asset_url: str = Field(default="", description="表情资源URL")
     from_player_id: str = Field(..., description="发送者ID")
     from_nickname: str = Field(default="", description="发送者昵称")
-    to_player_id: Optional[str] = Field(default=None, description="目标玩家ID")
+    to_player_id: str | None = Field(default=None, description="目标玩家ID")
     to_nickname: str = Field(default="", description="目标玩家昵称")
     room_id: str = Field(default="", description="房间ID")
     round_number: int = Field(default=0, description="回合数")
-    created_at: Optional[str] = Field(default=None, description="发送时间")
+    created_at: str | None = Field(default=None, description="发送时间")
 
 
 # ============================================================================
@@ -4413,7 +4412,7 @@ class GetEmotesMessage(BaseMessage):
     """
 
     type: MessageType = MessageType.GET_EMOTES
-    category: Optional[str] = Field(default=None, description="分类过滤")
+    category: str | None = Field(default=None, description="分类过滤")
 
 
 class EmotesListMessage(BaseMessage):
@@ -4467,7 +4466,7 @@ class SendEmoteMessage(BaseMessage):
 
     type: MessageType = MessageType.SEND_EMOTE
     emote_id: str = Field(..., description="表情ID")
-    to_player_id: Optional[str] = Field(default=None, description="目标玩家ID")
+    to_player_id: str | None = Field(default=None, description="目标玩家ID")
     room_id: str = Field(default="", description="房间ID")
     round_number: int = Field(default=0, description="回合数")
 
@@ -4525,7 +4524,7 @@ class EmoteHotkeySetMessage(BaseMessage):
     type: MessageType = MessageType.EMOTE_HOTKEY_SET
     emote_id: str = Field(..., description="表情ID")
     hotkey: str = Field(..., description="快捷键")
-    previous_hotkey: Optional[str] = Field(default=None, description="之前的快捷键")
+    previous_hotkey: str | None = Field(default=None, description="之前的快捷键")
 
 
 class GetEmoteHistoryMessage(BaseMessage):
@@ -4538,7 +4537,7 @@ class GetEmoteHistoryMessage(BaseMessage):
     """
 
     type: MessageType = MessageType.GET_EMOTE_HISTORY
-    room_id: Optional[str] = Field(default=None, description="房间ID")
+    room_id: str | None = Field(default=None, description="房间ID")
     limit: int = Field(default=50, ge=1, le=100, description="返回数量限制")
 
 
@@ -4554,7 +4553,7 @@ class EmoteHistoryMessage(BaseMessage):
 
     type: MessageType = MessageType.EMOTE_HISTORY
     history: list[EmoteHistoryItemData] = Field(default_factory=list, description="历史记录")
-    room_id: Optional[str] = Field(default=None, description="房间ID")
+    room_id: str | None = Field(default=None, description="房间ID")
     total_count: int = Field(default=0, description="总数量")
 
 
@@ -4602,7 +4601,7 @@ class ConsumableData(BaseModel):
     consumable_type: str = Field(..., description="道具类型")
     rarity: str = Field(default="common", description="道具稀有度")
     effects: list[dict] = Field(default_factory=list, description="效果列表")
-    price: Optional[dict] = Field(default=None, description="价格")
+    price: dict | None = Field(default=None, description="价格")
     max_stack: int = Field(default=99, description="最大堆叠数")
     icon: str = Field(default="", description="图标路径")
     auto_use: bool = Field(default=False, description="是否自动使用")
@@ -4624,7 +4623,7 @@ class PlayerConsumableData(BaseModel):
     quantity: int = Field(..., description="数量")
     acquired_at: str = Field(..., description="获得时间")
     acquire_type: str = Field(default="buy", description="获得方式")
-    expire_at: Optional[str] = Field(default=None, description="过期时间")
+    expire_at: str | None = Field(default=None, description="过期时间")
 
 
 class ConsumableUsageData(BaseModel):
@@ -4644,7 +4643,7 @@ class ConsumableUsageData(BaseModel):
     used_at: str = Field(..., description="使用时间")
     quantity: int = Field(default=1, description="使用数量")
     context: str = Field(default="match", description="使用场景")
-    context_id: Optional[str] = Field(default=None, description="场景ID")
+    context_id: str | None = Field(default=None, description="场景ID")
     effect_applied: bool = Field(default=True, description="效果是否生效")
 
 
@@ -4728,7 +4727,7 @@ class UseConsumableMessage(BaseMessage):
     consumable_id: str = Field(..., description="道具ID")
     quantity: int = Field(default=1, ge=1, description="使用数量")
     context: str = Field(default="match", description="使用场景")
-    context_id: Optional[str] = Field(default=None, description="场景ID")
+    context_id: str | None = Field(default=None, description="场景ID")
 
 
 class ConsumableUsedMessage(BaseMessage):
@@ -4746,7 +4745,7 @@ class ConsumableUsedMessage(BaseMessage):
     consumable_id: str = Field(..., description="道具ID")
     quantity: int = Field(..., description="使用数量")
     remaining: int = Field(default=0, description="剩余数量")
-    effect: Optional[ConsumableEffectData] = Field(default=None, description="激活效果")
+    effect: ConsumableEffectData | None = Field(default=None, description="激活效果")
 
 
 class BuyConsumableMessage(BaseMessage):
@@ -4939,9 +4938,7 @@ class CoachAnalysisData(BaseModel):
     strengths: list[str] = Field(default_factory=list, description="优势列表")
     weaknesses: list[str] = Field(default_factory=list, description="劣势列表")
     suggestions: list[AISuggestionData] = Field(default_factory=list, description="建议列表")
-    win_rate_prediction: Optional[WinRatePredictionData] = Field(
-        default=None, description="胜率预测"
-    )
+    win_rate_prediction: WinRatePredictionData | None = Field(default=None, description="胜率预测")
     created_at: int = Field(default=0, description="创建时间")
 
 
@@ -5015,7 +5012,7 @@ class MatchHistoryItemData(BaseModel):
     damage_taken: int = Field(default=0, description="承受伤害")
     gold_earned: int = Field(default=0, description="获得金币")
     key_decisions: list[str] = Field(default_factory=list, description="关键决策")
-    analysis: Optional[CoachAnalysisData] = Field(default=None, description="对局分析")
+    analysis: CoachAnalysisData | None = Field(default=None, description="对局分析")
     played_at: int = Field(default=0, description="对局时间")
 
 
@@ -5035,9 +5032,9 @@ class EquipmentAdviceData(BaseModel):
 
     equipment_id: str = Field(..., description="装备ID")
     equipment_name: str = Field(..., description="装备名称")
-    target_hero_id: Optional[str] = Field(default=None, description="目标英雄ID")
+    target_hero_id: str | None = Field(default=None, description="目标英雄ID")
     reason: str = Field(..., description="建议原因")
-    recipe: Optional[list[str]] = Field(default=None, description="合成配方")
+    recipe: list[str] | None = Field(default=None, description="合成配方")
     priority: str = Field(default="medium", description="优先级")
     expected_stat_boost: dict[str, float] = Field(default_factory=dict, description="预期属性提升")
 
@@ -5058,7 +5055,7 @@ class PositionAdviceData(BaseModel):
 
     hero_id: str = Field(..., description="英雄ID")
     hero_name: str = Field(..., description="英雄名称")
-    current_position: Optional[dict[str, int]] = Field(default=None, description="当前位置")
+    current_position: dict[str, int] | None = Field(default=None, description="当前位置")
     recommended_position: dict[str, int] = Field(..., description="推荐位置")
     reason: str = Field(..., description="建议原因")
     priority: str = Field(default="medium", description="优先级")
@@ -5087,9 +5084,9 @@ class RoundStrategyData(BaseModel):
     description: str = Field(..., description="策略描述")
     key_actions: list[str] = Field(default_factory=list, description="关键行动")
     focus_synergies: list[str] = Field(default_factory=list, description="重点羁绊")
-    economy_advice: Optional[str] = Field(default=None, description="经济建议")
+    economy_advice: str | None = Field(default=None, description="经济建议")
     risk_level: str = Field(default="medium", description="风险等级")
-    win_condition: Optional[str] = Field(default=None, description="获胜条件")
+    win_condition: str | None = Field(default=None, description="获胜条件")
 
 
 # ============================================================================
@@ -5317,7 +5314,7 @@ class EquipmentInstanceData(BaseModel):
 
     instance_id: str = Field(..., description="装备实例ID")
     equipment_id: str = Field(..., description="装备配置ID")
-    equipped_to: Optional[str] = Field(default=None, description="穿戴的英雄ID")
+    equipped_to: str | None = Field(default=None, description="穿戴的英雄ID")
     acquired_at: int = Field(default=0, description="获取时间戳")
 
 

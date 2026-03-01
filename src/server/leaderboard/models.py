@@ -16,18 +16,18 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class LeaderboardType(str, Enum):
     """排行榜类型枚举"""
-    
-    TIER = "tier"              # 段位排行（按段位积分）
-    WIN_RATE = "win_rate"      # 胜率排行
+
+    TIER = "tier"  # 段位排行（按段位积分）
+    WIN_RATE = "win_rate"  # 胜率排行
     FIRST_PLACE = "first_place"  # 吃鸡排行（第一名次数）
-    DAMAGE = "damage"          # 伤害排行（单局最高伤害）
-    WEALTH = "wealth"          # 财富排行（累计金币）
-    
+    DAMAGE = "damage"  # 伤害排行（单局最高伤害）
+    WEALTH = "wealth"  # 财富排行（累计金币）
+
     @property
     def display_name(self) -> str:
         """获取显示名称"""
@@ -43,11 +43,11 @@ class LeaderboardType(str, Enum):
 
 class LeaderboardPeriod(str, Enum):
     """排行榜周期枚举"""
-    
-    WEEKLY = "weekly"     # 周榜
-    MONTHLY = "monthly"   # 月榜
-    SEASON = "season"     # 赛季榜
-    
+
+    WEEKLY = "weekly"  # 周榜
+    MONTHLY = "monthly"  # 月榜
+    SEASON = "season"  # 赛季榜
+
     @property
     def display_name(self) -> str:
         """获取显示名称"""
@@ -63,9 +63,9 @@ class LeaderboardPeriod(str, Enum):
 class LeaderboardReward:
     """
     排行榜奖励
-    
+
     定义排行榜结束后发放的奖励。
-    
+
     Attributes:
         rank_start: 起始排名（包含）
         rank_end: 结束排名（包含）
@@ -75,20 +75,20 @@ class LeaderboardReward:
         avatar_frame: 头像框ID（可选）
         items: 其他物品奖励列表
     """
-    
+
     rank_start: int
     rank_end: int
     gold: int = 0
     exp: int = 0
-    title: Optional[str] = None
-    avatar_frame: Optional[str] = None
-    items: List[Dict[str, Any]] = field(default_factory=list)
-    
+    title: str | None = None
+    avatar_frame: str | None = None
+    items: list[dict[str, Any]] = field(default_factory=list)
+
     def contains_rank(self, rank: int) -> bool:
         """检查排名是否在奖励范围内"""
         return self.rank_start <= rank <= self.rank_end
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典"""
         return {
             "rank_start": self.rank_start,
@@ -99,9 +99,9 @@ class LeaderboardReward:
             "avatar_frame": self.avatar_frame,
             "items": self.items,
         }
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "LeaderboardReward":
+    def from_dict(cls, data: dict[str, Any]) -> LeaderboardReward:
         """从字典创建"""
         return cls(
             rank_start=data["rank_start"],
@@ -118,9 +118,9 @@ class LeaderboardReward:
 class LeaderboardEntry:
     """
     排行榜条目
-    
+
     表示排行榜中的一条记录。
-    
+
     Attributes:
         player_id: 玩家ID
         nickname: 玩家昵称
@@ -131,7 +131,7 @@ class LeaderboardEntry:
         stars: 星数（用于段位榜）
         extra_data: 额外数据
     """
-    
+
     player_id: str
     nickname: str
     avatar: str
@@ -139,8 +139,8 @@ class LeaderboardEntry:
     score: float
     tier: str = "bronze"
     stars: int = 0
-    extra_data: Dict[str, Any] = field(default_factory=dict)
-    
+    extra_data: dict[str, Any] = field(default_factory=dict)
+
     @property
     def display_rank(self) -> str:
         """获取段位显示"""
@@ -155,8 +155,8 @@ class LeaderboardEntry:
             "challenger": "王者",
         }
         return f"{tier_names.get(self.tier, self.tier)} {self.stars}星"
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典"""
         return {
             "player_id": self.player_id,
@@ -169,9 +169,9 @@ class LeaderboardEntry:
             "display_rank": self.display_rank,
             "extra_data": self.extra_data,
         }
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "LeaderboardEntry":
+    def from_dict(cls, data: dict[str, Any]) -> LeaderboardEntry:
         """从字典创建"""
         return cls(
             player_id=data["player_id"],
@@ -189,9 +189,9 @@ class LeaderboardEntry:
 class PlayerRankInfo:
     """
     玩家排名信息
-    
+
     表示玩家在某个排行榜中的排名详情。
-    
+
     Attributes:
         player_id: 玩家ID
         leaderboard_type: 排行榜类型
@@ -204,7 +204,7 @@ class PlayerRankInfo:
         rewards_claimed: 是否已领取奖励
         best_rank: 历史最佳排名
     """
-    
+
     player_id: str
     leaderboard_type: LeaderboardType
     period: LeaderboardPeriod
@@ -215,12 +215,12 @@ class PlayerRankInfo:
     history_rank: int = 0
     rewards_claimed: bool = False
     best_rank: int = 0
-    
+
     @property
     def is_ranked(self) -> bool:
         """是否上榜"""
         return self.rank > 0
-    
+
     @property
     def rank_change_text(self) -> str:
         """排名变化文本"""
@@ -231,8 +231,8 @@ class PlayerRankInfo:
         elif self.history_rank < 0:
             return f"↓{abs(self.history_rank)}"
         return "不变"
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典"""
         return {
             "player_id": self.player_id,
@@ -250,18 +250,18 @@ class PlayerRankInfo:
             "best_rank": self.best_rank,
             "is_ranked": self.is_ranked,
         }
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "PlayerRankInfo":
+    def from_dict(cls, data: dict[str, Any]) -> PlayerRankInfo:
         """从字典创建"""
         leaderboard_type = data.get("leaderboard_type", "tier")
         if isinstance(leaderboard_type, str):
             leaderboard_type = LeaderboardType(leaderboard_type)
-        
+
         period = data.get("period", "weekly")
         if isinstance(period, str):
             period = LeaderboardPeriod(period)
-        
+
         return cls(
             player_id=data["player_id"],
             leaderboard_type=leaderboard_type,
@@ -280,9 +280,9 @@ class PlayerRankInfo:
 class LeaderboardData:
     """
     排行榜数据
-    
+
     表示完整的排行榜数据。
-    
+
     Attributes:
         leaderboard_type: 排行榜类型
         period: 排行榜周期
@@ -294,18 +294,18 @@ class LeaderboardData:
         period_start: 周期开始时间
         period_end: 周期结束时间
     """
-    
+
     leaderboard_type: LeaderboardType
     period: LeaderboardPeriod
-    entries: List[LeaderboardEntry] = field(default_factory=list)
+    entries: list[LeaderboardEntry] = field(default_factory=list)
     total_count: int = 0
     page: int = 1
     page_size: int = 50
-    updated_at: Optional[datetime] = None
-    period_start: Optional[datetime] = None
-    period_end: Optional[datetime] = None
-    
-    def to_dict(self) -> Dict[str, Any]:
+    updated_at: datetime | None = None
+    period_start: datetime | None = None
+    period_end: datetime | None = None
+
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典"""
         return {
             "leaderboard_type": self.leaderboard_type.value,
@@ -316,38 +316,40 @@ class LeaderboardData:
             "total_count": self.total_count,
             "page": self.page,
             "page_size": self.page_size,
-            "total_pages": (self.total_count + self.page_size - 1) // self.page_size if self.page_size > 0 else 0,
+            "total_pages": (self.total_count + self.page_size - 1) // self.page_size
+            if self.page_size > 0
+            else 0,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
             "period_start": self.period_start.isoformat() if self.period_start else None,
             "period_end": self.period_end.isoformat() if self.period_end else None,
         }
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "LeaderboardData":
+    def from_dict(cls, data: dict[str, Any]) -> LeaderboardData:
         """从字典创建"""
         leaderboard_type = data.get("leaderboard_type", "tier")
         if isinstance(leaderboard_type, str):
             leaderboard_type = LeaderboardType(leaderboard_type)
-        
+
         period = data.get("period", "weekly")
         if isinstance(period, str):
             period = LeaderboardPeriod(period)
-        
+
         entries_data = data.get("entries", [])
         entries = [LeaderboardEntry.from_dict(e) for e in entries_data]
-        
+
         updated_at = data.get("updated_at")
         if updated_at and isinstance(updated_at, str):
             updated_at = datetime.fromisoformat(updated_at)
-        
+
         period_start = data.get("period_start")
         if period_start and isinstance(period_start, str):
             period_start = datetime.fromisoformat(period_start)
-        
+
         period_end = data.get("period_end")
         if period_end and isinstance(period_end, str):
             period_end = datetime.fromisoformat(period_end)
-        
+
         return cls(
             leaderboard_type=leaderboard_type,
             period=period,

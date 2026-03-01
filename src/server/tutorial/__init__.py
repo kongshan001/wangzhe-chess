@@ -7,18 +7,18 @@
 - 引导奖励发放
 """
 
-from .models import (
-    TutorialType,
-    TutorialStep,
-    TutorialStepAction,
-    TutorialReward,
-    Tutorial,
-    PlayerTutorialProgress,
-    TutorialHighlight,
-)
 from .manager import (
     TutorialManager,
     get_tutorial_manager,
+)
+from .models import (
+    PlayerTutorialProgress,
+    Tutorial,
+    TutorialHighlight,
+    TutorialReward,
+    TutorialStep,
+    TutorialStepAction,
+    TutorialType,
 )
 
 __all__ = [

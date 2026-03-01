@@ -12,84 +12,72 @@
 - consumable: 道具相关模型
 """
 
-from .friend import (
-    FriendDB,
-    FriendRequestDB,
-    BlockedPlayerDB,
-    PrivateMessageDB,
-    TeamDB,
+from .ai_coach import (
+    AICoachDB,
+    CoachAnalysisDB,
+    LineupRecommendationDB,
+    PlayerLearningDB,
 )
-
-from .leaderboard import (
-    LeaderboardDB,
-    LeaderboardRewardDB,
-    PlayerLeaderboardStatsDB,
-    LeaderboardHistoryDB,
-)
-
 from .checkin import (
     CheckinDB,
     CheckinStreakDB,
 )
-
-from .synergypedia import (
-    SynergypediaDB,
-    SynergyAchievementDB,
+from .consumable import (
+    ConsumableDB,
+    ConsumableEffectDB,
+    ConsumablePurchaseLogDB,
+    ConsumableUsageDB,
 )
-
-from .daily_task import (
-    DailyTaskDB,
-    TaskProgressDB,
-    PlayerDailyStatsDB,
-)
-
 from .custom_room import (
     CustomRoomDB,
     CustomRoomPlayerDB,
     CustomRoomStatsDB,
 )
-
-from .spectator import (
-    SpectatorDB,
-    SpectatorChatDB,
-    SpectatorStatsDB,
+from .daily_task import (
+    DailyTaskDB,
+    PlayerDailyStatsDB,
+    TaskProgressDB,
 )
-
-from .skin import (
-    SkinDB,
-    EquippedSkinDB,
-    SkinPurchaseLogDB,
-)
-
 from .emote import (
     EmoteDB,
-    PlayerEmoteDB,
     EmoteHistoryDB,
     EmoteHotkeyDB,
+    PlayerEmoteDB,
 )
-
+from .friend import (
+    BlockedPlayerDB,
+    FriendDB,
+    FriendRequestDB,
+    PrivateMessageDB,
+    TeamDB,
+)
+from .leaderboard import (
+    LeaderboardDB,
+    LeaderboardHistoryDB,
+    LeaderboardRewardDB,
+    PlayerLeaderboardStatsDB,
+)
 from .replay import (
     ReplayDB,
 )
-
-from .consumable import (
-    ConsumableDB,
-    ConsumableEffectDB,
-    ConsumableUsageDB,
-    ConsumablePurchaseLogDB,
+from .skin import (
+    EquippedSkinDB,
+    SkinDB,
+    SkinPurchaseLogDB,
 )
-
+from .spectator import (
+    SpectatorChatDB,
+    SpectatorDB,
+    SpectatorStatsDB,
+)
+from .synergypedia import (
+    SynergyAchievementDB,
+    SynergypediaDB,
+)
 from .trading import (
     TradeDB,
-    TradeItemDB,
     TradeHistoryDB,
-)
-
-from .ai_coach import (
-    AICoachDB,
-    CoachAnalysisDB,
-    PlayerLearningDB,
-    LineupRecommendationDB,
+    TradeItemDB,
 )
 
 __all__ = [

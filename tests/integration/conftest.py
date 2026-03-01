@@ -10,10 +10,9 @@
 import asyncio
 import os
 import sys
+from collections.abc import Generator
 from pathlib import Path
-from typing import AsyncGenerator, Generator
-from unittest.mock import AsyncMock, MagicMock, patch
-from datetime import date, datetime
+from unittest.mock import MagicMock
 
 import pytest
 import pytest_asyncio
@@ -23,15 +22,13 @@ src_path = Path(__file__).parent.parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
 # 测试数据库配置
-TEST_DATABASE_URL = os.getenv(
-    "TEST_DATABASE_URL",
-    "sqlite+aiosqlite:///:memory:"
-)
+TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL", "sqlite+aiosqlite:///:memory:")
 
 
 # ============================================================================
 # 事件循环
 # ============================================================================
+
 
 @pytest.fixture(scope="session")
 def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
@@ -45,25 +42,26 @@ def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
 # 数据库 Fixtures
 # ============================================================================
 
+
 @pytest_asyncio.fixture
 async def test_db_session():
     """创建测试数据库会话"""
-    from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
-    
+    from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+
     engine = create_async_engine(
         TEST_DATABASE_URL,
         echo=False,
     )
-    
+
     async_session = async_sessionmaker(
         engine,
         class_=AsyncSession,
         expire_on_commit=False,
     )
-    
+
     async with async_session() as session:
         yield session
-    
+
     await engine.dispose()
 
 
@@ -71,20 +69,21 @@ async def test_db_session():
 async def test_db_engine():
     """创建测试数据库引擎"""
     from sqlalchemy.ext.asyncio import create_async_engine
-    
+
     engine = create_async_engine(
         TEST_DATABASE_URL,
         echo=False,
     )
-    
+
     yield engine
-    
+
     await engine.dispose()
 
 
 # ============================================================================
 # 玩家 Fixtures
 # ============================================================================
+
 
 @pytest.fixture
 def sample_player_id() -> str:
@@ -116,6 +115,7 @@ def sample_players() -> list[dict]:
 # ============================================================================
 # 英雄 Fixtures
 # ============================================================================
+
 
 @pytest.fixture
 def sample_hero_config() -> dict:
@@ -183,10 +183,12 @@ def sample_hero_config() -> dict:
 # 管理器 Fixtures
 # ============================================================================
 
+
 @pytest.fixture
 def friendship_manager():
     """创建好友管理器"""
     from src.server.friendship import FriendshipManager
+
     return FriendshipManager()
 
 
@@ -194,6 +196,7 @@ def friendship_manager():
 def crafting_manager():
     """创建装备合成管理器"""
     from src.server.game.crafting.manager import CraftingManager
+
     return CraftingManager()
 
 
@@ -201,6 +204,7 @@ def crafting_manager():
 def checkin_manager():
     """创建签到管理器"""
     from src.server.checkin.manager import CheckinManager
+
     manager = CheckinManager()
     manager.clear_cache()
     return manager
@@ -210,16 +214,18 @@ def checkin_manager():
 def leaderboard_manager():
     """创建排行榜管理器"""
     from src.server.leaderboard.manager import LeaderboardManager
+
     return LeaderboardManager()
 
 
 @pytest.fixture
 def tutorial_manager():
     """创建新手引导管理器"""
-    from src.server.tutorial.manager import TutorialManager
     import json
     import tempfile
-    
+
+    from src.server.tutorial.manager import TutorialManager
+
     # 使用正确的 TutorialType 值
     config_data = {
         "version": "1.0.0",
@@ -285,16 +291,14 @@ def tutorial_manager():
             },
         ],
     }
-    
-    with tempfile.NamedTemporaryFile(
-        mode='w', suffix='.json', delete=False, encoding='utf-8'
-    ) as f:
+
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False, encoding="utf-8") as f:
         json.dump(config_data, f, ensure_ascii=False)
         temp_path = f.name
-    
+
     manager = TutorialManager(config_path=temp_path)
     yield manager
-    
+
     # 清理
     os.unlink(temp_path)
 
@@ -302,9 +306,9 @@ def tutorial_manager():
 @pytest.fixture
 def synergypedia_manager(sample_hero_config):
     """创建羁绊图鉴管理器"""
-    from src.server.synergypedia.manager import SynergypediaManager
     from src.server.game.synergy import SynergyManager
-    
+    from src.server.synergypedia.manager import SynergypediaManager
+
     # 创建英雄配置对象
     hero_configs = {}
     for hero_id, config in sample_hero_config.items():
@@ -319,7 +323,7 @@ def synergypedia_manager(sample_hero_config):
             base_defense=config["base_defense"],
             attack_speed=config["attack_speed"],
         )
-    
+
     manager = SynergypediaManager(
         synergy_manager=SynergyManager(),
         hero_configs=hero_configs,
@@ -331,6 +335,7 @@ def synergypedia_manager(sample_hero_config):
 def custom_room_manager():
     """创建自定义房间管理器"""
     from src.server.custom_room.manager import CustomRoomManager
+
     return CustomRoomManager()
 
 
@@ -338,6 +343,7 @@ def custom_room_manager():
 def daily_task_manager():
     """创建每日任务管理器"""
     from src.server.daily_task.manager import DailyTaskManager
+
     return DailyTaskManager()
 
 
@@ -345,9 +351,11 @@ def daily_task_manager():
 # 辅助函数
 # ============================================================================
 
+
 @pytest.fixture
 def create_test_friendship(friendship_manager):
     """创建测试好友关系"""
+
     def _create(player1_id: str, player2_id: str):
         # 发送好友请求
         request = friendship_manager.send_friend_request(
@@ -358,16 +366,20 @@ def create_test_friendship(friendship_manager):
         if request:
             friendship_manager.accept_friend_request(request.request_id)
         return friendship_manager.is_friend(player1_id, player2_id)
+
     return _create
 
 
 @pytest.fixture
 def create_test_inventory(crafting_manager):
     """创建测试装备背包"""
+
     def _create(equipment: dict[str, int], gold: int = 1000):
         from src.server.game.crafting.manager import PlayerInventory
+
         inventory = PlayerInventory(equipment=equipment.copy(), gold=gold)
         return inventory
+
     return _create
 
 
@@ -375,14 +387,9 @@ def create_test_inventory(crafting_manager):
 # 异步测试标记
 # ============================================================================
 
+
 def pytest_configure(config):
     """pytest 配置"""
-    config.addinivalue_line(
-        "markers", "integration: mark test as integration test"
-    )
-    config.addinivalue_line(
-        "markers", "slow: mark test as slow running"
-    )
-    config.addinivalue_line(
-        "markers", "db: mark test requiring database"
-    )
+    config.addinivalue_line("markers", "integration: mark test as integration test")
+    config.addinivalue_line("markers", "slow: mark test as slow running")
+    config.addinivalue_line("markers", "db: mark test requiring database")

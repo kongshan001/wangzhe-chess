@@ -8,6 +8,10 @@
 - 结果公示
 """
 
+from .manager import (
+    VotingManager,
+    get_voting_manager,
+)
 from .models import (
     DEFAULT_PARTICIPATION_REWARDS,
     DEFAULT_WIN_BONUS_REWARDS,
@@ -21,11 +25,6 @@ from .models import (
     VotingReward,
     VotingStatus,
     VotingType,
-)
-
-from .manager import (
-    VotingManager,
-    get_voting_manager,
 )
 
 __all__ = [

@@ -11,18 +11,14 @@ import time
 import pytest
 
 from server.game.equipment import (
-    CraftResult,
-    EquipResult,
     EquipmentErrorCode,
     EquipmentInstance,
     EquipmentManager,
     EquipmentService,
     EquipmentStats,
-    UnequipResult,
     create_equipment_service,
 )
 from shared.models import Hero
-
 
 # ============================================================================
 # 测试固件

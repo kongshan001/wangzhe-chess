@@ -8,21 +8,19 @@
 - 背包容量管理
 """
 
-import pytest
-from unittest.mock import patch, MagicMock
 import json
 import tempfile
+
+import pytest
 
 from src.server.game.crafting.manager import (
     CraftingManager,
     PlayerInventory,
-    create_crafting_manager,
 )
 from src.server.game.crafting.models import (
-    CraftingRecipe,
     CraftingMaterial,
+    CraftingRecipe,
     CraftingResult,
-    Rarity,
     SpecialEffect,
     SpecialEffectType,
 )
@@ -34,15 +32,15 @@ class TestPlayerInventoryIntegration:
     def test_add_equipment(self):
         """测试添加装备"""
         inventory = PlayerInventory()
-        
+
         # 添加装备
         inventory.add_equipment("sword_001", 1)
         assert inventory.get_equipment_count("sword_001") == 1
-        
+
         # 添加多件
         inventory.add_equipment("sword_001", 3)
         assert inventory.get_equipment_count("sword_001") == 4
-        
+
         # 添加不同装备
         inventory.add_equipment("shield_001", 2)
         assert inventory.get_equipment_count("shield_001") == 2
@@ -50,12 +48,12 @@ class TestPlayerInventoryIntegration:
     def test_remove_equipment(self):
         """测试移除装备"""
         inventory = PlayerInventory(equipment={"sword_001": 5}, gold=100)
-        
+
         # 移除装备
         result = inventory.remove_equipment("sword_001", 2)
         assert result is True
         assert inventory.get_equipment_count("sword_001") == 3
-        
+
         # 移除超过拥有数量
         result = inventory.remove_equipment("sword_001", 10)
         assert result is False
@@ -64,7 +62,7 @@ class TestPlayerInventoryIntegration:
     def test_remove_equipment_clears_zero_count(self):
         """测试移除最后一件装备后清除记录"""
         inventory = PlayerInventory(equipment={"sword_001": 2})
-        
+
         result = inventory.remove_equipment("sword_001", 2)
         assert result is True
         assert "sword_001" not in inventory.equipment
@@ -72,7 +70,7 @@ class TestPlayerInventoryIntegration:
     def test_has_equipment(self):
         """测试检查装备拥有"""
         inventory = PlayerInventory(equipment={"sword_001": 5})
-        
+
         assert inventory.has_equipment("sword_001", 1) is True
         assert inventory.has_equipment("sword_001", 5) is True
         assert inventory.has_equipment("sword_001", 6) is False
@@ -80,16 +78,13 @@ class TestPlayerInventoryIntegration:
 
     def test_inventory_serialization(self):
         """测试背包序列化"""
-        inventory = PlayerInventory(
-            equipment={"sword_001": 5, "shield_001": 2},
-            gold=1000
-        )
-        
+        inventory = PlayerInventory(equipment={"sword_001": 5, "shield_001": 2}, gold=1000)
+
         # 序列化
         data = inventory.to_dict()
         assert data["equipment"]["sword_001"] == 5
         assert data["gold"] == 1000
-        
+
         # 反序列化
         loaded = PlayerInventory.from_dict(data)
         assert loaded.get_equipment_count("sword_001") == 5
@@ -111,13 +106,13 @@ class TestCraftingRecipeIntegration:
             gold_cost=100,
             success_rate=1.0,
         )
-        
+
         # 完全匹配
         assert recipe.matches_materials(["iron_001", "iron_001", "wood_001"]) is True
-        
+
         # 部分匹配
         assert recipe.matches_materials(["iron_001", "wood_001"]) is False
-        
+
         # 多余材料
         assert recipe.matches_materials(["iron_001", "iron_001", "wood_001", "gem_001"]) is False
 
@@ -132,11 +127,11 @@ class TestCraftingRecipeIntegration:
             gold_cost=100,
             success_rate=0.9,
         )
-        
+
         # 序列化
         data = recipe.to_dict()
         assert data["recipe_id"] == "recipe_001"
-        
+
         # 反序列化
         loaded = CraftingRecipe.from_dict(data)
         assert loaded.recipe_id == "recipe_001"
@@ -149,7 +144,7 @@ class TestCraftingManagerIntegration:
     def manager_with_recipes(self):
         """创建带有配方的合成管理器"""
         manager = CraftingManager()
-        
+
         # 添加测试配方
         recipes = [
             CraftingRecipe(
@@ -171,28 +166,28 @@ class TestCraftingManagerIntegration:
                 success_rate=1.0,
             ),
         ]
-        
+
         for recipe in recipes:
             manager.add_recipe(recipe)
-        
+
         return manager
 
     def test_add_recipe(self, manager_with_recipes):
         """测试添加配方"""
         manager = manager_with_recipes
-        
+
         assert manager.get_recipe_count() == 2
         assert manager.get_recipe("recipe_sword") is not None
 
     def test_find_matching_recipes(self, manager_with_recipes):
         """测试查找匹配配方"""
         manager = manager_with_recipes
-        
+
         # 查找铁剑配方
         matches = manager.find_matching_recipes(["iron", "iron"])
         assert len(matches) == 1
         assert matches[0].recipe_id == "recipe_sword"
-        
+
         # 无匹配
         matches = manager.find_matching_recipes(["unknown"])
         assert len(matches) == 0
@@ -210,30 +205,29 @@ class TestCraftingWithDatabaseIntegration:
                 {
                     "recipe_id": "db_recipe_001",
                     "result_id": "result_001",
-                    "materials": [
-                        {"equipment_id": "mat_001", "quantity": 2}
-                    ],
+                    "materials": [{"equipment_id": "mat_001", "quantity": 2}],
                     "gold_cost": 100,
                     "success_rate": 1.0,
                 }
-            ]
+            ],
         }
-        
+
         with tempfile.NamedTemporaryFile(
-            mode='w', suffix='.json', delete=False, encoding='utf-8'
+            mode="w", suffix=".json", delete=False, encoding="utf-8"
         ) as f:
             json.dump(config_data, f)
             temp_path = f.name
-        
+
         yield temp_path
-        
+
         import os
+
         os.unlink(temp_path)
 
     def test_load_recipes_from_file(self, config_file):
         """测试从配置文件加载配方"""
         manager = CraftingManager(config_path=config_file)
-        
+
         assert manager.get_recipe_count() == 1
         recipe = manager.get_recipe("db_recipe_001")
         assert recipe is not None
@@ -245,18 +239,18 @@ class TestInventoryLimits:
     def test_inventory_gold_operations(self):
         """测试金币操作"""
         inventory = PlayerInventory(gold=1000)
-        
+
         # 直接操作金币
         inventory.gold -= 500
         assert inventory.gold == 500
-        
+
         inventory.gold += 300
         assert inventory.gold == 800
 
     def test_multiple_equipment_types(self):
         """测试多种装备类型"""
         inventory = PlayerInventory()
-        
+
         # 添加多种装备
         equipment_types = {
             "sword_001": 5,
@@ -265,10 +259,10 @@ class TestInventoryLimits:
             "boots_001": 4,
             "ring_001": 1,
         }
-        
+
         for eq_id, count in equipment_types.items():
             inventory.add_equipment(eq_id, count)
-        
+
         # 验证所有装备
         for eq_id, count in equipment_types.items():
             assert inventory.get_equipment_count(eq_id) == count
@@ -280,7 +274,7 @@ class TestInventoryLimits:
             value=10.0,
             duration=3.0,
         )
-        
+
         assert effect.effect_type == SpecialEffectType.BURN
         assert effect.value == 10.0
 
@@ -292,11 +286,11 @@ class TestInventoryLimits:
             duration=5.0,
             trigger_chance=0.5,
         )
-        
+
         data = effect.to_dict()
         assert data["effect_type"] == "lifesteal"
         assert data["value"] == 15.0
-        
+
         loaded = SpecialEffect.from_dict(data)
         assert loaded.effect_type == SpecialEffectType.LIFESTEAL
         assert loaded.value == 15.0
@@ -313,7 +307,7 @@ class TestCraftingResult:
             gold_spent=100,
             materials_consumed=["iron", "iron"],
         )
-        
+
         assert result.success is True
         assert result.result_equipment_id == "sword_001"
 
@@ -324,7 +318,7 @@ class TestCraftingResult:
             error_message="合成失败",
             gold_spent=100,
         )
-        
+
         assert result.success is False
         assert "失败" in result.error_message
 
@@ -336,7 +330,7 @@ class TestCraftingResult:
             gold_spent=100,
             materials_consumed=["iron", "iron"],
         )
-        
+
         data = result.to_dict()
         assert data["success"] is True
         assert data["result_equipment_id"] == "sword_001"

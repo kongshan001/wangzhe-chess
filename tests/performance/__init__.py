@@ -1,4 +1,1 @@
-{
-  "name": "tests.performance",
-  "version": "1.0.0"
-}
+{"name": "tests.performance", "version": "1.0.0"}

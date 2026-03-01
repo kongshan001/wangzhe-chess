@@ -7,6 +7,10 @@
 - 道具效果计算
 """
 
+from .manager import (
+    ConsumableManager,
+    get_consumable_manager,
+)
 from .models import (
     ActiveConsumableEffect,
     ConsumableEffect,
@@ -17,11 +21,6 @@ from .models import (
     ConsumableType,
     ConsumableUsage,
     PlayerConsumable,
-)
-
-from .manager import (
-    ConsumableManager,
-    get_consumable_manager,
 )
 
 __all__ = [

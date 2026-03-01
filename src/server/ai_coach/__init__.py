@@ -15,6 +15,11 @@
 - 便捷函数
 """
 
+from .manager import (
+    META_LINEUPS,
+    AICoachManager,
+    get_ai_coach_manager,
+)
 from .models import (
     AISuggestion,
     AnalysisType,
@@ -30,18 +35,10 @@ from .models import (
     WinRatePrediction,
 )
 
-from .manager import (
-    AICoachManager,
-    get_ai_coach_manager,
-    META_LINEUPS,
-)
-
-
 __all__ = [
     # 管理器
     "AICoachManager",
     "get_ai_coach_manager",
-    
     # 数据模型
     "AISuggestion",
     "AnalysisType",
@@ -55,7 +52,6 @@ __all__ = [
     "RoundStrategy",
     "SuggestionType",
     "WinRatePrediction",
-    
     # 常量
     "META_LINEUPS",
 ]

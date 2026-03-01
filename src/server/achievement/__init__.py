@@ -9,15 +9,15 @@
 - AchievementManager: 成就管理器
 """
 
+from .manager import AchievementManager
 from .models import (
     Achievement,
+    AchievementCategory,
     AchievementRequirement,
     AchievementReward,
-    PlayerAchievement,
-    AchievementCategory,
     AchievementTier,
+    PlayerAchievement,
 )
-from .manager import AchievementManager
 
 __all__ = [
     "Achievement",

@@ -14,19 +14,19 @@
 - 幸运轮盘：随机获得奖励
 """
 
-from .models import (
-    RandomEvent,
-    EventEffect,
-    EventEffectType,
-    EventType,
-    EventRarity,
-    EventTrigger,
-    EventHistoryEntry,
-)
 from .manager import (
     RandomEventManager,
     create_random_event_manager,
     get_random_event_manager,
+)
+from .models import (
+    EventEffect,
+    EventEffectType,
+    EventHistoryEntry,
+    EventRarity,
+    EventTrigger,
+    EventType,
+    RandomEvent,
 )
 
 __all__ = [

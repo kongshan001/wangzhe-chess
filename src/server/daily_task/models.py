@@ -15,47 +15,49 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, date
+from datetime import date, datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class TaskType(Enum):
     """任务类型枚举"""
+
     # 对局类
-    PLAY_GAMES = "play_games"              # 参与对局 X 次
-    WIN_GAMES = "win_games"                # 获胜 X 次
-    TOP_FINISH = "top_finish"              # 获得前 X 名
-    FIRST_PLACE = "first_place"            # 获得第一名
+    PLAY_GAMES = "play_games"  # 参与对局 X 次
+    WIN_GAMES = "win_games"  # 获胜 X 次
+    TOP_FINISH = "top_finish"  # 获得前 X 名
+    FIRST_PLACE = "first_place"  # 获得第一名
 
     # 羁绊类
-    USE_SYNERGY = "use_synergy"            # 使用某羁绊英雄
+    USE_SYNERGY = "use_synergy"  # 使用某羁绊英雄
     ACTIVATE_SYNERGY = "activate_synergy"  # 激活某羁绊
 
     # 战斗类
-    DEAL_DAMAGE = "deal_damage"            # 累计造成伤害
-    KILL_HEROES = "kill_heroes"            # 累计击杀英雄
-    PERFECT_WIN = "perfect_win"            # 完美胜利次数
+    DEAL_DAMAGE = "deal_damage"  # 累计造成伤害
+    KILL_HEROES = "kill_heroes"  # 累计击杀英雄
+    PERFECT_WIN = "perfect_win"  # 完美胜利次数
 
     # 经济类
-    EARN_GOLD = "earn_gold"                # 累计获得金币
-    SPEND_GOLD = "spend_gold"              # 累计花费金币
-    SAVE_GOLD = "save_gold"                # 单局保留金币
+    EARN_GOLD = "earn_gold"  # 累计获得金币
+    SPEND_GOLD = "spend_gold"  # 累计花费金币
+    SAVE_GOLD = "save_gold"  # 单局保留金币
 
     # 收集类
-    COLLECT_2STAR = "collect_2star"        # 合成2星英雄
-    COLLECT_3STAR = "collect_3star"        # 合成3星英雄
-    BUY_HEROES = "buy_heroes"              # 购买英雄
+    COLLECT_2STAR = "collect_2star"  # 合成2星英雄
+    COLLECT_3STAR = "collect_3star"  # 合成3星英雄
+    BUY_HEROES = "buy_heroes"  # 购买英雄
 
     # 社交类
-    TEAM_PLAY = "team_play"                # 组队游戏
+    TEAM_PLAY = "team_play"  # 组队游戏
 
 
 class TaskDifficulty(Enum):
     """任务难度枚举"""
-    EASY = 1      # 简单任务
-    NORMAL = 2    # 普通任务
-    HARD = 3      # 困难任务
+
+    EASY = 1  # 简单任务
+    NORMAL = 2  # 普通任务
+    HARD = 3  # 困难任务
 
     @property
     def display_name(self) -> str:
@@ -82,26 +84,27 @@ class TaskDifficulty(Enum):
 class TaskRequirement:
     """
     任务需求条件
-    
+
     定义完成任务所需满足的条件。
-    
+
     Attributes:
         type: 任务类型
         target: 目标数值
         conditions: 附加条件 (如特定英雄、羁绊等)
     """
+
     type: TaskType
     target: int
-    conditions: Dict[str, Any] = field(default_factory=dict)
+    conditions: dict[str, Any] = field(default_factory=dict)
 
     def check_progress(self, current_value: int, **kwargs) -> int:
         """
         检查进度
-        
+
         Args:
             current_value: 当前值
             **kwargs: 附加参数用于条件检查
-            
+
         Returns:
             当前进度（可用于显示进度条）
         """
@@ -111,17 +114,17 @@ class TaskRequirement:
                 actual_value = kwargs.get(key)
                 if actual_value != required_value:
                     return 0
-        
+
         return min(current_value, self.target)
 
     def is_completed(self, current_value: int, **kwargs) -> bool:
         """
         检查是否完成
-        
+
         Args:
             current_value: 当前值
             **kwargs: 附加参数
-            
+
         Returns:
             是否完成
         """
@@ -130,7 +133,7 @@ class TaskRequirement:
     def get_description(self) -> str:
         """
         获取任务描述
-        
+
         Returns:
             任务描述字符串
         """
@@ -154,7 +157,7 @@ class TaskRequirement:
         }
         return descriptions.get(self.type, f"完成任务 ({self.type.value})")
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典"""
         return {
             "type": self.type.value,
@@ -163,12 +166,12 @@ class TaskRequirement:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "TaskRequirement":
+    def from_dict(cls, data: dict[str, Any]) -> TaskRequirement:
         """从字典创建"""
         req_type = data.get("type", "play_games")
         if isinstance(req_type, str):
             req_type = TaskType(req_type)
-        
+
         return cls(
             type=req_type,
             target=data.get("target", 1),
@@ -180,21 +183,22 @@ class TaskRequirement:
 class TaskReward:
     """
     任务奖励
-    
+
     定义完成任务后获得的奖励。
-    
+
     Attributes:
         gold: 金币奖励
         exp: 经验值奖励
         equipment_shards: 装备碎片奖励
         hero_shards: 英雄碎片奖励
     """
+
     gold: int = 0
     exp: int = 0
-    equipment_shards: Dict[str, int] = field(default_factory=dict)
-    hero_shards: Dict[str, int] = field(default_factory=dict)
+    equipment_shards: dict[str, int] = field(default_factory=dict)
+    hero_shards: dict[str, int] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典"""
         return {
             "gold": self.gold,
@@ -204,7 +208,7 @@ class TaskReward:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "TaskReward":
+    def from_dict(cls, data: dict[str, Any]) -> TaskReward:
         """从字典创建"""
         return cls(
             gold=data.get("gold", 0),
@@ -227,9 +231,9 @@ class TaskReward:
 class DailyTask:
     """
     每日任务信息
-    
+
     定义一个每日任务的完整信息。
-    
+
     Attributes:
         task_id: 任务唯一ID
         template_id: 任务模板ID
@@ -240,6 +244,7 @@ class DailyTask:
         difficulty: 任务难度
         icon: 图标ID
     """
+
     task_id: str
     template_id: str
     name: str
@@ -249,7 +254,7 @@ class DailyTask:
     difficulty: TaskDifficulty = TaskDifficulty.NORMAL
     icon: str = ""
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典"""
         return {
             "task_id": self.task_id,
@@ -264,7 +269,7 @@ class DailyTask:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "DailyTask":
+    def from_dict(cls, data: dict[str, Any]) -> DailyTask:
         """从字典创建"""
         difficulty = data.get("difficulty", 2)
         if isinstance(difficulty, int):
@@ -272,19 +277,19 @@ class DailyTask:
         elif isinstance(difficulty, str):
             difficulty_map = {"easy": 1, "normal": 2, "hard": 3}
             difficulty = TaskDifficulty(difficulty_map.get(difficulty, 2))
-        
+
         requirement_data = data.get("requirement", {})
         if isinstance(requirement_data, dict):
             requirement = TaskRequirement.from_dict(requirement_data)
         else:
             requirement = requirement_data
-        
+
         rewards_data = data.get("rewards", {})
         if isinstance(rewards_data, dict):
             rewards = TaskReward.from_dict(rewards_data)
         else:
             rewards = rewards_data
-        
+
         return cls(
             task_id=data["task_id"],
             template_id=data.get("template_id", data["task_id"]),
@@ -301,9 +306,9 @@ class DailyTask:
 class TaskProgress:
     """
     玩家任务进度
-    
+
     记录玩家在某个任务上的进度。
-    
+
     Attributes:
         player_id: 玩家ID
         task_id: 任务ID
@@ -315,44 +320,45 @@ class TaskProgress:
         claimed_at: 领取时间（可选）
         refreshed: 是否被刷新过
     """
+
     player_id: str
     task_id: str
     task_date: date
     progress: int = 0
     completed: bool = False
-    completed_at: Optional[datetime] = None
+    completed_at: datetime | None = None
     claimed: bool = False
-    claimed_at: Optional[datetime] = None
+    claimed_at: datetime | None = None
     refreshed: bool = False
 
     def update_progress(self, value: int, target: int) -> bool:
         """
         更新进度
-        
+
         Args:
             value: 新的进度值
             target: 目标值
-            
+
         Returns:
             是否刚完成
         """
         self.progress = value
-        
+
         if not self.completed and self.progress >= target:
             self.completed = True
             self.completed_at = datetime.now()
             return True
-        
+
         return False
 
     def add_progress(self, delta: int, target: int) -> bool:
         """
         增加进度
-        
+
         Args:
             delta: 进度增量
             target: 目标值
-            
+
         Returns:
             是否刚完成
         """
@@ -361,13 +367,13 @@ class TaskProgress:
     def claim_reward(self) -> bool:
         """
         领取奖励
-        
+
         Returns:
             是否成功领取
         """
         if not self.completed or self.claimed:
             return False
-        
+
         self.claimed = True
         self.claimed_at = datetime.now()
         return True
@@ -393,7 +399,7 @@ class TaskProgress:
         """是否已过期（非当天）"""
         return self.task_date < date.today()
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典"""
         return {
             "player_id": self.player_id,
@@ -410,7 +416,7 @@ class TaskProgress:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "TaskProgress":
+    def from_dict(cls, data: dict[str, Any]) -> TaskProgress:
         """从字典创建"""
         task_date = data.get("task_date")
         if task_date:
@@ -418,15 +424,15 @@ class TaskProgress:
                 task_date = date.fromisoformat(task_date)
         else:
             task_date = date.today()
-        
+
         completed_at = data.get("completed_at")
         if completed_at and isinstance(completed_at, str):
             completed_at = datetime.fromisoformat(completed_at)
-        
+
         claimed_at = data.get("claimed_at")
         if claimed_at and isinstance(claimed_at, str):
             claimed_at = datetime.fromisoformat(claimed_at)
-        
+
         return cls(
             player_id=data["player_id"],
             task_id=data["task_id"],
@@ -444,9 +450,9 @@ class TaskProgress:
 class TaskTemplate:
     """
     任务模板
-    
+
     定义用于生成每日任务的模板。
-    
+
     Attributes:
         template_id: 模板唯一ID
         name: 任务名称
@@ -457,6 +463,7 @@ class TaskTemplate:
         weight: 出现权重
         icon: 图标ID
     """
+
     template_id: str
     name: str
     description: str
@@ -469,17 +476,17 @@ class TaskTemplate:
     def generate_task(self, task_id: str, difficulty_multiplier: float = 1.0) -> DailyTask:
         """
         生成具体任务
-        
+
         Args:
             task_id: 任务ID
             difficulty_multiplier: 难度倍数
-            
+
         Returns:
             DailyTask 实例
         """
         # 调整目标值
         adjusted_target = max(1, int(self.requirement.target * difficulty_multiplier))
-        
+
         # 调整奖励
         adjusted_rewards = TaskReward(
             gold=int(self.rewards.gold * difficulty_multiplier),
@@ -493,14 +500,14 @@ class TaskTemplate:
                 for k, v in self.rewards.hero_shards.items()
             },
         )
-        
+
         # 创建需求
         adjusted_requirement = TaskRequirement(
             type=self.requirement.type,
             target=adjusted_target,
             conditions=self.requirement.conditions.copy(),
         )
-        
+
         return DailyTask(
             task_id=task_id,
             template_id=self.template_id,
@@ -512,7 +519,7 @@ class TaskTemplate:
             icon=self.icon,
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典"""
         return {
             "template_id": self.template_id,
@@ -526,7 +533,7 @@ class TaskTemplate:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "TaskTemplate":
+    def from_dict(cls, data: dict[str, Any]) -> TaskTemplate:
         """从字典创建"""
         difficulty = data.get("difficulty", 2)
         if isinstance(difficulty, int):
@@ -534,19 +541,19 @@ class TaskTemplate:
         elif isinstance(difficulty, str):
             difficulty_map = {"easy": 1, "normal": 2, "hard": 3}
             difficulty = TaskDifficulty(difficulty_map.get(difficulty, 2))
-        
+
         requirement_data = data.get("requirement", {})
         if isinstance(requirement_data, dict):
             requirement = TaskRequirement.from_dict(requirement_data)
         else:
             requirement = requirement_data
-        
+
         rewards_data = data.get("rewards", {})
         if isinstance(rewards_data, dict):
             rewards = TaskReward.from_dict(rewards_data)
         else:
             rewards = rewards_data
-        
+
         return cls(
             template_id=data["template_id"],
             name=data["name"],

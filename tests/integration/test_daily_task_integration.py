@@ -8,18 +8,18 @@
 - 任务完成验证
 """
 
+from datetime import date
+
 import pytest
-from datetime import datetime, date
-from unittest.mock import MagicMock, patch
 
 from src.server.daily_task import (
-    DailyTaskManager,
     DailyTask,
+    DailyTaskManager,
+    TaskDifficulty,
     TaskProgress,
     TaskRequirement,
     TaskReward,
     TaskType,
-    TaskDifficulty,
 )
 
 
@@ -86,7 +86,7 @@ class TestDailyTaskIntegration:
     def test_create_daily_task(self, sample_tasks):
         """测试创建每日任务"""
         task = sample_tasks[0]
-        
+
         assert task.task_id == "task_play_3"
         assert task.requirement.type == TaskType.PLAY_GAMES
         assert task.rewards.gold == 100
@@ -95,24 +95,24 @@ class TestDailyTaskIntegration:
         """测试任务进度更新"""
         player_id = "player_001"
         task = sample_tasks[0]
-        
+
         # 初始化进度
         progress = TaskProgress(
             player_id=player_id,
             task_id=task.task_id,
             task_date=date.today(),
         )
-        
+
         # 更新进度
         progress.update_progress(1, 3)
         assert progress.progress == 1
-        
+
         progress.update_progress(2, 3)
         assert progress.progress == 2
-        
+
         progress.update_progress(3, 3)
         assert progress.progress == 3
-        
+
         # 检查是否完成
         assert progress.completed is True
 
@@ -124,11 +124,11 @@ class TestDailyTaskIntegration:
             task_id=task.task_id,
             task_date=date.today(),
         )
-        
+
         # 未完成
         progress.update_progress(2, 3)
         assert not progress.completed
-        
+
         # 完成
         progress.update_progress(3, 3)
         assert progress.completed
@@ -157,7 +157,7 @@ class TestTaskAndGameIntegration:
             exp=50,
             hero_shards={"hero_001": 5},
         )
-        
+
         value = reward.total_value
         assert value > 100  # 应该包含金币和其他价值
 
@@ -172,15 +172,15 @@ class TestTaskProgressIntegration:
             task_id="task_001",
             task_date=date.today(),
         )
-        
+
         # 未完成时不能领取
         assert not progress.claim_reward()
-        
+
         # 完成后可以领取
         progress.update_progress(3, 3)
         assert progress.completed
         assert progress.claim_reward()
-        
+
         # 已领取不能重复领取
         assert not progress.claim_reward()
 
@@ -194,9 +194,9 @@ class TestTaskProgressIntegration:
             completed=True,
             claimed=True,
         )
-        
+
         progress.reset()
-        
+
         assert progress.progress == 0
         assert not progress.completed
         assert not progress.claimed
@@ -209,11 +209,11 @@ class TestTaskProgressIntegration:
             task_date=date.today(),
             progress=2,
         )
-        
+
         data = progress.to_dict()
         assert data["player_id"] == "player_001"
         assert data["progress"] == 2
-        
+
         loaded = TaskProgress.from_dict(data)
         assert loaded.player_id == "player_001"
         assert loaded.progress == 2
@@ -255,7 +255,7 @@ class TestTaskTypeIntegration:
             target=5,
             conditions={"synergy_name": "战士"},
         )
-        
+
         desc = req.get_description()
         assert "战士" in desc
 
@@ -274,11 +274,11 @@ class TestDailyTaskSerialization:
             rewards=TaskReward(gold=100),
             difficulty=TaskDifficulty.NORMAL,
         )
-        
+
         data = task.to_dict()
         assert data["task_id"] == "task_001"
         assert data["name"] == "测试任务"
-        
+
         loaded = DailyTask.from_dict(data)
         assert loaded.task_id == "task_001"
         assert loaded.name == "测试任务"
@@ -290,10 +290,10 @@ class TestDailyTaskSerialization:
             exp=50,
             hero_shards={"hero_001": 5},
         )
-        
+
         data = reward.to_dict()
         assert data["gold"] == 100
-        
+
         loaded = TaskReward.from_dict(data)
         assert loaded.gold == 100
         assert loaded.hero_shards == {"hero_001": 5}

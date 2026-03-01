@@ -12,41 +12,40 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional, List
+from typing import Any
 
 from sqlalchemy import (
+    JSON,
     DateTime,
     ForeignKey,
     Integer,
     String,
-    Text,
-    Boolean,
-    JSON,
     func,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .base import Base, IdMixin, TimestampMixin
+from .base import Base, IdMixin
 
 
 class MatchStatus(str, Enum):
     """对局状态枚举"""
-    WAITING = "waiting"      # 等待玩家
+
+    WAITING = "waiting"  # 等待玩家
     IN_PROGRESS = "in_progress"  # 进行中
-    FINISHED = "finished"    # 已结束
+    FINISHED = "finished"  # 已结束
     CANCELLED = "cancelled"  # 已取消
 
 
 class MatchRecordDB(Base, IdMixin):
     """
     对局记录模型
-    
+
     存储每局游戏的基本信息：
     - 对局ID
     - 开始/结束时间
     - 对局状态
     - 游戏配置
-    
+
     Attributes:
         id: 对局唯一ID（主键）
         match_id: 对局业务ID（UUID）
@@ -59,9 +58,9 @@ class MatchRecordDB(Base, IdMixin):
         config: 游戏配置（JSON）
         player_results: 关联的玩家结果列表
     """
-    
+
     __tablename__ = "match_records"
-    
+
     # 基本信息
     match_id: Mapped[str] = mapped_column(
         String(36),
@@ -70,13 +69,13 @@ class MatchRecordDB(Base, IdMixin):
         index=True,
         comment="对局业务ID（UUID）",
     )
-    room_id: Mapped[Optional[str]] = mapped_column(
+    room_id: Mapped[str | None] = mapped_column(
         String(36),
         nullable=True,
         index=True,
         comment="房间ID",
     )
-    
+
     # 状态信息
     status: Mapped[str] = mapped_column(
         String(20),
@@ -90,14 +89,14 @@ class MatchRecordDB(Base, IdMixin):
         nullable=False,
         comment="总回合数",
     )
-    
+
     # 时间信息
-    start_time: Mapped[Optional[datetime]] = mapped_column(
+    start_time: Mapped[datetime | None] = mapped_column(
         DateTime,
         nullable=True,
         comment="开始时间",
     )
-    end_time: Mapped[Optional[datetime]] = mapped_column(
+    end_time: Mapped[datetime | None] = mapped_column(
         DateTime,
         nullable=True,
         comment="结束时间",
@@ -108,73 +107,71 @@ class MatchRecordDB(Base, IdMixin):
         nullable=False,
         comment="对局时长（秒）",
     )
-    
+
     # 游戏配置
-    config: Mapped[Optional[dict]] = mapped_column(
+    config: Mapped[dict | None] = mapped_column(
         JSON,
         nullable=True,
         comment="游戏配置",
     )
-    
+
     # 关联玩家结果（一对多）
-    player_results: Mapped[List["MatchPlayerResultDB"]] = relationship(
+    player_results: Mapped[list[MatchPlayerResultDB]] = relationship(
         "MatchPlayerResultDB",
         back_populates="match",
         lazy="selectin",
         cascade="all, delete-orphan",
     )
-    
+
     def __repr__(self) -> str:
         return f"<MatchRecordDB(id={self.id}, match_id='{self.match_id}', status='{self.status}')>"
-    
+
     @property
     def is_finished(self) -> bool:
         """检查对局是否已结束"""
         return self.status == MatchStatus.FINISHED.value
-    
+
     @property
     def duration_minutes(self) -> float:
         """获取对局时长（分钟）"""
         return self.duration_seconds / 60
-    
+
     def start(self) -> None:
         """开始对局"""
         self.status = MatchStatus.IN_PROGRESS.value
         self.start_time = func.now()
-    
+
     def finish(self, total_rounds: int) -> None:
         """
         结束对局
-        
+
         Args:
             total_rounds: 总回合数
         """
         self.status = MatchStatus.FINISHED.value
         self.end_time = func.now()
         self.total_rounds = total_rounds
-        
+
         # 计算时长
         if self.start_time and self.end_time:
             delta = self.end_time - self.start_time
             self.duration_seconds = int(delta.total_seconds())
-    
+
     def cancel(self) -> None:
         """取消对局"""
         self.status = MatchStatus.CANCELLED.value
         self.end_time = func.now()
-    
+
     def to_dict(self) -> dict[str, Any]:
         """
         转换为字典
-        
+
         Returns:
             包含对局信息的字典
         """
         data = super().to_dict()
         # 添加玩家结果
-        data["player_results"] = [
-            result.to_dict() for result in self.player_results
-        ]
+        data["player_results"] = [result.to_dict() for result in self.player_results]
         # 添加计算字段
         data["duration_minutes"] = round(self.duration_minutes, 2)
         return data
@@ -183,12 +180,12 @@ class MatchRecordDB(Base, IdMixin):
 class MatchPlayerResultDB(Base, IdMixin):
     """
     玩家对局结果模型
-    
+
     存储每个玩家在对局中的详细结果：
     - 排名和分数
     - 战斗统计
     - 阵容信息
-    
+
     Attributes:
         id: 结果记录ID（主键）
         match_id: 关联的对局记录ID（外键）
@@ -204,9 +201,9 @@ class MatchPlayerResultDB(Base, IdMixin):
         final_synergies: 最终羁绊（JSON）
         final_heroes: 最终阵容（JSON）
     """
-    
+
     __tablename__ = "match_player_results"
-    
+
     # 关联信息
     match_id: Mapped[int] = mapped_column(
         Integer,
@@ -221,7 +218,7 @@ class MatchPlayerResultDB(Base, IdMixin):
         index=True,
         comment="玩家ID",
     )
-    
+
     # 排名信息
     rank: Mapped[int] = mapped_column(
         Integer,
@@ -235,7 +232,7 @@ class MatchPlayerResultDB(Base, IdMixin):
         nullable=False,
         comment="最终血量",
     )
-    
+
     # 战斗统计
     damage_dealt: Mapped[int] = mapped_column(
         Integer,
@@ -255,7 +252,7 @@ class MatchPlayerResultDB(Base, IdMixin):
         nullable=False,
         comment="击杀英雄数",
     )
-    
+
     # 经济统计
     gold_earned: Mapped[int] = mapped_column(
         Integer,
@@ -275,7 +272,7 @@ class MatchPlayerResultDB(Base, IdMixin):
         nullable=False,
         comment="购买英雄数",
     )
-    
+
     # 对战统计
     win_count: Mapped[int] = mapped_column(
         Integer,
@@ -295,7 +292,7 @@ class MatchPlayerResultDB(Base, IdMixin):
         nullable=False,
         comment="平局场次",
     )
-    
+
     # 阵容信息
     final_level: Mapped[int] = mapped_column(
         Integer,
@@ -303,52 +300,52 @@ class MatchPlayerResultDB(Base, IdMixin):
         nullable=False,
         comment="最终等级",
     )
-    final_synergies: Mapped[Optional[dict]] = mapped_column(
+    final_synergies: Mapped[dict | None] = mapped_column(
         JSON,
         nullable=True,
         comment="最终羁绊",
     )
-    final_heroes: Mapped[Optional[dict]] = mapped_column(
+    final_heroes: Mapped[dict | None] = mapped_column(
         JSON,
         nullable=True,
         comment="最终阵容",
     )
-    
+
     # 关联对局记录
-    match: Mapped["MatchRecordDB"] = relationship(
+    match: Mapped[MatchRecordDB] = relationship(
         "MatchRecordDB",
         back_populates="player_results",
     )
-    
+
     def __repr__(self) -> str:
         return f"<MatchPlayerResultDB(match_id={self.match_id}, player_id={self.player_id}, rank={self.rank})>"
-    
+
     @property
     def is_winner(self) -> bool:
         """检查是否获胜（第一名）"""
         return self.rank == 1
-    
+
     @property
     def is_top4(self) -> bool:
         """检查是否前四"""
         return self.rank <= 4
-    
+
     @property
     def total_battles(self) -> int:
         """获取总对战数"""
         return self.win_count + self.lose_count + self.draw_count
-    
+
     @property
     def win_rate(self) -> float:
         """计算胜率"""
         if self.total_battles == 0:
             return 0.0
         return self.win_count / self.total_battles
-    
+
     def to_dict(self) -> dict[str, Any]:
         """
         转换为字典
-        
+
         Returns:
             包含玩家结果的字典
         """
@@ -358,7 +355,7 @@ class MatchPlayerResultDB(Base, IdMixin):
         data["is_top4"] = self.is_top4
         data["win_rate"] = round(self.win_rate, 4)
         return data
-    
+
     @classmethod
     def create_from_game_data(
         cls,
@@ -367,17 +364,17 @@ class MatchPlayerResultDB(Base, IdMixin):
         rank: int,
         final_hp: int,
         game_data: dict[str, Any],
-    ) -> "MatchPlayerResultDB":
+    ) -> MatchPlayerResultDB:
         """
         从游戏数据创建结果记录
-        
+
         Args:
             match_id: 对局ID
             player_id: 玩家ID
             rank: 最终排名
             final_hp: 最终血量
             game_data: 游戏数据字典
-            
+
         Returns:
             玩家结果记录
         """

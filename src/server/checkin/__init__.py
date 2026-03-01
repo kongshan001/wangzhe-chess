@@ -7,6 +7,7 @@
 - 奖励配置加载
 """
 
+from .manager import CheckinManager, get_checkin_manager
 from .models import (
     CheckinInfo,
     CheckinRecord,
@@ -15,7 +16,6 @@ from .models import (
     DailyRewardConfig,
     RewardType,
 )
-from .manager import CheckinManager, get_checkin_manager
 
 __all__ = [
     # 数据模型

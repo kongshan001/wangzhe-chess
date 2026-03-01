@@ -12,7 +12,6 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional
 
 from sqlalchemy import (
     Boolean,
@@ -26,7 +25,7 @@ from sqlalchemy import (
     func,
 )
 from sqlalchemy.dialects.mysql import JSON
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base, IdMixin, TimestampMixin
 
@@ -34,9 +33,9 @@ from .base import Base, IdMixin, TimestampMixin
 class AICoachDB(Base, IdMixin, TimestampMixin):
     """
     AI教练会话模型
-    
+
     记录玩家使用AI教练的会话信息。
-    
+
     Attributes:
         id: 主键ID
         player_id: 玩家ID（外键）
@@ -51,7 +50,7 @@ class AICoachDB(Base, IdMixin, TimestampMixin):
         feedback: 玩家反馈
         metadata: 额外数据
     """
-    
+
     __tablename__ = "ai_coach_sessions"
     __table_args__ = (
         Index("ix_ai_coach_sessions_player_id", "player_id"),
@@ -59,88 +58,88 @@ class AICoachDB(Base, IdMixin, TimestampMixin):
         Index("ix_ai_coach_sessions_started_at", "started_at"),
         {"comment": "AI教练会话表"},
     )
-    
+
     player_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey("players.id", ondelete="CASCADE"),
         nullable=False,
         comment="玩家ID",
     )
-    
-    game_id: Mapped[Optional[str]] = mapped_column(
+
+    game_id: Mapped[str | None] = mapped_column(
         String(64),
         nullable=True,
         comment="对局ID",
     )
-    
+
     session_type: Mapped[str] = mapped_column(
         String(20),
         default="realtime",
         nullable=False,
         comment="会话类型",
     )
-    
+
     started_at: Mapped[datetime] = mapped_column(
         DateTime,
         server_default=func.now(),
         nullable=False,
         comment="开始时间",
     )
-    
-    ended_at: Mapped[Optional[datetime]] = mapped_column(
+
+    ended_at: Mapped[datetime | None] = mapped_column(
         DateTime,
         nullable=True,
         comment="结束时间",
     )
-    
+
     suggestion_count: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
         comment="建议数量",
     )
-    
+
     suggestions_followed: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
         comment="采纳建议数量",
     )
-    
-    final_rank: Mapped[Optional[int]] = mapped_column(
+
+    final_rank: Mapped[int | None] = mapped_column(
         Integer,
         nullable=True,
         comment="最终排名",
     )
-    
-    is_helpful: Mapped[Optional[bool]] = mapped_column(
+
+    is_helpful: Mapped[bool | None] = mapped_column(
         Boolean,
         nullable=True,
         comment="玩家是否认为有帮助",
     )
-    
-    feedback: Mapped[Optional[str]] = mapped_column(
+
+    feedback: Mapped[str | None] = mapped_column(
         Text,
         nullable=True,
         comment="玩家反馈",
     )
-    
-    metadata: Mapped[Optional[dict]] = mapped_column(
+
+    metadata: Mapped[dict | None] = mapped_column(
         JSON,
         nullable=True,
         comment="额外数据",
     )
-    
+
     def __repr__(self) -> str:
         return f"<AICoachDB(id={self.id}, player_id={self.player_id}, type='{self.session_type}')>"
-    
+
     @property
     def follow_rate(self) -> float:
         """建议采纳率"""
         if self.suggestion_count == 0:
             return 0.0
         return round(self.suggestions_followed / self.suggestion_count, 2)
-    
+
     @property
     def duration_seconds(self) -> int:
         """会话时长（秒）"""
@@ -152,9 +151,9 @@ class AICoachDB(Base, IdMixin, TimestampMixin):
 class CoachAnalysisDB(Base, IdMixin, TimestampMixin):
     """
     对局分析记录模型
-    
+
     存储AI教练对对局的分析结果。
-    
+
     Attributes:
         id: 主键ID
         player_id: 玩家ID（外键）
@@ -174,7 +173,7 @@ class CoachAnalysisDB(Base, IdMixin, TimestampMixin):
         is_post_game: 是否赛后分析
         created_at: 创建时间
     """
-    
+
     __tablename__ = "coach_analyses"
     __table_args__ = (
         Index("ix_coach_analyses_player_id", "player_id"),
@@ -183,110 +182,110 @@ class CoachAnalysisDB(Base, IdMixin, TimestampMixin):
         Index("ix_coach_analyses_created_at", "created_at"),
         {"comment": "对局分析记录表"},
     )
-    
+
     player_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey("players.id", ondelete="CASCADE"),
         nullable=False,
         comment="玩家ID",
     )
-    
+
     game_id: Mapped[str] = mapped_column(
         String(64),
         nullable=False,
         comment="对局ID",
     )
-    
+
     analysis_id: Mapped[str] = mapped_column(
         String(64),
         unique=True,
         nullable=False,
         comment="分析ID",
     )
-    
+
     analysis_type: Mapped[str] = mapped_column(
         String(20),
         default="mid_game",
         nullable=False,
         comment="分析类型",
     )
-    
+
     round_num: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
         comment="分析时的回合数",
     )
-    
+
     lineup_score: Mapped[float] = mapped_column(
         Float,
         default=50.0,
         nullable=False,
         comment="阵容评分",
     )
-    
+
     economy_score: Mapped[float] = mapped_column(
         Float,
         default=50.0,
         nullable=False,
         comment="经济评分",
     )
-    
+
     synergy_score: Mapped[float] = mapped_column(
         Float,
         default=50.0,
         nullable=False,
         comment="羁绊评分",
     )
-    
+
     position_score: Mapped[float] = mapped_column(
         Float,
         default=50.0,
         nullable=False,
         comment="站位评分",
     )
-    
+
     overall_score: Mapped[float] = mapped_column(
         Float,
         default=50.0,
         nullable=False,
         comment="综合评分",
     )
-    
-    strengths: Mapped[Optional[list]] = mapped_column(
+
+    strengths: Mapped[list | None] = mapped_column(
         JSON,
         nullable=True,
         comment="优势列表",
     )
-    
-    weaknesses: Mapped[Optional[list]] = mapped_column(
+
+    weaknesses: Mapped[list | None] = mapped_column(
         JSON,
         nullable=True,
         comment="劣势列表",
     )
-    
-    suggestions: Mapped[Optional[list]] = mapped_column(
+
+    suggestions: Mapped[list | None] = mapped_column(
         JSON,
         nullable=True,
         comment="建议列表",
     )
-    
-    win_rate_prediction: Mapped[Optional[dict]] = mapped_column(
+
+    win_rate_prediction: Mapped[dict | None] = mapped_column(
         JSON,
         nullable=True,
         comment="胜率预测",
     )
-    
+
     is_post_game: Mapped[bool] = mapped_column(
         Boolean,
         default=False,
         nullable=False,
         comment="是否赛后分析",
     )
-    
+
     def __repr__(self) -> str:
         return f"<CoachAnalysisDB(id={self.id}, player_id={self.player_id}, score={self.overall_score})>"
-    
+
     def to_dict(self) -> dict:
         """转换为字典"""
         return {
@@ -313,9 +312,9 @@ class CoachAnalysisDB(Base, IdMixin, TimestampMixin):
 class PlayerLearningDB(Base, IdMixin, TimestampMixin):
     """
     玩家学习数据模型
-    
+
     存储玩家的AI教练学习统计数据。
-    
+
     Attributes:
         id: 主键ID
         player_id: 玩家ID（外键，唯一）
@@ -330,14 +329,14 @@ class PlayerLearningDB(Base, IdMixin, TimestampMixin):
         learning_progress: 学习进度（JSON）
         last_coach_at: 最后使用教练时间
     """
-    
+
     __tablename__ = "player_learning"
     __table_args__ = (
         Index("ix_player_learning_player_id", "player_id", unique=True),
         Index("ix_player_learning_last_coach_at", "last_coach_at"),
         {"comment": "玩家学习数据表"},
     )
-    
+
     player_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey("players.id", ondelete="CASCADE"),
@@ -345,83 +344,85 @@ class PlayerLearningDB(Base, IdMixin, TimestampMixin):
         unique=True,
         comment="玩家ID",
     )
-    
+
     total_coach_sessions: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
         comment="教练会话总数",
     )
-    
+
     total_suggestions: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
         comment="收到的建议总数",
     )
-    
+
     suggestions_followed: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
         comment="采纳的建议数",
     )
-    
+
     total_analyses: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
         comment="分析记录数",
     )
-    
+
     avg_overall_score: Mapped[float] = mapped_column(
         Float,
         default=50.0,
         nullable=False,
         comment="平均综合评分",
     )
-    
+
     best_score: Mapped[float] = mapped_column(
         Float,
         default=0.0,
         nullable=False,
         comment="最高综合评分",
     )
-    
-    improvement_areas: Mapped[Optional[list]] = mapped_column(
+
+    improvement_areas: Mapped[list | None] = mapped_column(
         JSON,
         nullable=True,
         comment="待改进领域",
     )
-    
-    favorite_synergies: Mapped[Optional[dict]] = mapped_column(
+
+    favorite_synergies: Mapped[dict | None] = mapped_column(
         JSON,
         nullable=True,
         comment="常用羁绊",
     )
-    
-    learning_progress: Mapped[Optional[dict]] = mapped_column(
+
+    learning_progress: Mapped[dict | None] = mapped_column(
         JSON,
         nullable=True,
         comment="学习进度",
     )
-    
-    last_coach_at: Mapped[Optional[datetime]] = mapped_column(
+
+    last_coach_at: Mapped[datetime | None] = mapped_column(
         DateTime,
         nullable=True,
         comment="最后使用教练时间",
     )
-    
+
     def __repr__(self) -> str:
-        return f"<PlayerLearningDB(player_id={self.player_id}, sessions={self.total_coach_sessions})>"
-    
+        return (
+            f"<PlayerLearningDB(player_id={self.player_id}, sessions={self.total_coach_sessions})>"
+        )
+
     @property
     def follow_rate(self) -> float:
         """建议采纳率"""
         if self.total_suggestions == 0:
             return 0.0
         return round(self.suggestions_followed / self.total_suggestions, 2)
-    
+
     def update_stats(
         self,
         overall_score: float,
@@ -430,7 +431,7 @@ class PlayerLearningDB(Base, IdMixin, TimestampMixin):
     ) -> None:
         """
         更新统计数据
-        
+
         Args:
             overall_score: 本次综合评分
             suggestions_count: 本次建议数
@@ -438,31 +439,29 @@ class PlayerLearningDB(Base, IdMixin, TimestampMixin):
         """
         # 更新会话数
         self.total_coach_sessions += 1
-        
+
         # 更新建议统计
         self.total_suggestions += suggestions_count
         self.suggestions_followed += followed_count
-        
+
         # 更新分析数
         self.total_analyses += 1
-        
+
         # 更新平均分
         old_avg = self.avg_overall_score
         old_count = self.total_analyses - 1
         if old_count > 0:
-            self.avg_overall_score = (
-                (old_avg * old_count + overall_score) / self.total_analyses
-            )
+            self.avg_overall_score = (old_avg * old_count + overall_score) / self.total_analyses
         else:
             self.avg_overall_score = overall_score
-        
+
         # 更新最高分
         if overall_score > self.best_score:
             self.best_score = overall_score
-        
+
         # 更新时间
         self.last_coach_at = datetime.now()
-    
+
     def to_dict(self) -> dict:
         """转换为字典"""
         return {
@@ -484,9 +483,9 @@ class PlayerLearningDB(Base, IdMixin, TimestampMixin):
 class LineupRecommendationDB(Base, IdMixin, TimestampMixin):
     """
     阵容推荐模型
-    
+
     存储预设的阵容推荐数据。
-    
+
     Attributes:
         id: 主键ID
         lineup_id: 阵容ID（业务ID，唯一）
@@ -508,7 +507,7 @@ class LineupRecommendationDB(Base, IdMixin, TimestampMixin):
         is_enabled: 是否启用
         version: 版本号
     """
-    
+
     __tablename__ = "lineup_recommendations"
     __table_args__ = (
         Index("ix_lineup_recommendations_lineup_id", "lineup_id", unique=True),
@@ -516,126 +515,126 @@ class LineupRecommendationDB(Base, IdMixin, TimestampMixin):
         Index("ix_lineup_recommendations_win_rate", "win_rate"),
         {"comment": "阵容推荐表"},
     )
-    
+
     lineup_id: Mapped[str] = mapped_column(
         String(64),
         unique=True,
         nullable=False,
         comment="阵容ID",
     )
-    
+
     name: Mapped[str] = mapped_column(
         String(100),
         nullable=False,
         comment="阵容名称",
     )
-    
-    description: Mapped[Optional[str]] = mapped_column(
+
+    description: Mapped[str | None] = mapped_column(
         Text,
         nullable=True,
         comment="阵容描述",
     )
-    
+
     difficulty: Mapped[int] = mapped_column(
         Integer,
         default=3,
         nullable=False,
         comment="难度等级（1-5）",
     )
-    
-    core_heroes: Mapped[Optional[list]] = mapped_column(
+
+    core_heroes: Mapped[list | None] = mapped_column(
         JSON,
         nullable=True,
         comment="核心英雄列表",
     )
-    
-    optional_heroes: Mapped[Optional[list]] = mapped_column(
+
+    optional_heroes: Mapped[list | None] = mapped_column(
         JSON,
         nullable=True,
         comment="可选英雄列表",
     )
-    
-    synergies: Mapped[Optional[dict]] = mapped_column(
+
+    synergies: Mapped[dict | None] = mapped_column(
         JSON,
         nullable=True,
         comment="激活的羁绊",
     )
-    
+
     play_style: Mapped[str] = mapped_column(
         String(20),
         default="balanced",
         nullable=False,
         comment="玩法风格",
     )
-    
-    early_game: Mapped[Optional[list]] = mapped_column(
+
+    early_game: Mapped[list | None] = mapped_column(
         JSON,
         nullable=True,
         comment="前期过渡阵容",
     )
-    
-    mid_game: Mapped[Optional[list]] = mapped_column(
+
+    mid_game: Mapped[list | None] = mapped_column(
         JSON,
         nullable=True,
         comment="中期成型阵容",
     )
-    
-    late_game: Mapped[Optional[list]] = mapped_column(
+
+    late_game: Mapped[list | None] = mapped_column(
         JSON,
         nullable=True,
         comment="后期最终阵容",
     )
-    
-    key_items: Mapped[Optional[list]] = mapped_column(
+
+    key_items: Mapped[list | None] = mapped_column(
         JSON,
         nullable=True,
         comment="核心装备",
     )
-    
-    tips: Mapped[Optional[list]] = mapped_column(
+
+    tips: Mapped[list | None] = mapped_column(
         JSON,
         nullable=True,
         comment="玩法提示",
     )
-    
+
     win_rate: Mapped[float] = mapped_column(
         Float,
         default=0.5,
         nullable=False,
         comment="历史胜率",
     )
-    
+
     popularity: Mapped[float] = mapped_column(
         Float,
         default=0.5,
         nullable=False,
         comment="流行度",
     )
-    
+
     is_meta: Mapped[bool] = mapped_column(
         Boolean,
         default=False,
         nullable=False,
         comment="是否当前版本强势",
     )
-    
+
     is_enabled: Mapped[bool] = mapped_column(
         Boolean,
         default=True,
         nullable=False,
         comment="是否启用",
     )
-    
+
     version: Mapped[int] = mapped_column(
         Integer,
         default=1,
         nullable=False,
         comment="版本号",
     )
-    
+
     def __repr__(self) -> str:
         return f"<LineupRecommendationDB(id={self.id}, name='{self.name}')>"
-    
+
     def to_dict(self) -> dict:
         """转换为字典"""
         return {

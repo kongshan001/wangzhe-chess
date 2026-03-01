@@ -9,12 +9,14 @@
 - AchievementManager 管理器
 """
 
-import pytest
+import json
+import tempfile
 from datetime import datetime
 from pathlib import Path
-import tempfile
-import json
 
+import pytest
+
+from src.server.achievement.manager import AchievementManager
 from src.server.achievement.models import (
     Achievement,
     AchievementCategory,
@@ -24,12 +26,11 @@ from src.server.achievement.models import (
     PlayerAchievement,
     RequirementType,
 )
-from src.server.achievement.manager import AchievementManager
-
 
 # ============================================================================
 # AchievementCategory 测试
 # ============================================================================
+
 
 class TestAchievementCategory:
     """成就类别枚举测试"""
@@ -46,6 +47,7 @@ class TestAchievementCategory:
 # ============================================================================
 # AchievementTier 测试
 # ============================================================================
+
 
 class TestAchievementTier:
     """成就等级枚举测试"""
@@ -69,6 +71,7 @@ class TestAchievementTier:
 # RequirementType 测试
 # ============================================================================
 
+
 class TestRequirementType:
     """需求类型枚举测试"""
 
@@ -83,6 +86,7 @@ class TestRequirementType:
 # ============================================================================
 # AchievementRequirement 测试
 # ============================================================================
+
 
 class TestAchievementRequirement:
     """成就需求测试"""
@@ -112,7 +116,7 @@ class TestAchievementRequirement:
             type=RequirementType.WIN_GAMES,
             target=100,
         )
-        
+
         assert req.check_progress(50) == 50
         assert req.check_progress(100) == 100
         assert req.check_progress(150) == 100  # 不超过目标
@@ -123,7 +127,7 @@ class TestAchievementRequirement:
             type=RequirementType.WIN_GAMES,
             target=100,
         )
-        
+
         assert req.is_completed(50) is False
         assert req.is_completed(100) is True
         assert req.is_completed(150) is True
@@ -135,12 +139,12 @@ class TestAchievementRequirement:
             target=10,
             conditions={"mode": "ranked"},
         )
-        
+
         data = req.to_dict()
         assert data["type"] == "win_streak"
         assert data["target"] == 10
         assert data["conditions"] == {"mode": "ranked"}
-        
+
         restored = AchievementRequirement.from_dict(data)
         assert restored.type == req.type
         assert restored.target == req.target
@@ -149,6 +153,7 @@ class TestAchievementRequirement:
 # ============================================================================
 # AchievementReward 测试
 # ============================================================================
+
 
 class TestAchievementReward:
     """成就奖励测试"""
@@ -186,12 +191,12 @@ class TestAchievementReward:
             exp=1000,
             title="测试称号",
         )
-        
+
         data = reward.to_dict()
         assert data["gold"] == 500
         assert data["exp"] == 1000
         assert data["title"] == "测试称号"
-        
+
         restored = AchievementReward.from_dict(data)
         assert restored.gold == reward.gold
         assert restored.title == reward.title
@@ -200,6 +205,7 @@ class TestAchievementReward:
 # ============================================================================
 # Achievement 测试
 # ============================================================================
+
 
 class TestAchievement:
     """成就测试"""
@@ -267,13 +273,13 @@ class TestAchievement:
     def test_achievement_serialization(self, sample_achievement):
         """测试成就序列化"""
         data = sample_achievement.to_dict()
-        
+
         assert data["achievement_id"] == "test_achievement"
         assert data["name"] == "测试成就"
         assert data["category"] == "battle"
         assert data["tier"] == 3
         assert data["tier_name"] == "金牌"
-        
+
         restored = Achievement.from_dict(data)
         assert restored.achievement_id == sample_achievement.achievement_id
         assert restored.name == sample_achievement.name
@@ -283,6 +289,7 @@ class TestAchievement:
 # ============================================================================
 # PlayerAchievement 测试
 # ============================================================================
+
 
 class TestPlayerAchievement:
     """玩家成就测试"""
@@ -306,13 +313,13 @@ class TestPlayerAchievement:
             player_id="player_001",
             achievement_id="win_100",
         )
-        
+
         # 更新进度但未完成
         just_completed = pa.update_progress(50, 100)
         assert pa.progress == 50
         assert pa.completed is False
         assert just_completed is False
-        
+
         # 完成成就
         just_completed = pa.update_progress(100, 100)
         assert pa.progress == 100
@@ -329,9 +336,9 @@ class TestPlayerAchievement:
             completed=True,
             completed_at=datetime.now(),
         )
-        
+
         assert pa.is_claimable is True
-        
+
         result = pa.claim_reward()
         assert result is True
         assert pa.claimed is True
@@ -345,7 +352,7 @@ class TestPlayerAchievement:
             achievement_id="win_100",
             progress=50,
         )
-        
+
         result = pa.claim_reward()
         assert result is False
         assert pa.claimed is False
@@ -361,7 +368,7 @@ class TestPlayerAchievement:
             claimed=True,
             claimed_at=datetime.now(),
         )
-        
+
         result = pa.claim_reward()
         assert result is False
 
@@ -373,13 +380,13 @@ class TestPlayerAchievement:
             progress=75,
             completed=False,
         )
-        
+
         data = pa.to_dict()
         assert data["player_id"] == "player_001"
         assert data["progress"] == 75
         assert data["completed"] is False
         assert data["is_claimable"] is False
-        
+
         restored = PlayerAchievement.from_dict(data)
         assert restored.player_id == pa.player_id
         assert restored.progress == pa.progress
@@ -388,6 +395,7 @@ class TestPlayerAchievement:
 # ============================================================================
 # AchievementManager 测试
 # ============================================================================
+
 
 class TestAchievementManager:
     """成就管理器测试"""
@@ -420,11 +428,9 @@ class TestAchievementManager:
 
     def test_get_achievements_by_category(self, manager):
         """测试按类别获取成就"""
-        battle_achievements = manager.get_achievements_by_category(
-            AchievementCategory.BATTLE
-        )
+        battle_achievements = manager.get_achievements_by_category(AchievementCategory.BATTLE)
         assert len(battle_achievements) > 0
-        
+
         for a in battle_achievements:
             assert a.category == AchievementCategory.BATTLE
 
@@ -432,7 +438,7 @@ class TestAchievementManager:
         """测试按等级获取成就"""
         gold_achievements = manager.get_achievements_by_tier(AchievementTier.GOLD)
         assert len(gold_achievements) > 0
-        
+
         for a in gold_achievements:
             assert a.tier == AchievementTier.GOLD
 
@@ -443,7 +449,7 @@ class TestAchievementManager:
             "win_100",
             50,
         )
-        
+
         assert result is not None
         assert result.progress == 50
         assert result.completed is False
@@ -452,13 +458,13 @@ class TestAchievementManager:
         """测试完成成就"""
         # 先完成前置成就
         manager.update_progress("player_001", "streak_5", 5)
-        
+
         result = manager.update_progress(
             "player_001",
             "streak_5",
             5,
         )
-        
+
         assert result.completed is True
         assert result.completed_at is not None
 
@@ -467,7 +473,7 @@ class TestAchievementManager:
         # 未完成前置成就
         achievement = manager.get_achievement("streak_10")
         assert manager.check_prerequisite("player_001", achievement) is False
-        
+
         # 完成前置成就
         manager.update_progress("player_001", "streak_5", 5)
         assert manager.check_prerequisite("player_001", achievement) is True
@@ -479,9 +485,9 @@ class TestAchievementManager:
             RequirementType.WIN_GAMES,
             100,
         )
-        
+
         assert len(updated) > 0
-        
+
         # 检查 win_100 是否完成
         win_100 = manager.get_player_achievement("player_001", "win_100")
         assert win_100.completed is True
@@ -490,7 +496,7 @@ class TestAchievementManager:
         """测试领取奖励"""
         # 完成成就
         manager.update_progress("player_001", "streak_5", 5)
-        
+
         reward = manager.claim_reward("player_001", "streak_5")
         assert reward is not None
         assert reward.gold == 300
@@ -498,17 +504,17 @@ class TestAchievementManager:
     def test_claim_reward_not_completed(self, manager):
         """测试未完成时领取奖励"""
         manager.update_progress("player_001", "win_100", 50)
-        
+
         reward = manager.claim_reward("player_001", "win_100")
         assert reward is None
 
     def test_get_player_achievements(self, manager):
         """测试获取玩家所有成就"""
         manager.update_progress("player_001", "win_100", 50)
-        
+
         achievements = manager.get_player_achievements("player_001")
         assert len(achievements) > 0
-        
+
         # 检查进度信息
         for a in achievements:
             assert "player_progress" in a
@@ -517,19 +523,19 @@ class TestAchievementManager:
     def test_get_player_achievements_completed_only(self, manager):
         """测试只获取已完成的成就"""
         manager.update_progress("player_001", "win_100", 100)
-        
+
         all_achievements = manager.get_player_achievements("player_001")
         completed = manager.get_player_achievements("player_001", completed_only=True)
-        
+
         assert len(completed) < len(all_achievements)
         assert len(completed) >= 1
 
     def test_get_player_stats(self, manager):
         """测试获取玩家统计"""
         manager.update_progress("player_001", "win_100", 100)
-        
+
         stats = manager.get_player_stats("player_001")
-        
+
         assert "total_achievements" in stats
         assert "completed_achievements" in stats
         assert "completion_rate" in stats
@@ -540,7 +546,7 @@ class TestAchievementManager:
     def test_get_recently_completed(self, manager):
         """测试获取最近完成的成就"""
         manager.update_progress("player_001", "win_100", 100)
-        
+
         recent = manager.get_recently_completed("player_001")
         assert len(recent) >= 1
         assert "achievement" in recent[0]
@@ -562,13 +568,11 @@ class TestAchievementManager:
                 }
             ]
         }
-        
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as f:
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(config, f)
             config_path = f.name
-        
+
         try:
             manager = AchievementManager(config_path)
             achievement = manager.get_achievement("custom_1")
@@ -582,18 +586,19 @@ class TestAchievementManager:
         with tempfile.TemporaryDirectory() as tmpdir:
             config_path = Path(tmpdir) / "achievements.json"
             manager.save_config(str(config_path))
-            
+
             assert config_path.exists()
-            
+
             with open(config_path) as f:
                 data = json.load(f)
-            
+
             assert "achievements" in data
 
 
 # ============================================================================
 # 边界条件测试
 # ============================================================================
+
 
 class TestBoundaryConditions:
     """边界条件测试"""
@@ -614,7 +619,7 @@ class TestBoundaryConditions:
             player_id="player_001",
             achievement_id="test",
         )
-        
+
         just_completed = pa.update_progress(150, 100)
         assert pa.progress == 150
         assert pa.completed is True
@@ -629,7 +634,7 @@ class TestBoundaryConditions:
     def test_nonexistent_player(self):
         """测试不存在的玩家"""
         manager = AchievementManager()
-        
+
         stats = manager.get_player_stats("nonexistent_player")
         assert stats["completed_achievements"] == 0
         assert stats["completion_rate"] == 0
@@ -637,10 +642,10 @@ class TestBoundaryConditions:
     def test_hidden_achievement_visibility(self):
         """测试隐藏成就可见性"""
         manager = AchievementManager()
-        
+
         # 获取玩家成就（隐藏成就未完成不显示）
         achievements = manager.get_player_achievements("player_001")
-        
+
         # 检查没有隐藏成就显示
         for a in achievements:
             achievement = manager.get_achievement(a["achievement_id"])

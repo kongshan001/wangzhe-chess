@@ -9,32 +9,32 @@
 
 from .base import Base, IdMixin, TimestampMixin
 
-# 玩家相关模型
-from .player import (
-    PlayerDB,
-    PlayerRankDB,
-    PlayerStatsDB,
-    PlayerLoginLogDB,
-    PlayerInventoryDB,
-    RankTier,
+# 配置相关模型
+from .hero_config import (
+    GameConfigDB,
+    HeroConfigDB,
+    HeroStatus,
+    HeroVersionDB,
+    SeasonConfigDB,
+    SynergyConfigDB,
+    SynergyType,
 )
 
 # 对局相关模型
 from .match_record import (
-    MatchRecordDB,
     MatchPlayerResultDB,
+    MatchRecordDB,
     MatchStatus,
 )
 
-# 配置相关模型
-from .hero_config import (
-    HeroConfigDB,
-    HeroVersionDB,
-    SynergyConfigDB,
-    GameConfigDB,
-    SeasonConfigDB,
-    HeroStatus,
-    SynergyType,
+# 玩家相关模型
+from .player import (
+    PlayerDB,
+    PlayerInventoryDB,
+    PlayerLoginLogDB,
+    PlayerRankDB,
+    PlayerStatsDB,
+    RankTier,
 )
 
 # 导出所有模型类

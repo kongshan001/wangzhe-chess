@@ -7,18 +7,18 @@
 - 预设操作（保存、加载、删除、重命名）
 """
 
+from .manager import (
+    LineupManager,
+    create_lineup_manager,
+)
 from .models import (
+    MAX_EQUIPMENT_PER_HERO,
+    MAX_HEROES_PER_PRESET,
+    MAX_PRESETS_PER_PLAYER,
     EquipmentAssignment,
     LineupPreset,
     LineupSlot,
     TargetSynergy,
-    MAX_EQUIPMENT_PER_HERO,
-    MAX_HEROES_PER_PRESET,
-    MAX_PRESETS_PER_PLAYER,
-)
-from .manager import (
-    LineupManager,
-    create_lineup_manager,
 )
 
 __all__ = [
@@ -27,11 +27,9 @@ __all__ = [
     "LineupPreset",
     "LineupSlot",
     "TargetSynergy",
-    
     # 管理器
     "LineupManager",
     "create_lineup_manager",
-    
     # 常量
     "MAX_EQUIPMENT_PER_HERO",
     "MAX_HEROES_PER_PRESET",

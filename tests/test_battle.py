@@ -11,16 +11,22 @@
 """
 
 import copy
-import pytest
 
+from server.game.battle.simulator import (
+    BattleSimulator,
+    BattleUnit,
+    DeterministicRNG,
+    _integer_sqrt,
+    create_test_board,
+    create_test_hero,
+    simulate_battle,
+)
 from shared.constants import (
     FIXED_POINT_PRECISION,
-    INITIAL_MANA,
     MAX_MANA,
-    ATTACK_MANA_GAIN,
-    DAMAGE_MANA_GAIN_RATE,
 )
 from shared.models import (
+    BattleResult,
     Board,
     DamageType,
     Hero,
@@ -28,22 +34,12 @@ from shared.models import (
     HeroTemplate,
     Position,
     Skill,
-    BattleResult,
 )
-from server.game.battle.simulator import (
-    BattleUnit,
-    BattleSimulator,
-    DeterministicRNG,
-    simulate_battle,
-    create_test_board,
-    create_test_hero,
-    _integer_sqrt,
-)
-
 
 # ============================================================================
 # BattleUnit 测试
 # ============================================================================
+
 
 class TestBattleUnit:
     """战斗单元测试"""
@@ -51,7 +47,7 @@ class TestBattleUnit:
     def test_create_battle_unit(self, sample_hero: Hero):
         """测试创建战斗单元"""
         unit = BattleUnit(hero=sample_hero, team=0)
-        
+
         assert unit.hero == sample_hero
         assert unit.team == 0
         assert unit.current_hp == sample_hero.max_hp * FIXED_POINT_PRECISION
@@ -63,7 +59,7 @@ class TestBattleUnit:
         """测试带位置创建战斗单元"""
         sample_hero.position = Position(x=3, y=4)
         unit = BattleUnit(hero=sample_hero, team=1)
-        
+
         assert unit.position_x == 3 * FIXED_POINT_PRECISION
         assert unit.position_y == 4 * FIXED_POINT_PRECISION
         pos = unit.get_position()
@@ -75,9 +71,9 @@ class TestBattleUnit:
         initial_hp = unit.current_hp
         damage = 50
         defense = sample_hero.defense
-        
+
         actual_damage = unit.take_damage(damage, DamageType.PHYSICAL, current_time=0)
-        
+
         # 物理伤害 = 伤害 * 100 / (100 + 防御)
         expected_damage = damage * 100 * FIXED_POINT_PRECISION // (100 + defense)
         assert actual_damage == expected_damage
@@ -88,9 +84,9 @@ class TestBattleUnit:
         unit = BattleUnit(hero=sample_hero, team=0)
         initial_hp = unit.current_hp
         damage = 50
-        
+
         actual_damage = unit.take_damage(damage, DamageType.TRUE, current_time=0)
-        
+
         # 真实伤害不受防御减免
         expected_damage = damage * FIXED_POINT_PRECISION
         assert actual_damage == expected_damage
@@ -102,9 +98,9 @@ class TestBattleUnit:
         initial_hp = unit.current_hp
         damage = 50
         defense = sample_hero.defense
-        
+
         actual_damage = unit.take_damage(damage, DamageType.MAGICAL, current_time=0)
-        
+
         # 魔法伤害也受防御减免（与物理相同）
         expected_damage = damage * 100 * FIXED_POINT_PRECISION // (100 + defense)
         assert actual_damage == expected_damage
@@ -114,9 +110,9 @@ class TestBattleUnit:
         unit = BattleUnit(hero=sample_hero, team=0)
         unit.current_hp = 0
         unit.state = HeroState.DEAD
-        
+
         actual_damage = unit.take_damage(100, DamageType.TRUE, current_time=0)
-        
+
         assert actual_damage == 0
         assert unit.current_hp == 0
 
@@ -125,9 +121,9 @@ class TestBattleUnit:
         unit = BattleUnit(hero=sample_hero, team=0)
         initial_hp = unit.current_hp
         unit.invulnerable_until = 1000  # 无敌到 1000ms
-        
+
         actual_damage = unit.take_damage(100, DamageType.TRUE, current_time=500)
-        
+
         assert actual_damage == 0
         assert unit.current_hp == initial_hp
 
@@ -136,10 +132,10 @@ class TestBattleUnit:
         unit = BattleUnit(hero=sample_hero, team=0)
         unit.current_hp = unit.max_hp // 2
         hp_before = unit.current_hp
-        
+
         heal_amount = 50
         actual_heal = unit.heal(heal_amount)
-        
+
         assert actual_heal == heal_amount * FIXED_POINT_PRECISION
         assert unit.current_hp == hp_before + heal_amount * FIXED_POINT_PRECISION
 
@@ -147,9 +143,9 @@ class TestBattleUnit:
         """测试治疗不超过最大生命值"""
         unit = BattleUnit(hero=sample_hero, team=0)
         unit.current_hp = unit.max_hp - 10 * FIXED_POINT_PRECISION
-        
+
         actual_heal = unit.heal(1000)
-        
+
         # 只能恢复到 max_hp
         assert unit.current_hp == unit.max_hp
         assert actual_heal == 10 * FIXED_POINT_PRECISION
@@ -159,9 +155,9 @@ class TestBattleUnit:
         unit = BattleUnit(hero=sample_hero, team=0)
         unit.current_hp = 0
         unit.state = HeroState.DEAD
-        
+
         actual_heal = unit.heal(100)
-        
+
         assert actual_heal == 0
         assert unit.current_hp == 0
 
@@ -169,9 +165,9 @@ class TestBattleUnit:
         """测试获得蓝量"""
         unit = BattleUnit(hero=sample_hero, team=0)
         initial_mana = unit.current_mana
-        
+
         gained = unit.gain_mana(30)
-        
+
         assert gained == 30
         assert unit.current_mana == initial_mana + 30
 
@@ -179,9 +175,9 @@ class TestBattleUnit:
         """测试蓝量不超过上限"""
         unit = BattleUnit(hero=sample_hero, team=0)
         unit.current_mana = MAX_MANA - 10
-        
+
         gained = unit.gain_mana(100)
-        
+
         assert unit.current_mana == MAX_MANA
         assert gained == 10
 
@@ -189,9 +185,9 @@ class TestBattleUnit:
         """测试消耗蓝量"""
         unit = BattleUnit(hero=sample_hero, team=0)
         unit.current_mana = 50
-        
+
         result = unit.use_mana(30)
-        
+
         assert result is True
         assert unit.current_mana == 20
 
@@ -199,23 +195,23 @@ class TestBattleUnit:
         """测试蓝量不足"""
         unit = BattleUnit(hero=sample_hero, team=0)
         unit.current_mana = 20
-        
+
         result = unit.use_mana(50)
-        
+
         assert result is False
         assert unit.current_mana == 20
 
     def test_can_cast_skill(self, sample_hero: Hero):
         """测试是否可以释放技能"""
         unit = BattleUnit(hero=sample_hero, team=0)
-        
+
         # 蓝量不足
         assert unit.can_cast_skill() is False
-        
+
         # 获得足够蓝量
         unit.current_mana = sample_hero.skill.mana_cost
         assert unit.can_cast_skill() is True
-        
+
         # 死亡后不能释放
         unit.current_hp = 0
         unit.state = HeroState.DEAD
@@ -238,18 +234,18 @@ class TestBattleUnit:
         hero = Hero.create_from_template(template, "test", star=1)
         unit = BattleUnit(hero=hero, team=0)
         unit.current_mana = MAX_MANA
-        
+
         assert unit.can_cast_skill() is False
 
     def test_is_alive(self, sample_hero: Hero):
         """测试存活状态"""
         unit = BattleUnit(hero=sample_hero, team=0)
-        
+
         assert unit.is_alive() is True
-        
+
         unit.current_hp = 0
         assert unit.is_alive() is False
-        
+
         unit.current_hp = -100
         assert unit.is_alive() is False
 
@@ -257,11 +253,11 @@ class TestBattleUnit:
         """测试距离计算"""
         unit1 = BattleUnit(hero=sample_hero, team=0)
         unit1.set_position(0, 0)
-        
+
         another_hero = sample_heroes[1] if len(sample_heroes) > 1 else sample_heroes[0]
         unit2 = BattleUnit(hero=another_hero, team=1)
         unit2.set_position(3, 4)
-        
+
         # 曼哈顿距离
         distance = unit1.distance_to(unit2)
         assert distance == 7  # |3-0| + |4-0| = 7
@@ -269,12 +265,12 @@ class TestBattleUnit:
     def test_hp_percent(self, sample_hero: Hero):
         """测试生命值百分比"""
         unit = BattleUnit(hero=sample_hero, team=0)
-        
+
         assert unit.hp_percent == 100
-        
+
         unit.current_hp = unit.max_hp // 2
         assert unit.hp_percent == 50
-        
+
         unit.current_hp = 0
         assert unit.hp_percent == 0
 
@@ -282,7 +278,7 @@ class TestBattleUnit:
         """测试攻击速度转换"""
         sample_hero.attack_speed = 1.0
         unit = BattleUnit(hero=sample_hero, team=0)
-        
+
         # 1.0 攻击速度 = 1000ms 攻击间隔
         assert unit.attack_speed == 1000 * FIXED_POINT_PRECISION
 
@@ -292,15 +288,15 @@ class TestBattleUnit:
         unit1.current_hp = 100 * FIXED_POINT_PRECISION
         unit1.current_mana = 50
         unit1.set_position(3, 4)
-        
+
         unit2 = unit1.__copy__()
-        
+
         assert unit2.hero.instance_id == unit1.hero.instance_id
         assert unit2.team == unit1.team
         assert unit2.current_hp == unit1.current_hp
         assert unit2.current_mana == unit1.current_mana
         assert unit2.position_x == unit1.position_x
-        
+
         # 修改副本不影响原对象
         unit2.current_hp = 200 * FIXED_POINT_PRECISION
         assert unit1.current_hp == 100 * FIXED_POINT_PRECISION
@@ -310,6 +306,7 @@ class TestBattleUnit:
 # 确定性随机数测试
 # ============================================================================
 
+
 class TestDeterministicRNG:
     """确定性随机数测试"""
 
@@ -317,7 +314,7 @@ class TestDeterministicRNG:
         """测试相同种子产生相同结果（核心测试！）"""
         rng1 = DeterministicRNG(seed=42)
         rng2 = DeterministicRNG(seed=42)
-        
+
         # 多次调用应该产生相同序列
         for _ in range(100):
             val1 = rng1.random_int(0, 1000)
@@ -328,17 +325,17 @@ class TestDeterministicRNG:
         """测试不同种子产生不同结果"""
         rng1 = DeterministicRNG(seed=42)
         rng2 = DeterministicRNG(seed=43)
-        
+
         results1 = [rng1.random_int(0, 1000) for _ in range(10)]
         results2 = [rng2.random_int(0, 1000) for _ in range(10)]
-        
+
         # 序列应该不同
         assert results1 != results2
 
     def test_random_int_range(self):
         """测试随机整数在指定范围内"""
         rng = DeterministicRNG(seed=42)
-        
+
         for _ in range(1000):
             val = rng.random_int(10, 20)
             assert 10 <= val <= 20
@@ -346,21 +343,21 @@ class TestDeterministicRNG:
     def test_random_int_min_equals_max(self):
         """测试最小值等于最大值"""
         rng = DeterministicRNG(seed=42)
-        
+
         val = rng.random_int(5, 5)
         assert val == 5
 
     def test_random_int_min_greater_than_max(self):
         """测试最小值大于最大值"""
         rng = DeterministicRNG(seed=42)
-        
+
         val = rng.random_int(10, 5)
         assert val == 10  # 返回最小值
 
     def test_random_percent(self):
         """测试随机百分比在0-100范围"""
         rng = DeterministicRNG(seed=42)
-        
+
         for _ in range(100):
             val = rng.random_percent()
             assert 0 <= val <= 100
@@ -368,15 +365,15 @@ class TestDeterministicRNG:
     def test_check_probability(self):
         """测试概率检查"""
         rng = DeterministicRNG(seed=42)
-        
+
         # 0% 概率永远不触发
         for _ in range(10):
             assert rng.check_probability(0) is False
-        
+
         # 100% 概率永远触发
         for _ in range(10):
             assert rng.check_probability(100) is True
-        
+
         # 50% 概率，统计检查
         hits = sum(1 for _ in range(1000) if rng.check_probability(50))
         assert 400 <= hits <= 600  # 允许一定偏差
@@ -385,7 +382,7 @@ class TestDeterministicRNG:
         """测试从列表中选择"""
         rng = DeterministicRNG(seed=42)
         items = [1, 2, 3, 4, 5]
-        
+
         for _ in range(100):
             val = rng.choice(items)
             assert val in items
@@ -393,7 +390,7 @@ class TestDeterministicRNG:
     def test_choice_empty_list(self):
         """测试空列表选择"""
         rng = DeterministicRNG(seed=42)
-        
+
         val = rng.choice([])
         assert val is None
 
@@ -401,9 +398,9 @@ class TestDeterministicRNG:
         """测试随机打乱"""
         rng = DeterministicRNG(seed=42)
         items = [1, 2, 3, 4, 5]
-        
+
         shuffled = rng.shuffle(items)
-        
+
         # 元素相同，但顺序可能不同
         assert set(shuffled) == set(items)
         assert len(shuffled) == len(items)
@@ -413,19 +410,19 @@ class TestDeterministicRNG:
     def test_shuffle_single_element(self):
         """测试单元素打乱"""
         rng = DeterministicRNG(seed=42)
-        
+
         shuffled = rng.shuffle([1])
         assert shuffled == [1]
 
     def test_deterministic_sequence(self):
         """测试序列确定性"""
         rng = DeterministicRNG(seed=12345)
-        
+
         # 生成一个序列
         sequence = []
         for _ in range(50):
             sequence.append(rng.random_int(0, 1000))
-        
+
         # 用相同种子重新生成
         rng2 = DeterministicRNG(seed=12345)
         for i, expected in enumerate(sequence):
@@ -437,6 +434,7 @@ class TestDeterministicRNG:
 # 战斗模拟器测试
 # ============================================================================
 
+
 class TestBattleSimulator:
     """战斗模拟器测试"""
 
@@ -444,9 +442,9 @@ class TestBattleSimulator:
         """测试初始化"""
         board_a, board_b = battle_board
         simulator = BattleSimulator(board_a, board_b, random_seed=42)
-        
+
         simulator.initialize()
-        
+
         assert len(simulator.units_a) == 1
         assert len(simulator.units_b) == 1
         assert simulator.current_time == 0
@@ -456,9 +454,9 @@ class TestBattleSimulator:
         """测试基本战斗模拟"""
         board_a, board_b = battle_board
         simulator = BattleSimulator(board_a, board_b, random_seed=42)
-        
+
         result = simulator.simulate()
-        
+
         assert result is not None
         assert result.winner is not None
         assert result.battle_duration_ms >= 0
@@ -467,23 +465,15 @@ class TestBattleSimulator:
     def test_deterministic_battle(self, battle_board: tuple[Board, Board]):
         """测试确定性战斗（最重要！相同输入必须相同输出）"""
         board_a, board_b = battle_board
-        
+
         # 运行第一次战斗
-        simulator1 = BattleSimulator(
-            copy.deepcopy(board_a), 
-            copy.deepcopy(board_b), 
-            random_seed=42
-        )
+        simulator1 = BattleSimulator(copy.deepcopy(board_a), copy.deepcopy(board_b), random_seed=42)
         result1 = simulator1.simulate()
-        
+
         # 运行第二次战斗（相同输入）
-        simulator2 = BattleSimulator(
-            copy.deepcopy(board_a), 
-            copy.deepcopy(board_b), 
-            random_seed=42
-        )
+        simulator2 = BattleSimulator(copy.deepcopy(board_a), copy.deepcopy(board_b), random_seed=42)
         result2 = simulator2.simulate()
-        
+
         # 结果必须完全相同
         assert result1.winner == result2.winner
         assert result1.loser == result2.loser
@@ -497,22 +487,18 @@ class TestBattleSimulator:
     def test_deterministic_battle_different_seeds(self, battle_board: tuple[Board, Board]):
         """测试不同种子产生不同结果"""
         board_a, board_b = battle_board
-        
+
         results = []
         for seed in [1, 2, 3, 4, 5]:
             simulator = BattleSimulator(
-                copy.deepcopy(board_a),
-                copy.deepcopy(board_b),
-                random_seed=seed
+                copy.deepcopy(board_a), copy.deepcopy(board_b), random_seed=seed
             )
             result = simulator.simulate()
             results.append(result)
-        
+
         # 至少有一些结果应该不同（由于随机初始化顺序）
         # 注意：对于简单战斗，结果可能相同
-        unique_results = set(
-            (r.winner, r.battle_duration_ms) for r in results
-        )
+        unique_results = set((r.winner, r.battle_duration_ms) for r in results)
         # 这个测试可能不总是通过，取决于战斗的复杂性
         # 但至少要确保代码不崩溃
         assert len(results) == 5
@@ -528,7 +514,7 @@ class TestBattleSimulator:
             defense=1000,
         )
         board_a = create_test_board("player_a", [hero_a])
-        
+
         hero_b = create_test_hero(
             instance_id="weak_b",
             name="弱小英雄B",
@@ -537,10 +523,10 @@ class TestBattleSimulator:
             defense=0,
         )
         board_b = create_test_board("player_b", [hero_b])
-        
+
         simulator = BattleSimulator(board_a, board_b, random_seed=42)
         result = simulator.simulate()
-        
+
         assert result.winner == "player_a"
         assert result.loser == "player_b"
         assert len(result.survivors_a) > 0
@@ -556,7 +542,7 @@ class TestBattleSimulator:
             defense=0,
         )
         board_a = create_test_board("player_a", [hero_a])
-        
+
         hero_b = create_test_hero(
             instance_id="strong_b",
             name="强力英雄B",
@@ -565,10 +551,10 @@ class TestBattleSimulator:
             defense=1000,
         )
         board_b = create_test_board("player_b", [hero_b])
-        
+
         simulator = BattleSimulator(board_a, board_b, random_seed=42)
         result = simulator.simulate()
-        
+
         assert result.winner == "player_b"
         assert result.loser == "player_a"
         assert len(result.survivors_b) > 0
@@ -584,7 +570,7 @@ class TestBattleSimulator:
             defense=0,
         )
         board_a = create_test_board("player_a", [hero_a])
-        
+
         hero_b = create_test_hero(
             instance_id="hero_b",
             name="英雄B",
@@ -593,10 +579,10 @@ class TestBattleSimulator:
             defense=0,
         )
         board_b = create_test_board("player_b", [hero_b])
-        
+
         simulator = BattleSimulator(board_a, board_b, random_seed=42)
         result = simulator.simulate()
-        
+
         # 双方都死亡为平局
         if len(result.survivors_a) == 0 and len(result.survivors_b) == 0:
             assert result.winner == "draw"
@@ -612,7 +598,7 @@ class TestBattleSimulator:
             defense=10000,
         )
         board_a = create_test_board("player_a", [hero_a])
-        
+
         hero_b = create_test_hero(
             instance_id="tank_b",
             name="坦克B",
@@ -621,16 +607,16 @@ class TestBattleSimulator:
             defense=10000,
         )
         board_b = create_test_board("player_b", [hero_b])
-        
+
         # 设置较短的超时
         simulator = BattleSimulator(
-            board_a, 
-            board_b, 
+            board_a,
+            board_b,
             random_seed=42,
-            max_time_ms=1000  # 1秒超时
+            max_time_ms=1000,  # 1秒超时
         )
         result = simulator.simulate()
-        
+
         # 战斗应该在超时前结束或超时
         assert result.battle_duration_ms <= 1100  # 允许一些余量
 
@@ -638,10 +624,10 @@ class TestBattleSimulator:
         """测试空棋盘战斗"""
         board_a = Board.create_empty("player_a")
         board_b = Board.create_empty("player_b")
-        
+
         simulator = BattleSimulator(board_a, board_b, random_seed=42)
         result = simulator.simulate()
-        
+
         # 两个空棋盘应该是平局
         assert result.winner == "draw"
 
@@ -650,10 +636,10 @@ class TestBattleSimulator:
         hero_a = create_test_hero("hero_a", "英雄A")
         board_a = create_test_board("player_a", [hero_a])
         board_b = Board.create_empty("player_b")
-        
+
         simulator = BattleSimulator(board_a, board_b, random_seed=42)
         result = simulator.simulate()
-        
+
         assert result.winner == "player_a"
 
     def test_multiple_heroes(self, sample_heroes: list[Hero]):
@@ -661,9 +647,9 @@ class TestBattleSimulator:
         # 给英雄设置位置
         for i, hero in enumerate(sample_heroes[:3]):
             hero.position = Position(x=i, y=0)
-        
+
         board_a = create_test_board("player_a", sample_heroes[:3])
-        
+
         # 创建另一组英雄
         heroes_b = []
         for i, template_id in enumerate(["b1", "b2", "b3"]):
@@ -672,20 +658,20 @@ class TestBattleSimulator:
                 name=f"英雄B{i}",
             )
             heroes_b.append(hero)
-        
+
         board_b = create_test_board("player_b", heroes_b)
-        
+
         simulator = BattleSimulator(board_a, board_b, random_seed=42)
         result = simulator.simulate()
-        
+
         assert result.winner in ["player_a", "player_b", "draw"]
 
     def test_simulate_battle_function(self, battle_board: tuple[Board, Board]):
         """测试便捷函数"""
         board_a, board_b = battle_board
-        
+
         result = simulate_battle(board_a, board_b, random_seed=42)
-        
+
         assert isinstance(result, BattleResult)
         assert result.random_seed == 42
 
@@ -693,6 +679,7 @@ class TestBattleSimulator:
 # ============================================================================
 # 战斗事件测试
 # ============================================================================
+
 
 class TestBattleEvents:
     """战斗事件测试"""
@@ -702,13 +689,10 @@ class TestBattleEvents:
         board_a, board_b = battle_board
         simulator = BattleSimulator(board_a, board_b, random_seed=42)
         result = simulator.simulate()
-        
+
         # 查找伤害事件
-        damage_events = [
-            e for e in result.events 
-            if e.get("type") == "damage"
-        ]
-        
+        damage_events = [e for e in result.events if e.get("type") == "damage"]
+
         # 如果有伤害事件，验证结构
         for event in damage_events:
             assert "time_ms" in event
@@ -723,13 +707,10 @@ class TestBattleEvents:
         board_a, board_b = battle_board
         simulator = BattleSimulator(board_a, board_b, random_seed=42)
         result = simulator.simulate()
-        
+
         # 查找死亡事件
-        death_events = [
-            e for e in result.events 
-            if e.get("type") == "death"
-        ]
-        
+        death_events = [e for e in result.events if e.get("type") == "death"]
+
         # 如果有死亡事件，验证结构
         for event in death_events:
             assert "time_ms" in event
@@ -747,7 +728,7 @@ class TestBattleEvents:
             damage_type=DamageType.MAGICAL,
             target_type="single",
         )
-        
+
         template = HeroTemplate(
             hero_id="skill_hero",
             name="技能英雄",
@@ -760,24 +741,21 @@ class TestBattleEvents:
             attack_speed=1.0,
             skill=skill,
         )
-        
+
         hero_a = Hero.create_from_template(template, "skill_a", star=1)
         hero_a.mana = 100  # 满蓝，可以立即释放技能
-        
+
         board_a = create_test_board("player_a", [hero_a])
-        
+
         hero_b = create_test_hero("target_b", "目标B", hp=1000, defense=0)
         board_b = create_test_board("player_b", [hero_b])
-        
+
         simulator = BattleSimulator(board_a, board_b, random_seed=42)
         result = simulator.simulate()
-        
+
         # 查找技能事件
-        skill_events = [
-            e for e in result.events 
-            if e.get("type") == "skill"
-        ]
-        
+        skill_events = [e for e in result.events if e.get("type") == "skill"]
+
         # 如果有技能事件，验证结构
         for event in skill_events:
             assert "time_ms" in event
@@ -790,7 +768,7 @@ class TestBattleEvents:
         board_a, board_b = battle_board
         simulator = BattleSimulator(board_a, board_b, random_seed=42)
         result = simulator.simulate()
-        
+
         # 事件应该按时间顺序
         prev_time = -1
         for event in result.events:
@@ -802,6 +780,7 @@ class TestBattleEvents:
 # ============================================================================
 # 辅助函数测试
 # ============================================================================
+
 
 class TestHelperFunctions:
     """辅助函数测试"""
@@ -815,7 +794,7 @@ class TestHelperFunctions:
         assert _integer_sqrt(9) == 3
         assert _integer_sqrt(16) == 4
         assert _integer_sqrt(25) == 5
-        
+
         # 非完全平方数（向下取整）
         assert _integer_sqrt(2) == 1
         assert _integer_sqrt(3) == 1
@@ -834,7 +813,7 @@ class TestHelperFunctions:
             mana_cost=40,
             skill_damage=80,
         )
-        
+
         assert hero.instance_id == "test_001"
         assert hero.name == "测试英雄"
         assert hero.max_hp == 500
@@ -846,13 +825,10 @@ class TestHelperFunctions:
 
     def test_create_test_board(self):
         """测试创建测试棋盘"""
-        heroes = [
-            create_test_hero(f"hero_{i}", f"英雄{i}")
-            for i in range(3)
-        ]
-        
+        heroes = [create_test_hero(f"hero_{i}", f"英雄{i}") for i in range(3)]
+
         board = create_test_board("test_owner", heroes)
-        
+
         assert board.owner_id == "test_owner"
         assert board.get_hero_count(alive_only=False) == 3
 
@@ -861,6 +837,7 @@ class TestHelperFunctions:
 # 边界条件测试
 # ============================================================================
 
+
 class TestBoundaryConditions:
     """边界条件测试"""
 
@@ -868,29 +845,29 @@ class TestBoundaryConditions:
         """测试零伤害"""
         unit = BattleUnit(hero=sample_hero, team=0)
         initial_hp = unit.current_hp
-        
+
         actual_damage = unit.take_damage(0, DamageType.TRUE, current_time=0)
-        
+
         assert actual_damage == 0
         assert unit.current_hp == initial_hp
 
     def test_very_high_damage(self, sample_hero: Hero):
         """测试超高伤害"""
         unit = BattleUnit(hero=sample_hero, team=0)
-        
+
         actual_damage = unit.take_damage(1000000, DamageType.TRUE, current_time=0)
-        
+
         assert unit.current_hp == 0
         assert unit.state == HeroState.DEAD
 
     def test_negative_values(self, sample_hero: Hero):
         """测试负值处理"""
         unit = BattleUnit(hero=sample_hero, team=0)
-        
+
         # 负蓝量（不应该发生，但测试健壮性）
         unit.current_mana = -10
         assert unit.current_mana == -10
-        
+
         # 消耗负蓝量
         result = unit.use_mana(-10)
         assert result is True  # 负消耗实际上是增加
@@ -898,7 +875,7 @@ class TestBoundaryConditions:
     def test_max_values(self, sample_hero: Hero):
         """测试最大值"""
         unit = BattleUnit(hero=sample_hero, team=0)
-        
+
         # 最大蓝量
         unit.gain_mana(MAX_MANA * 2)
         assert unit.current_mana == MAX_MANA
@@ -919,7 +896,7 @@ class TestBoundaryConditions:
         )
         hero = Hero.create_from_template(template, "test", star=1)
         unit = BattleUnit(hero=hero, team=0)
-        
+
         assert unit.hero.skill is None
         assert unit.can_cast_skill() is False
 
@@ -939,6 +916,6 @@ class TestBoundaryConditions:
         )
         hero = Hero.create_from_template(template, "test", star=1)
         unit = BattleUnit(hero=hero, team=0)
-        
+
         # 零攻速应该被处理为默认值
         assert unit.attack_speed == 1000 * FIXED_POINT_PRECISION
