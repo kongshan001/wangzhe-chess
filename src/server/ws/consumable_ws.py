@@ -203,7 +203,7 @@ class ConsumableWSHandler:
     async def handle_use_consumable(
         self,
         session: Session,
-        message: UseConsumableMessage,
+        message: UseConsumableMessage,  # noqa: F821
     ) -> BaseMessage | None:
         """
         处理使用道具请求
