@@ -10,7 +10,7 @@ def register_all_handlers() -> None:
     注册所有 WebSocket 消息处理器
     注意: 此函数需要在 ws_handler 创建后调用
     """
-    from src.server.ws.handler import ws_handler
+    from src.server.ws.handler import ws_handler  # noqa: F401
 
     registered = []
     failed = []

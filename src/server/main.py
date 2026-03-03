@@ -89,8 +89,8 @@ async def health_check() -> dict:
 # WebSocket 路由
 # ============================================================================
 
-from src.server.ws.handler import ws_handler
-from src.shared.protocol import MessageType
+from src.server.ws.handler import ws_handler  # noqa: E402
+from src.shared.protocol import MessageType  # noqa: E402
 
 
 def register_handlers():

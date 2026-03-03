@@ -1035,7 +1035,7 @@ class CustomRoomWSHandler:
 
 
 # 导入 asyncio（用于回调中的异步任务）
-import asyncio
+import asyncio  # noqa: E402
 
 # 全局处理器实例
 custom_room_ws_handler = CustomRoomWSHandler()

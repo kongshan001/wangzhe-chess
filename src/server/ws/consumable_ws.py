@@ -33,6 +33,7 @@ from ...shared.protocol import (
     MessageType,
     PlayerConsumableData,
     PlayerConsumablesListMessage,
+    UseConsumableMessage,
 )
 from ..consumable import (
     ConsumableManager,

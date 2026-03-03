@@ -26,6 +26,7 @@ try:
 except ImportError:
     HAS_NUMPY = False
 
+from server.game.hero_pool import HeroConfigLoader
 from shared.constants import (
     HERO_POOL_COUNTS,
     MAX_HERO_COST,
@@ -51,7 +52,7 @@ class OptimizedSharedHeroPool:
     - 批量抽取: ~10x 提升
     """
 
-    def __init__(self, config_loader: HeroConfigLoader, seed: int | None = None) -> None:
+    def __init__(self, config_loader: HeroConfigLoader, seed: int | None = None) -> None:  # noqa: F821
         """
         初始化优化的英雄池
 

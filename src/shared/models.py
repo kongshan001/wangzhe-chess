@@ -1117,7 +1117,7 @@ class Synergy:
         return {
             "name": self.name,
             "synergy_type": self.synergy_type.value,
-            "levels": [level.to_dict() for l in self.levels],
+            "levels": [lvl.to_dict() for lvl in self.levels],
             "description": self.description,
         }
 
@@ -1125,7 +1125,7 @@ class Synergy:
     def from_dict(cls, data: dict[str, Any]) -> Synergy:
         """从字典反序列化"""
         levels_data = data.get("levels", [])
-        levels = [SynergyLevel.from_dict(level) for l in levels_data]
+        levels = [SynergyLevel.from_dict(lvl) for lvl in levels_data]
 
         return cls(
             name=data["name"],

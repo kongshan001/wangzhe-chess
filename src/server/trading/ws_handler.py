@@ -441,7 +441,7 @@ class TradingWSHandler:
 # 交易相关消息类定义
 # ============================================================================
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field  # noqa: E402
 
 
 class TradeItemData(BaseModel):
