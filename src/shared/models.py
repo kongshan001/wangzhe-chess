@@ -200,7 +200,7 @@ class HeroTemplate:
             "base_attack": self.base_attack,
             "base_defense": self.base_defense,
             "attack_speed": self.attack_speed,
-            "skill": self.skillevel.to_dict() if self.skill else None,
+            "skill": self.skill.to_dict() if self.skill else None,
         }
 
     @classmethod
@@ -442,7 +442,7 @@ class Hero:
             "attack": self.attack,
             "defense": self.defense,
             "attack_speed": self.attack_speed,
-            "skill": self.skillevel.to_dict() if self.skill else None,
+            "skill": self.skill.to_dict() if self.skill else None,
             "position": self.position.to_dict() if self.position else None,
             "mana": self.mana,
             "state": self.state.value,
